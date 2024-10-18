@@ -413,7 +413,7 @@ class DustGrowthTwoPop(DustyDisc):
 
         # Size and total gas fraction
         a = self._a[1]        
-        eps_tot = self.dust_frac.sum(0)
+        eps_tot = self.dust_frac[0] + self.dust_frac[1]
                 
         afrag_t = self._frag_limit()
         adrift, afrag_d =  self._drift_limit(eps_tot)
@@ -598,8 +598,11 @@ class PlanetesimalFormation(object):
             is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
             disc._is_critical = is_critical
             disc._M_cr = M_cr
+
+            # print('M_peb: ', disc._M_peb)
+            # print('M_cr: ', disc._M_cr)
             
-            return is_critical, M_cr
+            return is_critical
     
     def update(self, dt, disc, drift):
         """Do the standard disc update, and update planetesimals"""
@@ -900,7 +903,17 @@ class SingleFluidDrift(object):
                 
                 disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
             except:
-                disc._v_drift = self.radial_drift_velocity (disc)
+                pass
+        else:
+            # drift velocity
+            v_drift = self.radial_drift_velocity(disc, v_visc)
+            v_drift_0 = np.insert(v_drift[0], 0, 0)
+            v_drift_1 = np.insert(v_drift[1], 0, 0)
+            
+            v_drift_0[np.isnan(v_drift_0)] = 0
+            v_drift_1[np.isnan(v_drift_1)] = 0
+        
+            disc._v_drift = np.array([v_drift_0, v_drift_1])
         
         # Update the dust fraction
         disc.dust_frac[:] += dt * fluxes
