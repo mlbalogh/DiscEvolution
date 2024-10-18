@@ -10,7 +10,7 @@
 from __future__ import print_function
 import numpy as np
 
-from DiscEvolution.constants import *
+from constants import *
 
 class Planet(object):
     """A simple planet model with a gap profile based on Duffel (2019)

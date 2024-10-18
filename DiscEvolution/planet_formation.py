@@ -3,8 +3,8 @@ import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline as ispline
 from scipy.interpolate import UnivariateSpline as spline
 from scipy.integrate import ode
-from .constants import *
-from .disc_utils import make_ASCII_header
+from constants import *
+from disc_utils import make_ASCII_header
 
 ################################################################################
 # Planet collections class

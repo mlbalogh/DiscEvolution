@@ -7,7 +7,7 @@
 ################################################################################
 import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline
-from .constants import Msun, Rsun, AU
+from constants import Msun, Rsun, AU
 
 # Base class for all stars, implements general properties that should be
 # common to all stars

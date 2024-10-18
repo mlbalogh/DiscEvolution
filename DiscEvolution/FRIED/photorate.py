@@ -2,7 +2,7 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy import interpolate
-import DiscEvolution.constants as cst
+import constants as cst
 import matplotlib.colors as colors
 import argparse
 

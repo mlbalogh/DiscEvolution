@@ -8,9 +8,9 @@
 from __future__ import print_function
 import numpy as np
 import os
-from .photoevaporation import FixedExternalEvaporation
-from .constants import yr
-from . import io
+from photoevaporation import FixedExternalEvaporation
+from constants import yr
+import io
 
 class DiscEvolutionDriver(object):
     """Driver class for full evolution model.

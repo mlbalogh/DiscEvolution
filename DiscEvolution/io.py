@@ -12,8 +12,8 @@ import numpy as np
 import re
 import os
 
-from . import constants
-from .chemistry import create_abundances, MolecularIceAbund
+import constants
+from chemistry import create_abundances, MolecularIceAbund
 
 __all__ = [ "Event_Controller", "dump_ASCII", "dump_hdf5", "DiscReader" ]
 ###############################################################################

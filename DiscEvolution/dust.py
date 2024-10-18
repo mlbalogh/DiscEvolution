@@ -7,9 +7,9 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-from .constants import *
-from .disc import AccretionDisc
-from .reconstruction import DonorCell, VanLeer
+from constants import *
+from disc import AccretionDisc
+from reconstruction import DonorCell, VanLeer
 
 class DustyDisc(AccretionDisc):
     """Dusty accretion disc. Base class for an accretion disc that also
@@ -24,9 +24,11 @@ class DustyDisc(AccretionDisc):
         Sc       : Schmidt number, default=1
         feedback : When False, the dust mass is considered to be a negligible
                    fraction of the total mass.
+        grain_size : Grain size in cm (vector of dust population grain sizes)
+            - for Planetesimals, grain size should be initialized to [0,0,100km]
     """
     def __init__(self, grid, star, eos, Sigma=None, rho_s=1., Sc=1.,
-                 feedback=True):
+                 feedback=True, grain_size=None):
 
         super(DustyDisc, self).__init__(grid, star, eos, Sigma)
 
@@ -35,15 +37,26 @@ class DustyDisc(AccretionDisc):
 
         self._Sc = Sc
         self._feedback = feedback
+        if grain_size is not None:
+            self._a = grain_size
 
     def Stokes(self, Sigma=None, size=None):
-        """Stokes number of the particle"""
+        """Calculates the Stokes number of the particle.
+        Parameters:
+        - Sigma (float): The surface density of the particle. If not provided, it defaults to self.Sigma_G.
+        - size (float): The size of the particle. If not provided, it defaults to self.grain_size.
+        Returns:
+        - Tuple: The calculated Stokes number of small (index 0) and large (index 1) particles.
+        """
         if size is None:
             size = self.grain_size
         if Sigma is None:
             Sigma = self.Sigma_G
             
-        return self._Kdrag * size / (Sigma + 1e-300)
+        St = self._Kdrag * size / (Sigma + 1e-300)
+        St[St < 0] = 1e-300
+        
+        return St
 
     def mass(self):
         """Grain mass"""
@@ -89,6 +102,13 @@ class DustyDisc(AccretionDisc):
 
     @property
     def Sigma_D(self):
+        """
+        Dust surface density
+        
+        Sigma_D = Sigma_0 (small grains) + Sigma_1 (large grains) + Sigma_2 (planetesimals)
+        """
+        #print('Sigma ',type(self.Sigma))
+        #print('Dust_frac ', type(self.dust_frac))
         return self.Sigma * self.dust_frac
     
     @property
@@ -108,6 +128,48 @@ class DustyDisc(AccretionDisc):
         eta = 1 - 1. / (2 + 1./St)
 
         return self.H * np.sqrt(eta * a / (a + St))
+    
+    @property
+    def pla_eff(self):
+        return self._pla_eff
+    
+    @property
+    def d(self):
+        return self._d
+    
+    @property
+    def St_min(self):
+        return self._St_min
+    
+    @property
+    def St_max(self):
+        return self._St_max
+    
+    @property
+    def M_planestesimal(self):
+        return self._M_planesetimal
+    
+    @property
+    def M_peb(self):
+        # Compute the mass flux of pebbles for planetesimal formation
+        return self._M_peb
+    
+    @property
+    def is_critical(self):
+        # Check if the flux is critical for planetesimal formation
+        return self._is_critical
+    
+    @property
+    def v_drift(self):
+        try:
+            return self._v_drift
+        except:
+            return np.zeros((2, len(self.Sigma)))
+    
+    @property
+    def M_cr(self):
+        # Return the critical mass for planetesimal formation
+        return self._M_cr
 
     """Methods to determine global properties of a dust disc"""
     def Rdust(self, thresholds=[0.68]):
@@ -136,8 +198,10 @@ class DustyDisc(AccretionDisc):
 
         new_age = self._star.age + dt/(2*np.pi)
         self._star.evolve(new_age)
+        # self._eos.update(dt, self.Sigma,
+        #                 amax=self.grain_size[-1], star=self._star)
         self._eos.update(dt, self.Sigma,
-                         amax=self.grain_size[-1], star=self._star)
+                         amax=self.grain_size[1], star=self._star)
     
     def update_ices(self, chem):
         """Update ice fractions"""
@@ -201,6 +265,8 @@ class DustGrowthTwoPop(DustyDisc):
 
     Any dust tracers are assumed to have the same mass distribution as the dust
     particles themselves.
+    
+    self._a[0] is the monomer size, self._a[1] is the largest size.
 
     args:
         grid      : Disc gridding object
@@ -246,8 +312,11 @@ class DustGrowthTwoPop(DustyDisc):
         self._fm    = np.zeros(Ncells, dtype='f8')
         self._a0    = 0 # Force well-coupled limit
         self._eps   = np.empty([2, Ncells], dtype='f8')
-        self._a     = np.empty([2, Ncells], dtype='f8')
-        self._eps[0] = eps
+        try:
+            self._a
+        except:
+            self._a     = np.empty([2, Ncells], dtype='f8')
+        self._eps[0] = eps # start with all dust in small grains
         self._eps[1] = 0
         self._a[0]   = amin
         self._a[1]   = a0
@@ -404,6 +473,141 @@ class DustGrowthTwoPop(DustyDisc):
         """Do the standard disc update, and apply grain growth"""
         super(DustGrowthTwoPop, self).update(dt)
         self.do_grain_growth(dt)
+        
+# Planetesimal formation and accretion classes
+#
+# Author: P. Jiang
+# Date : Oct. 17, 2024
+################################################################################
+class PlanetesimalFormation(object):
+    """
+    Class representing the formation of planetesimals in a protoplanetary disc.
+
+    Parameters:
+    - grid: Grid object representing the computational grid.
+    - star: Star object representing the central star.
+    - eos: Equation of state object.
+    - Sigma: Surface density of the disc.
+    - H: Scale height of the disc.
+    - rhos: Material density of the planetesimals (g/cm^3).
+    - Rs: Radius of the planetesimals (km).
+    - St_min: Minimum Stokes number for pebbles.
+    - St_max: Maximum Stokes number for pebbles.
+    - eta: Lifetime of the trap.
+    """
+
+    def __init__(self, disc, d_planetesimal=100, St_min=0.001, St_max=10.0, trap_lifetime=100, pla_eff=0.1):
+        """
+        Initialize a DustyDisc object.
+
+        Parameters:
+        - grid (Grid): The grid object representing the computational domain.
+        - star (Star): The star object representing the central star.
+        - eos (EOS): The equation of state object.
+        - Sigma (ndarray): The surface density profile of the disc.
+        - R_planetesimal (float): The radius of the planetesimal (km).
+        - H (ndarray): The scale height profile of the disc.
+        - rhos (float): The material density of the planetesimal (g/cm^3).
+        - St_min (float): The minimum Stokes number.
+        - St_max (float): The maximum Stokes number.
+        - trap_lifetime (float): The lifetime of the trap in terms of number of local orbits.
+
+        Returns:
+        None
+        """
+        self._rhos = disc._rho_s
+        self._R_planetesimal = ((d_planetesimal/2) * 1e5) / AU # convert to AU
+        self._H = disc.H
+        self._St_min = St_min
+        self._St_max = St_max
+        self._compute_planetesimal_mass(disc)
+        
+        self._t = 1 / disc.Omega_k
+        self._trap_lifetime = trap_lifetime * self._t
+        
+        self._pla_eff = pla_eff
+        self._d = 5. * self._H
+        
+        disc._eps = np.vstack((disc._eps, disc._eps[0]*0))
+        disc._a = np.vstack((disc._a, disc._a[0]*0))
+
+        disc._St_min = St_min
+        disc._St_max = St_max
+        disc._d = 5. * self._H
+        disc._pla_eff = pla_eff
+        disc._v_drift = np.zeros((2, len(disc.Sigma)))
+    
+    def _compute_planetesimal_mass(self, disc):
+        """Compute the mass of a planetesimal with a diameter of 100 km.
+
+        Returns:
+            float: The mass of the planetesimal in grams.
+        """
+        disc._M_planetesimal = 4/3 * np.pi * (self._R_planetesimal ** 3) * self._rhos
+    
+    def compute_M_peb(self, v_drift, disc):
+        """
+        Compute the mass flux of pebbles.
+
+        Parameters:
+        - v_drift: numpy array, the drift velocity of pebbles
+
+        Returns:
+        - M_peb: float, the mass flux of pebbles
+        """
+        Sigma_d = disc.Sigma_D
+        self._pla_size = len(Sigma_d)-1
+        disc._M_peb = []
+        
+        St = disc.Stokes()
+        St_0 = St[0]    # Small grains
+        St_1 = St[1]    # Large grains
+        
+        v_drift_0 = np.insert(v_drift[0], 0, 0)
+        v_drift_1 = np.insert(v_drift[1], 0, 0)
+        #v_drift_0 = v_drift[0]
+        #v_drift_1 = v_drift[1]
+        
+        v_drift_0[np.isnan(v_drift_0)] = 0
+        v_drift_1[np.isnan(v_drift_1)] = 0
+        
+        # Heaviside functions
+        theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.)
+        theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
+        theta_St_min_1 = np.heaviside(St_1 - disc.St_min, 1.)
+        theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
+
+        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_0) * Sigma_d[0]) * theta_St_max_0 * theta_St_min_0)
+        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_1) * Sigma_d[1]) * theta_St_max_1 * theta_St_min_1)
+        disc._M_peb = np.array(disc._M_peb)
+        
+        disc._v_drift = np.array([v_drift_0, v_drift_1])
+
+    def is_flux_critical(self, disc):
+            """
+            Check if the flux is critical for planetesimal formation.
+
+            Parameters:
+            - pla_eff (float): The efficiency factor.
+
+            Returns:
+            - Tuple[bool, float]: A tuple containing a boolean value indicating whether the flux is critical,
+                and the critical mass (M_cr) for planetesimal formation.
+            """
+            M_cr = disc._M_planetesimal / (self._pla_eff * self._trap_lifetime)
+            is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
+            disc._is_critical = is_critical
+            disc._M_cr = M_cr
+            
+            return is_critical, M_cr
+    
+    def update(self, dt, disc, drift):
+        """Do the standard disc update, and update planetesimals"""
+        v_drift = drift.radial_drift_velocity(disc)
+        
+        self._compute_planetesimal_mass(disc)
+        self.compute_M_peb(v_drift, disc)
+        self.is_flux_critical(disc)
 
 ################################################################################
 # Radial drift
@@ -431,10 +635,11 @@ class SingleFluidDrift(object):
         settling  : Include settling in the velocity calculation, default=False
         van_leer  : Use 2nd-order Van-Leer reconstruction, default=False
     """
-    def __init__(self, diffusion=None, settling=False, van_leer=False):
+    def __init__(self, diffusion=None, settling=False, van_leer=False, planetesimal=False):
         self._diffuse = diffusion
         self._settling = settling
         self._van_leer = van_leer
+        self._planetesimal = planetesimal
 
     def ASCII_header(self):
         """Radial drift header"""
@@ -540,14 +745,23 @@ class SingleFluidDrift(object):
                 Sc = disc.Sc
             except ValueError:
                 Sc = self._diffuse.Sc
+
             Sc = Sc * (0.5625/(1 + 4*St2) + 0.4375 + 0.25*St2)
             depsdiff = self._diffuse(disc, eps_i, Sc)
             deps += depsdiff
 
         return deps
 
-    def _compute_deltaV(self, disc, v_visc=None):
-        """Compute the total dust-gas background velocity"""
+    def _compute_deltaV(self, disc, v_visc=None, average=True):
+        """Compute the total dust-gas background velocity
+        Args:
+            disc (Disc): The disc object containing the necessary parameters.
+            v_visc (float, optional): The viscosity velocity. Defaults to None.
+        Returns:
+            numpy.ndarray: The total dust-gas background velocity.
+        Raises:
+            None
+        """
 
         Sigma  = disc.Sigma
         SigmaD = disc.Sigma_D
@@ -607,8 +821,8 @@ class SingleFluidDrift(object):
         eta = - dPdr / (0.5*(rho[1:] + rho[:-1] + 1e-300)*Om_kav)
 
         D_1 = 1 / ((1 + la0)**2 + la1**2)
-        u_gas =            la1  * eta * D_1
-        v_gas = - 0.5*(1 + la0) * eta * D_1
+        u_gas =            la1  * eta * D_1 # radial velocity
+        v_gas = - 0.5*(1 + la0) * eta * D_1 # azimuthal velocity
 
         # Compute the gas velocities due to viscosity per Dipierro+18 (with feedback):
         if v_visc is not None:
@@ -617,7 +831,7 @@ class SingleFluidDrift(object):
 
         # Dust-gas relative velocities:
         DeltaV = (2*v_gas / (St_av + St_av**-1) 
-                  - u_gas / (1     + St_av**-2))
+                - u_gas / (1     + St_av**-2))
 
         # epsDeltaV = v_COM - v_gas (= 0 if dust mass is neglected)
         if disc.feedback:
@@ -627,33 +841,83 @@ class SingleFluidDrift(object):
 
         # Store the azimuthal velocity.
         self._DeltaVphi =  (-0.5*u_gas / (St_av + St_av**-1) 
-                               + v_gas / (1     + St_av** 2))
+                            + v_gas / (1     + St_av** 2))
 
         return DeltaV
+        
+    
+    def _compute_sink_term(self, disc, pla_eff, d, M_peb, M_cr):
+        """
+        Compute the sink term for dust particles in the disc.
+        Parameters:
+        - disc: The disc object containing relevant properties.
+        - pla_eff: The planetesimal efficiency.
+        - d: The particle size.
+        - M_peb: The pebble mass flux.
+        Returns:
+        - sink_term_0: The sink term for small grains.
+        - sink_term_1: The sink term for large grains.
+        """
+        Sigma = disc.Sigma
+        
+        # Sink term
+        sink_term_0 = (pla_eff / d) * M_peb[0] / (2 * np.pi * disc.R) * disc.is_critical[0]
+        sink_term_1 = (pla_eff / d) * M_peb[1] / (2 * np.pi * disc.R) * disc.is_critical[1]
 
+        # Convert to dust fraction when returning
+        return sink_term_0 / Sigma, sink_term_1 / Sigma
+    
     def __call__(self, dt, disc, gas_tracers=None, dust_tracers=None, v_visc=None):
         """Apply the update for radial drift over time-step dt"""
         eps = disc.dust_frac
-        a   = disc.grain_size
+        a = disc.grain_size
         eps_inv = 1. / (eps.sum(0) + np.finfo(eps.dtype).tiny)
 
-        # Compute the dust-gas relative velocity
         DeltaV = self._compute_deltaV(disc, v_visc=v_visc)
         
-        # Compute and apply the fluxes
         if gas_tracers is not None:
             gas_tracers[:] += dt * self._fluxes(disc, gas_tracers, np.zeros(disc.Ncells-1), 0, dt)
 
         if dust_tracers is not None:
-            t_k = dust_tracers[...,None,:] * eps/(eps.sum(0) + np.finfo(eps.dtype).tiny)
-            d_tr = dt*self._fluxes(disc, t_k, DeltaV, disc.Stokes(), dt).sum(1)
+            t_k = dust_tracers[..., None, :] * eps / (eps.sum(0) + np.finfo(eps.dtype).tiny)
+            d_tr = dt * self._fluxes(disc, t_k, DeltaV, disc.Stokes(), dt).sum(1)
             dust_tracers[:] += d_tr
 
-        disc.dust_frac[:] += dt*self._fluxes(disc, disc.dust_frac, DeltaV, disc.Stokes(), dt)
+        # Compute the fluxes for dust fraction
+        fluxes = self._fluxes(disc, disc.dust_frac, DeltaV, disc.Stokes(), dt)
+        
+        # Update the dust fraction with the sink term included
+        if self._planetesimal:
+            # Note that this is under the assumption that the dust population is modelled under Birnstiel et al. (2012) two-population
+            try:
+                L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_peb, disc.M_cr)
+                
+                disc.dust_frac[0] -= L0 * dt
+                disc.dust_frac[1] -= L1 * dt
+                
+                disc.dust_frac[2] += L0 * dt
+                disc.dust_frac[2] += L1 * dt
+                
+                disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
+            except:
+                disc._v_drift = self.radial_drift_velocity (disc)
+        
+        # Update the dust fraction
+        disc.dust_frac[:] += dt * fluxes
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
-        """Compute the radial drift velocity for the disc and optionally the
-        azimuthal velocity"""
+        """
+        Compute the radial drift velocity for the disc and optionally the azimuthal velocity
+        Parameters:
+        - disc: The disc object for which to compute the radial drift velocity.
+        - v_visc: The viscosity velocity. If not provided, it defaults to None.
+        - ret_vphi: A boolean indicating whether to return the azimuthal velocity. 
+          If True, the function returns the radial drift velocity and the azimuthal velocity.
+          If False, the function returns only the radial drift velocity.
+        Returns:
+        - If ret_vphi is True, returns a tuple containing the radial drift velocity and the azimuthal velocity.
+        - If ret_vphi is False, returns only the radial drift velocity.
+        """
         DeltaV = self._compute_deltaV(disc, v_visc)
         
         if ret_vphi:
@@ -661,84 +925,81 @@ class SingleFluidDrift(object):
         else:
             return DeltaV - self._epsDeltaV
     
+    def drift_velocity(self, disc):
+        """Compute the drift velocity of the dust particles"""
+        
+        # Extract necessary parameters from the disc object
+        r = disc.R  # radial distance
+        cs = disc.cs  # sound speed
+        hg = disc.H  # gas scale height
+        rho_g = disc.midplane_gas_density  # gas density
+        P = cs*cs*rho_g # gas pressure
+        St = disc.Stokes()  # Stokes number
+        
+        # Calculate pressure gradient
+        dP_dr = np.gradient(P, r)
+        dlnP_dlnr = r / P * dP_dr
+        
+        # assert np.all(r >= 0), "r contains negative values"
+        # assert np.all(cs >= 0), "cs contains negative values"
+        # assert np.all(hg >= 0), "hg contains negative values"
+        # assert np.all(rho_g >= 0), "rho_g contains negative values"
+        # assert np.all(P >= 0), "P contains negative values"
+        # assert np.all(St >= 0), "St contains negative values"
+        # assert np.all(dP_dr >= 0), "dP_dr contains negative values"
+        
+        # Calculate drift velocity
+        v_drift = (St / (St**2 + 1)) * (hg / r) * dlnP_dlnr * cs
+        
+        return v_drift
+        
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from .grid import Grid
-    from .eos import LocallyIsothermalEOS
-    from .star import SimpleStar
-    
+    from grid import Grid
+    from star import SimpleStar
+    from eos import LocallyIsothermalEOS
+    import numpy as np
+
+    # Set up the disc
     Mdot = 1e-8
     alpha = 1e-3
 
-    Mdot *= Msun / (2*np.pi)
+    Mdot *= Msun / (2*np.pi) # solar mass per year
     Mdot /= AU**2
-    Rd = 100.
+    Rd = 100. # au 
 
-    grid = Grid(0.1, 1000, 1000, spacing='log')
+    grid = Grid(0.05, 1000, 1000, "natural")
     star = SimpleStar()
     eos = LocallyIsothermalEOS(star, 1/30., -0.25, alpha)
     eos.set_grid(grid)
     Sigma =  (Mdot / (3 * np.pi * eos.nu))*np.exp(-grid.Rc/Rd)
-    
-    settling = True
-    
-    T0 = (2*np.pi)
 
     d2g = 0.01
-    dust     = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
-    dust_ice = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
-    ices = {'H2O' : 0.9*d2g*(eos.T < 150), 'grains' : 0.1*d2g}
-
-    class ices(dict):
-        def __init__(self, init=None):
-            if init is None: init = {}
-            dict.__init__(self, init)
-
-
-    I = np.ones_like(eos.T)
-    ices = ices({'H2O' : 0.9*d2g*(eos.T < 150), 'grains' : 0.1*d2g*I})
-    ices.total_abund = np.atleast_2d([ices[x] for x in ices]).sum(0)
-    dust_ice.update_ices(ices)
-
-    # Integrate the dust sizes at fixed radial location:
-    times = np.array([0, 1e2, 1e3, 1e4, 1e5, 1e6, 3e6]) * T0
-
-    t = 0
-    for ti in times:
-        dust.do_grain_growth(ti-t)
-        dust_ice.do_grain_growth(ti-t)
-        t = ti
-        Sigma = dust.Sigma
-        plt.subplot(211)
-        l, = plt.loglog(grid.Rc, dust.Stokes(Sigma)[1])
-        l, = plt.loglog(grid.Rc, dust_ice.Stokes(Sigma)[1],'--',c=l.get_color())
-        plt.subplot(212)
-        l, = plt.loglog(grid.Rc, dust.grain_size[1])
-        l, = plt.loglog(grid.Rc, dust_ice.grain_size[1], '--', c=l.get_color())
-
-    plt.subplot(211)
-    plt.xlabel('$R\,[\mathrm{au}]$')
-    plt.ylabel('Stokes number')
-
-    plt.subplot(212)
-    plt.loglog(grid.Rc, dust.a_BT(), 'k:')
-    plt.xlabel('$R\,[\mathrm{au}]$')
-    plt.ylabel('$a\,[\mathrm{cm}]$')
-    # Test the radial drift code
-    plt.figure()
-    dust = FixedSizeDust(grid, star, eos, 0.01, [0.01, 0.1], Sigma=Sigma)
-    drift = SingleFluidDrift(settling=settling)
+    settling=False
+    dust = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
+    drift = SingleFluidDrift(settling=settling, planetesimal=True)
+    planetesimal = PlanetesimalFormation(dust)
       
-    times = np.array([0, 1e2, 1e3, 1e4, 1e5, 1e6, 3e6]) * 2*np.pi
+    times = np.array([0, 1e2, 1e3, 1e4]) * 2*np.pi
     
     t = 0
     n = 0
+    
+    # Prepare plots
+    fig, axes = plt.subplots(1, 3, figsize=(18, 6)) 
+    axes[1].plot(grid.Rc, 0*grid.Rc, '-', color='black',label="Gas")
+    axes[1].plot(grid.Rc, 0*grid.Rc, linestyle="dotted", color='black',label="Small dust")
+    axes[1].plot(grid.Rc, 0*grid.Rc, linestyle="dashed", color='black',label="Large dust")
+    
     for ti in times:
         while t < ti:
             dt = 0.5*drift.max_timestep(dust)
-            dti = min(ti-t, dt)
 
+            dust.update(dt)
+            planetesimal.update(dt, dust, drift)
             drift(dt, dust)
+            
             t = np.minimum(t + dt, ti)
             n += 1
 
@@ -749,15 +1010,39 @@ if __name__ == "__main__":
 
         print('Nstep: {}'.format(n))
         print('Time: {} yr'.format(t / (2 * np.pi)))
-        l, = plt.loglog(grid.Rc, dust.Sigma_D[1])
-        plt.loglog(grid.Rc, dust.Sigma_D[0], '-.', c=l.get_color())
+
+        # Plot for each timestep
+        l, = axes[0].loglog(grid.Rc, dust.Sigma_D[2], label='t = {} yrs'.format(t / (2 * np.pi)))
+        
+        axes[2].plot(grid.Rc, 0*grid.Rc, label='t = {:.1f} yrs'.format(t / (2 * np.pi)), color=l.get_color())
+        axes[2].loglog(grid.Rc, dust.v_drift[0], linestyle="dotted", color=l.get_color())
+        axes[2].loglog(grid.Rc, dust.v_drift[1], linestyle='dashed', color=l.get_color())
+        
+        axes[1].loglog(grid.Rc, dust.Sigma_D[0], linestyle="dotted", color=l.get_color())
+        axes[1].loglog(grid.Rc, dust.Sigma_D[1], linestyle='dashed', color=l.get_color())
+        axes[1].loglog(grid.Rc, dust.Sigma_G, '-', label='t = {} yrs'.format(np.round(t / (2 * np.pi))), color=l.get_color())
+        
         
 
-    plt.loglog(grid.Rc, dust.Sigma_G, 'k:')
-    plt.loglog(grid.Rc, dust.Sigma, 'k--')
-    
-    plt.xlabel('$R\,[\mathrm{au}]$')
-    plt.ylabel('$\Sigma_{\mathrm{D,G}}$')
-    plt.ylim(ymin=1e-10)
+    # Finalize plots
+    axes[0].set_xlabel('$R\,[\mathrm{au}]$')
+    axes[0].set_ylabel('$\Sigma_{\mathrm{Planetesimal}}$')
+    axes[0].set_ylim(ymin=1e-10)
+    axes[0].set_title('Planetesimal Surface Density')
+    axes[0].legend()
+
+    axes[1].set_xlabel('$R\,[\mathrm{au}]$')
+    axes[1].set_ylabel('$\Sigma_{\mathrm{Dust}}$')
+    axes[1].set_ylim(ymin=1e-10)
+    axes[1].set_title('Dust Surface Density')
+    axes[1].legend()
+
+    axes[2].set_xlabel('$R\,[\mathrm{au}]$')
+    axes[2].set_ylabel('Pebble Flux')
+    axes[2].set_ylim(ymin=1e-10)
+    axes[2].set_title('Pebble Flux')
+    axes[2].legend()
+
+    plt.tight_layout()
     plt.show()
     
