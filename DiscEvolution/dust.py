@@ -598,17 +598,12 @@ class PlanetesimalFormation(object):
             is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
             disc._is_critical = is_critical
             disc._M_cr = M_cr
-
-            # print('M_peb: ', disc._M_peb)
-            # print('M_cr: ', disc._M_cr)
             
             return is_critical
     
     def update(self, dt, disc, drift):
         """Do the standard disc update, and update planetesimals"""
         v_drift = drift.radial_drift_velocity(disc)
-        
-        self._compute_planetesimal_mass(disc)
         self.compute_M_peb(v_drift, disc)
         self.is_flux_critical(disc)
 
