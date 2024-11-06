@@ -573,9 +573,14 @@ class PlanetesimalFormation(object):
         
         # Heaviside functions
         theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.)
-        theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
         theta_St_min_1 = np.heaviside(St_1 - disc.St_min, 1.)
-        theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
+
+        if disc.St_max is None:
+            theta_St_max_0 = 1
+            theta_St_max_1 = 1
+        else:
+            theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
+            theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
 
         disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_0) * Sigma_d[0]) * theta_St_max_0 * theta_St_min_0)
         disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_1) * Sigma_d[1]) * theta_St_max_1 * theta_St_min_1)
