@@ -287,6 +287,212 @@ class PebbleAccretionHill(object):
         lgP = spline(np.log(self._disc.R), np.log(self._disc.P))
         self._dlgP = lgP.derivative(1)
 
+class PlanetesimalAccretion(object):
+    """Planetesimal accretion model based on Danti et al.
+    
+    Implements planetesimal accretion following equations B.3-B.7
+    """
+    def __init__(self, disc):
+        self.set_disc(disc)
+        self._rho_pl = 5.5  # planetesimal density in g/cm³
+        
+    def ASCII_header(self):
+        return '# {}'.format(self.__class__.__name__)
+
+    def HDF5_attributes(self):
+        return self.__class__.__name__, {}
+
+    def set_disc(self, disc):
+        self._disc = disc
+        self.update()
+        
+    def _get_capture_radius(self, Mp, Rp, attached=True):
+        """Calculate capture radius using equations B.17-B.19
+        
+        args:
+            Mp : planet mass in Mearth
+            Rp : planet radius in AU
+            attached : whether planet is in attached phase
+        """
+        if attached:
+            # Equation B.17 (Inaba & Ikoma 2003)
+            Mp_cgs = Mp * Mearth
+            Rp_cgs = Rp * AU
+            rho_c = self._disc.interp(Rp, self._disc.rho)  # core density
+            
+            # Calculate drag coefficient (Equation B.18)
+            v_k = self._disc.star.Omega_k(Rp) * Rp_cgs
+            R_Hill = Rp_cgs * (Mp_cgs/(3 * self._disc.star.M * Msun))**(1/3.)
+            rho_s = 2 * rho_c * v_k**2 / (3 * G * Mp_cgs / R_Hill)
+            
+            R_capt = R_Hill * np.sqrt(rho_s / self._rho_pl)
+            
+        else:
+            # Equation B.19 (Valletta & Helled 2021)
+            R0 = 12.80662188
+            R1 = -50.8630378
+            R2 = 382.66267044
+            R3 = -1388.57741163
+            R4 = 1902.60362959
+            
+            Mp_jup = Mp * Mearth / Mjup
+            R_capt = sum([R0, R1*Mp_jup, R2*Mp_jup**2, R3*Mp_jup**3, R4*Mp_jup**4]) * 1e7  # in cm
+            
+        return R_capt
+        
+    def _get_accretion_efficiency(self, i_p, beta):
+        """Calculate accretion efficiency using equations B.5-B.7
+        
+        args:
+            i_p : inclination of planetesimal population
+            beta : planetesimal accretion radius normalized to Hill radius
+        """
+        # Equation B.6
+        alpha = 2.5 / np.sqrt(1 + 0.375*(i_p/beta)**2)
+        
+        # Equation B.7
+        beta = 0.79 * (1 + 10*i_p)**-0.17
+        
+        # Equation B.5
+        eps = alpha * beta
+        
+        return eps
+
+    def computeMdot(self, Rp, Mp):
+        """Compute the planetesimal accretion rate using equation B.3
+        
+        args:
+            Rp : radius of planet in AU
+            Mp : planet mass in M_earth
+        """
+        disc = self._disc
+        star = disc.star
+        
+        # Convert to CGS
+        Mp_cgs = Mp * Mearth
+        Rp_cgs = Rp * AU
+        
+        # Get Hill radius
+        R_Hill = Rp_cgs * (Mp_cgs/(3 * star.M * Msun))**(1/3.)
+        
+        # Determine if planet is in attached or detached phase
+        # This would need proper implementation based on envelope mass
+        attached = True  # Simplified condition
+        
+        # Get capture radius
+        R_capt = self._get_capture_radius(Mp, Rp, attached)
+        
+        # Calculate accretion efficiency
+        i_p = 1e-4  # vertical stirring of planetesimals (Ida et al. 2008)
+        beta = R_capt / R_Hill
+        eps = self._get_accretion_efficiency(i_p, beta)
+        
+        # Get planetesimal surface density
+        Sigma_pl = disc.interp(Rp, disc.Sigma_D[-1])
+        
+        # Calculate accretion rate (Equation B.3)
+        Om_k = star.Omega_k(Rp)
+        Mdot = eps * 2 * R_capt * Om_k * Sigma_pl
+        
+        # Convert back to code units (Mearth per Omega0^-1)
+        Mdot /= Mearth * Om_k
+        
+        return Mdot
+
+    def __call__(self, planets):
+        """Compute planetesimal accretion rate"""
+        return self.computeMdot(planets.R, planets.M)
+
+    def update(self):
+        """Update internal quantities after the disc has evolved.
+        
+        Updates:
+        1. Planetesimal surface density based on pebble-to-planetesimal conversion
+        2. Local planetesimal properties
+        """
+        disc = self._disc
+        
+        # Get radial grid
+        R = disc.R
+        
+        # Get current pebble properties
+        Sigma_p = disc.Sigma_D[-1]  # pebble surface density
+        St = disc.Stokes()[-1]      # Stokes number
+        
+        # Get disc properties
+        H = disc.H                  # disc scale height
+        Om_k = np.array([disc.star.Omega_k(r) for r in R])  # Keplerian frequency
+        
+        # Calculate particle drift velocity using equation B.2
+        v_r = -2 * St * (H/R)**2 * Om_k * R
+        
+        # Calculate planetesimal formation rate using equation B.1
+        # efficiency parameter ε for conversion of pebbles to planetesimals
+        epsilon = 0.1  # This value should be calibrated based on your specific model
+        
+        dr = np.diff(R)
+        dr = np.append(dr, dr[-1])  # extend to match array size
+        
+        # Formation rate of planetesimals
+        Sigma_pl_dot = epsilon * Sigma_p * np.abs(v_r) / (2*np.pi*R*dr)
+        
+        # Update planetesimal surface density
+        # Store as additional field in disc object if not exists
+        if not hasattr(disc, 'Sigma_planetesimals'):
+            disc.Sigma_planetesimals = np.zeros_like(R)
+        
+        # Time step (needs to be properly integrated with your disc evolution)
+        dt = getattr(disc, 'dt', 1.0)  # default to 1.0 if not specified
+        
+        # Update planetesimal surface density
+        disc.Sigma_planetesimals += Sigma_pl_dot * dt
+        
+        # Apply vertical stirring (following Ida et al. 2008)
+        self._i_p = 1e-4  # vertical stirring parameter
+        
+        # Store updated properties
+        self._Sigma_pl = disc.Sigma_planetesimals
+        self._v_r = v_r
+        
+        # Calculate and store the migration timescale
+        self._tau_mig = R / np.abs(v_r)
+        
+        # Update any boundary conditions
+        # Zero out planetesimals inside gas cavity or outside disc
+        mask_inner = R < disc.R_cav if hasattr(disc, 'R_cav') else np.zeros_like(R, dtype=bool)
+        mask_outer = R > disc.R_out if hasattr(disc, 'R_out') else np.zeros_like(R, dtype=bool)
+        
+        self._Sigma_pl[mask_inner | mask_outer] = 0.0
+
+        # Store the current state of the disc for reference
+        self._last_update = {
+            'R': R,
+            'Sigma_pl': self._Sigma_pl,
+            'v_r': self._v_r,
+            'tau_mig': self._tau_mig,
+            'i_p': self._i_p
+        }
+
+    def get_planetesimal_properties(self, R):
+        """Get local planetesimal properties at given radius
+        
+        args:
+            R : radius in AU
+            
+        returns:
+            dict of local properties
+        """
+        if not hasattr(self, '_last_update'):
+            self.update()
+            
+        properties = {}
+        for key, value in self._last_update.items():
+            if np.isscalar(value):
+                properties[key] = value
+            else:
+                properties[key] = self._disc.interp(R, value)
+                
+        return properties
 
 ################################################################################
 # Migration
@@ -581,6 +787,7 @@ class Bitsch2015Model(object):
         
         self._gas_acc = GasAccretion(disc, **kwargs)
         self._peb_acc = PebbleAccretionHill(disc)
+        self._pl_acc = PlanetesimalAccretion(disc)
         self._disc = disc
 
         self._migrate = None
@@ -622,6 +829,7 @@ class Bitsch2015Model(object):
         """Update internal quantities after the disc has evolved"""
         self._gas_acc.update()
         self._peb_acc.update()
+        self._pl_acc.update()
         if self._migrate:
             self._migrate.update()
         
@@ -678,8 +886,9 @@ class Bitsch2015Model(object):
         def dMdt(R_p, M_core, M_env):
             Mdot_s = self._peb_acc.computeMdot(R_p, M_core + M_env)
             Mdot_g = self._gas_acc.computeMdot(R_p, M_core, M_env)
+            Mdot_p = self._pl_acc.computeMdot(R_p, M_core + M_env)
 
-            return Mdot_s*(1-f), Mdot_g + Mdot_s*f
+            return Mdot_s*(1-f) + Mdot_p, Mdot_g + Mdot_s*f
 
         def dRdt(R_p, M_core, M_env):
             if self._migrate:

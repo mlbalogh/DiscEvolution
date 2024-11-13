@@ -969,50 +969,82 @@ class SingleFluidDrift(object):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from grid import Grid
-    from star import SimpleStar
-    from eos import LocallyIsothermalEOS
-    import numpy as np
-
-    # Set up the disc
+    from .grid import Grid
+    from .eos import LocallyIsothermalEOS
+    from .star import SimpleStar
+    
     Mdot = 1e-8
     alpha = 1e-3
 
-    Mdot *= Msun / (2*np.pi) # solar mass per year
+    Mdot *= Msun / (2*np.pi)
     Mdot /= AU**2
-    Rd = 100. # au 
+    Rd = 100.
 
-    grid = Grid(0.05, 1000, 1000, "natural")
+    grid = Grid(0.1, 1000, 1000, spacing='log')
     star = SimpleStar()
     eos = LocallyIsothermalEOS(star, 1/30., -0.25, alpha)
     eos.set_grid(grid)
     Sigma =  (Mdot / (3 * np.pi * eos.nu))*np.exp(-grid.Rc/Rd)
+    
+    settling = True
+    
+    T0 = (2*np.pi)
 
     d2g = 0.01
-    settling=False
-    dust = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
-    drift = SingleFluidDrift(settling=settling, planetesimal=True)
-    planetesimal = PlanetesimalFormation(dust)
+    dust     = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
+    dust_ice = DustGrowthTwoPop(grid, star, eos, d2g, Sigma=Sigma)
+    ices = {'H2O' : 0.9*d2g*(eos.T < 150), 'grains' : 0.1*d2g}
+
+    class ices(dict):
+        def __init__(self, init=None):
+            if init is None: init = {}
+            dict.__init__(self, init)
+
+
+    I = np.ones_like(eos.T)
+    ices = ices({'H2O' : 0.9*d2g*(eos.T < 150), 'grains' : 0.1*d2g*I})
+    ices.total_abund = np.atleast_2d([ices[x] for x in ices]).sum(0)
+    dust_ice.update_ices(ices)
+
+    # Integrate the dust sizes at fixed radial location:
+    times = np.array([0, 1e2, 1e3, 1e4, 1e5, 1e6, 3e6]) * T0
+
+    t = 0
+    for ti in times:
+        dust.do_grain_growth(ti-t)
+        dust_ice.do_grain_growth(ti-t)
+        t = ti
+        Sigma = dust.Sigma
+        plt.subplot(211)
+        l, = plt.loglog(grid.Rc, dust.Stokes(Sigma)[1])
+        l, = plt.loglog(grid.Rc, dust_ice.Stokes(Sigma)[1],'--',c=l.get_color())
+        plt.subplot(212)
+        l, = plt.loglog(grid.Rc, dust.grain_size[1])
+        l, = plt.loglog(grid.Rc, dust_ice.grain_size[1], '--', c=l.get_color())
+
+    plt.subplot(211)
+    plt.xlabel('$R\ ,[\mathrm{au}]$')
+    plt.ylabel('Stokes number')
+
+    plt.subplot(212)
+    plt.loglog(grid.Rc, dust.a_BT(), 'k:')
+    plt.xlabel('$R\ ,[\mathrm{au}]$')
+    plt.ylabel('$a\ ,[\mathrm{cm}]$')
+    # Test the radial drift code
+    plt.figure()
+    dust = FixedSizeDust(grid, star, eos, 0.01, [0.01, 0.1], Sigma=Sigma)
+    drift = SingleFluidDrift(settling=settling)
       
-    times = np.array([0, 1e2, 1e3, 1e4]) * 2*np.pi
+    times = np.array([0, 1e2, 1e3, 1e4, 1e5, 1e6, 3e6]) * 2*np.pi
     
     t = 0
     n = 0
-    
-    # Prepare plots
-    fig, axes = plt.subplots(1, 3, figsize=(18, 6)) 
-    axes[1].plot(grid.Rc, 0*grid.Rc, '-', color='black',label="Gas")
-    axes[1].plot(grid.Rc, 0*grid.Rc, linestyle="dotted", color='black',label="Small dust")
-    axes[1].plot(grid.Rc, 0*grid.Rc, linestyle="dashed", color='black',label="Large dust")
-    
     for ti in times:
         while t < ti:
             dt = 0.5*drift.max_timestep(dust)
+            dti = min(ti-t, dt)
 
-            dust.update(dt)
-            planetesimal.update(dt, dust, drift)
             drift(dt, dust)
-            
             t = np.minimum(t + dt, ti)
             n += 1
 
@@ -1023,39 +1055,15 @@ if __name__ == "__main__":
 
         print('Nstep: {}'.format(n))
         print('Time: {} yr'.format(t / (2 * np.pi)))
-
-        # Plot for each timestep
-        l, = axes[0].loglog(grid.Rc, dust.Sigma_D[2], label='t = {} yrs'.format(t / (2 * np.pi)))
-        
-        axes[2].plot(grid.Rc, 0*grid.Rc, label='t = {:.1f} yrs'.format(t / (2 * np.pi)), color=l.get_color())
-        axes[2].loglog(grid.Rc, dust.v_drift[0], linestyle="dotted", color=l.get_color())
-        axes[2].loglog(grid.Rc, dust.v_drift[1], linestyle='dashed', color=l.get_color())
-        
-        axes[1].loglog(grid.Rc, dust.Sigma_D[0], linestyle="dotted", color=l.get_color())
-        axes[1].loglog(grid.Rc, dust.Sigma_D[1], linestyle='dashed', color=l.get_color())
-        axes[1].loglog(grid.Rc, dust.Sigma_G, '-', label='t = {} yrs'.format(np.round(t / (2 * np.pi))), color=l.get_color())
-        
+        l, = plt.loglog(grid.Rc, dust.Sigma_D[1])
+        plt.loglog(grid.Rc, dust.Sigma_D[0], '-.', c=l.get_color())
         
 
-    # Finalize plots
-    axes[0].set_xlabel('$R\,[\mathrm{au}]$')
-    axes[0].set_ylabel('$\Sigma_{\mathrm{Planetesimal}}$')
-    axes[0].set_ylim(ymin=1e-10)
-    axes[0].set_title('Planetesimal Surface Density')
-    axes[0].legend()
-
-    axes[1].set_xlabel('$R\,[\mathrm{au}]$')
-    axes[1].set_ylabel('$\Sigma_{\mathrm{Dust}}$')
-    axes[1].set_ylim(ymin=1e-10)
-    axes[1].set_title('Dust Surface Density')
-    axes[1].legend()
-
-    axes[2].set_xlabel('$R\,[\mathrm{au}]$')
-    axes[2].set_ylabel('Pebble Flux')
-    axes[2].set_ylim(ymin=1e-10)
-    axes[2].set_title('Pebble Flux')
-    axes[2].legend()
-
-    plt.tight_layout()
+    plt.loglog(grid.Rc, dust.Sigma_G, 'k:')
+    plt.loglog(grid.Rc, dust.Sigma, 'k--')
+    
+    plt.xlabel('$R\,[\mathrm{au}]$')
+    plt.ylabel('$\\Sigma_{\mathrm{D,G}}$')
+    plt.ylim(ymin=1e-10)
     plt.show()
     
