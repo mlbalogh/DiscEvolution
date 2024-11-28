@@ -39,6 +39,8 @@ class DustyDisc(AccretionDisc):
         self._feedback = feedback
         if grain_size is not None:
             self._a = grain_size
+        
+        self._planetesimal = False
 
     def Stokes(self, Sigma=None, size=None):
         """Calculates the Stokes number of the particle.
@@ -55,7 +57,7 @@ class DustyDisc(AccretionDisc):
             
         St = self._Kdrag * size / (Sigma + 1e-300)
         St[St < 0] = 1e-300
-        
+
         return St
 
     def mass(self):
@@ -129,6 +131,10 @@ class DustyDisc(AccretionDisc):
 
         return self.H * np.sqrt(eta * a / (a + St))
     
+    @ property
+    def planetesimal(self):
+        return self._planetesimal
+
     @property
     def pla_eff(self):
         return self._pla_eff
@@ -164,12 +170,16 @@ class DustyDisc(AccretionDisc):
         try:
             return self._v_drift
         except:
-            return np.zeros((2, len(self.Sigma)))
+            return np.zeros((3, len(self.Sigma)))
     
     @property
     def M_cr(self):
         # Return the critical mass for planetesimal formation
         return self._M_cr
+    
+    @property
+    def R_planetesimal(self):
+        return self._R_planetesimal
 
     """Methods to determine global properties of a dust disc"""
     def Rdust(self, thresholds=[0.68]):
@@ -536,6 +546,8 @@ class PlanetesimalFormation(object):
         disc._d = 5. * self._H
         disc._pla_eff = pla_eff
         disc._v_drift = np.zeros((2, len(disc.Sigma)))
+        disc._R_planetesimal = self._R_planetesimal
+        disc._planetesimal = True
     
     def _compute_planetesimal_mass(self, disc):
         """Compute the mass of a planetesimal with a diameter of 100 km.
@@ -565,11 +577,11 @@ class PlanetesimalFormation(object):
         
         v_drift_0 = np.insert(v_drift[0], 0, 0)
         v_drift_1 = np.insert(v_drift[1], 0, 0)
-        #v_drift_0 = v_drift[0]
-        #v_drift_1 = v_drift[1]
+        v_drift_2 = np.insert(v_drift[2], 0, 0)
         
         v_drift_0[np.isnan(v_drift_0)] = 0
         v_drift_1[np.isnan(v_drift_1)] = 0
+        v_drift_2[np.isnan(v_drift_2)] = 0
         
         # Heaviside functions
         theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.)
@@ -586,7 +598,7 @@ class PlanetesimalFormation(object):
         disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_1) * Sigma_d[1]) * theta_St_max_1 * theta_St_min_1)
         disc._M_peb = np.array(disc._M_peb)
         
-        disc._v_drift = np.array([v_drift_0, v_drift_1])
+        disc._v_drift = np.array([v_drift_0, v_drift_1, v_drift_2])
 
     def is_flux_critical(self, disc):
             """
@@ -937,34 +949,6 @@ class SingleFluidDrift(object):
             return DeltaV - self._epsDeltaV, self._DeltaVphi
         else:
             return DeltaV - self._epsDeltaV
-    
-    def drift_velocity(self, disc):
-        """Compute the drift velocity of the dust particles"""
-        
-        # Extract necessary parameters from the disc object
-        r = disc.R  # radial distance
-        cs = disc.cs  # sound speed
-        hg = disc.H  # gas scale height
-        rho_g = disc.midplane_gas_density  # gas density
-        P = cs*cs*rho_g # gas pressure
-        St = disc.Stokes()  # Stokes number
-        
-        # Calculate pressure gradient
-        dP_dr = np.gradient(P, r)
-        dlnP_dlnr = r / P * dP_dr
-        
-        # assert np.all(r >= 0), "r contains negative values"
-        # assert np.all(cs >= 0), "cs contains negative values"
-        # assert np.all(hg >= 0), "hg contains negative values"
-        # assert np.all(rho_g >= 0), "rho_g contains negative values"
-        # assert np.all(P >= 0), "P contains negative values"
-        # assert np.all(St >= 0), "St contains negative values"
-        # assert np.all(dP_dr >= 0), "dP_dr contains negative values"
-        
-        # Calculate drift velocity
-        v_drift = (St / (St**2 + 1)) * (hg / r) * dlnP_dlnr * cs
-        
-        return v_drift
         
 
 if __name__ == "__main__":
