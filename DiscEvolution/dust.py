@@ -914,6 +914,9 @@ class SingleFluidDrift(object):
                 disc.dust_frac[2] += L1 * dt
                 
                 disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
+
+                if max(disc._v_drift[1]) > 0:
+                    print("V_drift: ", max(disc._v_drift[1]))
             except:
                 pass
         else:

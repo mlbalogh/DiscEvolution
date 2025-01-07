@@ -512,11 +512,17 @@ class PlanetesimalAccretion(object):
         return: Planetesimal accretion rate
         """
         disc = self._disc
-        Sigma_pla = disc.Sigma_D[2]
-        acc_eff = self.computeAccEff(Rp, Mp, dRdt)
+        Sigma_pla = disc.interp(Rp, disc.Sigma_D[2])
+        r_dot = disc.interp(Rp, disc.v_drift[2])
+        acc_eff = disc.interp(Rp, self.computeAccEff(Rp, Mp, dRdt))
 
         # Calculate the planetesimal accretion rate
-        Mdot = 2 * np.pi * Rp * Sigma_pla * acc_eff
+        Mdot = 2 * np.pi * Rp * r_dot * Sigma_pla * acc_eff
+
+        print('Mdot', Mdot)
+        print('acc_eff', acc_eff)
+        print('r dot', r_dot)
+        print('Sigma pla', Sigma_pla)
 
         return Mdot
 
@@ -948,9 +954,6 @@ class Bitsch2015Model(object):
             # Compute the mass accretion rate due to planetesimal accretion
             if self._pl_acc:
                 Mdot_pla = self._pl_acc.computeMdot(R_p, M_core, Rdot)
-
-                print(Mcdot)
-                print(Mdot_pla)
 
                 Mcdot += Mdot_pla
 
