@@ -523,6 +523,7 @@ class PlanetesimalAccretion(object):
         print('acc_eff', acc_eff)
         print('r dot', r_dot)
         print('Sigma pla', Sigma_pla)
+        print('Planetsimal', disc.Sigma_D[2])
 
         return Mdot
 

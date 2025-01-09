@@ -487,26 +487,17 @@ class DustGrowthTwoPop(DustyDisc):
 # Planetesimal formation and accretion classes
 #
 # Author: P. Jiang
-# Date : Oct. 17, 2024
+# Date : Jan. 9, 2025
 ################################################################################
 class PlanetesimalFormation(object):
     """
     Class representing the formation of planetesimals in a protoplanetary disc.
-
-    Parameters:
-    - grid: Grid object representing the computational grid.
-    - star: Star object representing the central star.
-    - eos: Equation of state object.
-    - Sigma: Surface density of the disc.
-    - H: Scale height of the disc.
-    - rhos: Material density of the planetesimals (g/cm^3).
-    - Rs: Radius of the planetesimals (km).
-    - St_min: Minimum Stokes number for pebbles.
-    - St_max: Maximum Stokes number for pebbles.
-    - eta: Lifetime of the trap.
+    Follows closely with Lenz et al. (2019). The class is designed to be used
+    with the DustyDisc class.
     """
 
-    def __init__(self, disc, d_planetesimal=100, St_min=0.001, St_max=10.0, trap_lifetime=100, pla_eff=0.1):
+    def __init__(self, disc, d_planetesimal=100, St_min=0.001, 
+                 St_max=10.0, trap_lifetime=100, pla_eff=0.1):
         """
         Initialize a DustyDisc object.
 
@@ -903,7 +894,8 @@ class SingleFluidDrift(object):
         
         # Update the dust fraction with the sink term included
         if self._planetesimal:
-            # Note that this is under the assumption that the dust population is modelled under Birnstiel et al. (2012) two-population
+            # Note that this is under the assumption that the dust population 
+            # is modelled under Birnstiel et al. (2012) two-population
             try:
                 L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_peb, disc.M_cr)
                 
