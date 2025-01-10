@@ -3,6 +3,7 @@ import numpy as np
 from .brent import brentq
 from .constants import GasConst, sig_SB, AU, Omega0
 from . import opacity
+from .chambers_config import Config, Constants
 ################################################################################
 # Thermodynamics classes
 ################################################################################
@@ -511,10 +512,176 @@ def from_file(filename):
                 continue
 
 
+import astropy.units as u
+
+boltz = 1.3806e-16 # boltzmann constant
+mH = 1.67e-24 # mass of hydrogen atom in grams
+mu = 2.34 
+gamma = 1.4
+sig_SB = 5.6704e-5# Stefan-Boltzmann constant, cgs
+G = 6.67430e-8 # Gravitational constant, cgs
+Msun = 1.989e33     # Solar mass in grams
+AU = 1.496e13       # 1 AU in cm
+yr = 3.165e7        # 1 yr in s
+
+class ChambersEOS(EOS_Table):
+    '''
+    EOS only to be used with the Chambers DiscWindEvolution model. This model is self-contained and calculates
+    its own temperature. Use the update_params() method to sync init params with DiscWindEvolution.
+    '''
+    
+    def __init__(self, star, sigma0, r0, T0, v0, fw, K, Tevap, rexp, k0): # tol is no longer used
+        super(ChambersEOS, self).__init__()
+
+        self._star = star
+        self.sigma0 = sigma0
+        self.r0 = r0*AU
+        self.T0 = T0
+        self.v0 = v0
+        self.fw = fw
+        self.K = K
+        self.Tevap = Tevap
+        self.rexp = rexp*AU
+        self.k0 = k0
+        
+        self._tol=0.5
+
+        self._T = None
+        self._time = 0
+
+        self.config = Config
+
+        self.cs0 = ((Constants.gamma)*(Constants.boltz)*self.T0/(Constants.mu*Constants.mH))**0.5
+
+    def calculate_T(self, dt, star):
+        
+        dt = ((self._time-dt)/(2*np.pi))
+
+        self._star = star
+            
+        # mask = R > self.edge
+        # try:
+        #     self.fw = np.where(mask, self.deadzone_fw, self.fw)
+        #     self.v0 = np.where(mask, self.deadzone_v0, self.v0)
+        # except AttributeError:
+        #     pass
+
+        R=self._R*AU
+        t=dt*yr
+
+        Mstar = star.M * Msun  # Convert star mass to grams
+        s0 = np.sqrt(self.rexp / self.r0)
+        V = self.Tevap / self.T0
+
+        # Calculate constant A in CGS units
+        Atop = 9 * (1 - self.fw) * G * Mstar * self.k0 * (self.sigma0 ** 2) * self.v0
+        Abottom = 32 * sig_SB * (self.r0 ** 2) * (self.T0 ** 4)
+        A = np.sqrt(Atop / Abottom)
+
+        x = (R / self.r0) ** 0.5
+
+        # Equation 39 terms
+        p0 = A * (V ** 0.5) * ((A ** 2 + 1) / (A ** 2 + V ** 3)) ** (1 / 6)
+        J = self.fw / (1 - self.fw)
+        common_term = ((1 + J) ** 2 + 8 * J * self.K) ** 0.5
+        n = -1 - (2 / 5) * common_term
+        b = ((1 - J) / 2) + (1 / 2) * common_term
+        tau = (8 * self.r0 * s0 ** (5 / 2)) / (25 * self.v0 * (1 - self.fw))
+
+        # Equation 38 terms
+        time_factor = (1 + (t / tau)) ** n
+        p1 = p0 * time_factor * (x ** b)
+        p2 = np.exp((1 / s0) ** (5 / 2) - (x / s0) ** (5 / 2) * (1 + t / tau) ** -1)
+        p = p1 * p2
+
+        # Surface density (sigma) calculation
+        sigma_1 = (self.sigma0 / A) * p * x ** (-5 / 2)
+        sigma_2 = (1 + V ** (-2) * p * (x ** (-9 / 2))) / (1 + p * (x ** (-5 / 2)))
+        sigma = sigma_1 * sigma_2 ** 0.25
+
+        # Temperature (T) calculation
+        sig = A * sigma / self.sigma0
+        Ttop = sig ** 2 + 1
+        Tbottom = sig ** 2 + V ** 3 * x ** 3
+        T = self.Tevap * (Ttop / Tbottom) ** (1 / 3)
+
+        self._T = T
+        self._set_arrays()
+
+        return T
+    
+    def set_grid(self, grid):
+        self._R = grid.Rc
+        self._T = None
+
+    def update(self, dt, Sigma, amax=1e-5, star=None):
+        self._time += dt
+        self._T = self.calculate_T(dt, star)
+        self._set_arrays()
+
+    def _Omega(self, R):
+        Omega = self._star.Omega_k(R)
+        return Omega*(2*np.pi)/yr
+
+    def _f_cs(self, R=None):
+        k_B = Constants.boltz
+        m_H = Constants.mH
+        T = self._T
+        cs = (k_B*T/(Constants.mu*m_H))**0.5
+        cs = cs*2.10805e-6/(2*np.pi) # convert to au/yr
+        return cs
+
+    def _f_alpha(self, R=None):
+        alpha_turb = ((1 - self.fw)*self.r0*self.v0*self.Omega_ref / (self.cs0**2))
+        alpha_wind = (self.fw*self.v0 / (self.cs0))
+        self._alpha_t = alpha_turb+alpha_wind
+        return self._alpha_t
+    
+    def _f_H(self, R):
+        Omega = self._star.Omega_k(R)
+        _H = self._f_cs(R)/Omega
+        return _H
+    
+    def _f_nu(self, R):
+        alpha = self._f_alpha(R)
+        H = self._f_H(R)
+        Omega = self._star.Omega_k(R)
+        nu = alpha*H**2*Omega
+        return nu
+    
+    def update_params(self, disk_wind):
+        """Sync parameters from DiskWindEvolution"""
+        self.sigma0 = disk_wind.sigma0
+        self.r0 = disk_wind.r0
+        self.T0 = disk_wind.T0
+        self.v0 = disk_wind.v0
+        self.fw = disk_wind.fw
+        self.K = disk_wind.K
+        self.Tevap = disk_wind.Tevap
+        self.rexp = disk_wind.rexp
+        self.k0 = disk_wind.k0
+    
+    @property
+    def Omega_ref(self):
+        return self._star.Omega_k(self.r0/AU)*(2*np.pi)/yr
+    
+    @property
+    def Pr(self):
+        return np.zeros_like(self._R)
+
+    @property
+    def T(self):
+        return self._T
+
+    @property
+    def star(self):
+        return self._star
+    
+
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from .star import SimpleStar
-    from .grid import Grid
+    from DiscEvolution.star import SimpleStar
+    from DiscEvolution.grid import Grid
 
     alpha = 1e-3
     star = SimpleStar(M=1.0, R=3.0, T_eff=4280.)
@@ -531,24 +698,20 @@ if __name__ == "__main__":
 
     amax = 10 / grid.Rc**1.5
     
-    c  = { 'active' : 'r', 'passive' : 'b', 'marco' : 'm',
-           'isothermal' : 'g' }
-    ls = { 0 : '-', 1 : '--' }
-    for i in range(2):
-        for eos, name in [[active, 'active'],
-                          [marco, 'marco'],
-                          [passive, 'passive'],
-                          [powerlaw, 'isothermal']]:
-            eos.set_grid(grid)
-            eos.update(0, Sigma, amax=amax)
+    # c  = { 'active' : 'r', 'passive' : 'b', 'marco' : 'm',
+    #        'chambers' : 'g' }
+    # ls = { 0 : '-', 1 : '--' }
+    # for i in range(2):
+    #     for eos, name in [[active, 'active'],
+    #                       [marco, 'marco'],
+    #                       [passive, 'passive'],
+    #                       [chambers, 'chambers']]:
+    #         eos.set_grid(grid)
+    #         eos.update(0, Sigma, amax=amax)
 
-            label = None
-            if ls[i] == '-':
-                label = name
+    #         label = None
+    #         if ls[i] == '-':
+    #             label = name
                 
-            plt.loglog(grid.Rc, eos.T, c[name] + ls[i], label=label)
-        Sigma /= 10
-    plt.legend()
-    plt.show()
-    
-                    
+    #         plt.loglog(grid.Rc, eos.T, c[name] + ls[i], label=label)
+    #     Sigma /= 10
