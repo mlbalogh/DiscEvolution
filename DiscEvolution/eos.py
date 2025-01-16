@@ -333,7 +333,7 @@ class IrradiatedEOS(EOS_Table):
             self._compute_constants()
         star = self._star
             
-        # Temperature/gensity independent quantities:
+        # Temperature/density independent quantities:
         R = self._R
         Om_k = Omega0 * star.Omega_k(R)
 
