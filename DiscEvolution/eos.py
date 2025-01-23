@@ -153,18 +153,6 @@ class SimpleDiscEOS(EOS_Table):
         self._Tnu = np.sqrt(27/64*alpha_t*Omega0*GasConst*K0/(mu*sig_SB))
 
         self._set_constants()
-        
-    def _f_cs(self, R):
-        return self._cs0 * R**self._q
-
-    def _f_H(self, R):
-        return self._H0 * R**(1.5+self._q)
-    
-    def _f_nu(self, R):
-        return self._alpha_t * self._f_cs(R) * self._f_H(R)
-
-    def _f_alpha(self, R):
-        return self._alpha_t
 
     def _set_constants(self):
         star = self._star
@@ -175,6 +163,7 @@ class SimpleDiscEOS(EOS_Table):
 
         self._cs0 = (Omega0**-1/AU) * (GasConst / self._mu)**0.5
         self._H0  = (Omega0**-1/AU) * (GasConst / (self._mu*self._star.M))**0.5
+        self._nu0 = self._alpha_t * self._cs0 * self._cs0 / Omega0
 
     def update(self, dt, Sigma, amax=1e-5, star=None):
         if star:
@@ -227,6 +216,10 @@ class SimpleDiscEOS(EOS_Table):
     @property
     def Pr(self):
         return self._Pr
+    
+    @property
+    def nu0(self):
+        return self._nu0
 
     def ASCII_header(self):
         """LocallyIsothermalEOS header string"""
