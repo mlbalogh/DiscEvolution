@@ -32,9 +32,9 @@ class DiskWindEvolution:
 
         self.cs0 = ((Constants.gamma)*(Constants.boltz)*self.T0/(Constants.mu*Constants.mH))**0.5
 
-    def __call__(self, star, R, t):
+    def __call__(self, R, t):
         '''Returns the surface density, temperature, total mass, and accretion rate at a given time t and radius R.'''
-
+        star = self._star
         mask = R > self.edge
         try:
             self.fw = np.where(mask, self.deadzone_fw, self.fw)

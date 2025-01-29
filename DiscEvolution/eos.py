@@ -155,17 +155,17 @@ class SimpleDiscEOS(EOS_Table):
 
         self._set_constants()
         
-    def _f_cs(self, R):
-        return self._cs0 * R**self._q
+    # def _f_cs(self, R):
+    #     return self._cs0 * R**self._q
 
-    def _f_H(self, R):
-        return self._H0 * R**(1.5+self._q)
+    # def _f_H(self, R):
+    #     return self._H0 * R**(1.5+self._q)
     
-    def _f_nu(self, R):
-        return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    # def _f_nu(self, R):
+    #     return self._alpha_t * self._f_cs(R) * self._f_H(R)
 
-    def _f_alpha(self, R):
-        return self._alpha_t
+    # def _f_alpha(self, R):
+    #     return self._alpha_t
 
     def _set_constants(self):
         star = self._star
