@@ -24,6 +24,8 @@ class Planets(object):
         self.M_env  = np.array([], dtype='f4')
         self.t_form = np.array([], dtype='f4')
 
+        self._R_capt  = np.array([], dtype='f4')
+
         self._N = 0
 
         if Nchem:
@@ -43,6 +45,7 @@ class Planets(object):
         self.R      = np.append(self.R, R)
         self.M_core = np.append(self.M_core, Mcore)
         self.M_env  = np.append(self.M_env, Menv)
+        self._R_capt  = np.append(self._R_capt, 0)
         
         self.t_form = np.append(self.t_form, np.ones_like(Menv)*t)
 
@@ -66,6 +69,11 @@ class Planets(object):
     @property
     def chem(self):
         return self._Nchem > 0
+    
+    @property
+    def R_capt(self):
+        """Capture radius of the planet"""
+        return self._R_capt
 
     def __getitem__(self, idx):
         """Get a sub-set of the planets"""
@@ -435,7 +443,10 @@ class PlanetesimalAccretion(object):
         return: Protoplanet capture radius
         """
         # if attached M_Z < M_H-He
-        return self.R_captr_attached(Rp, Mp)
+        R_captr = self.R_captr_attached(Rp, Mp)
+        self._R_captr = R_captr
+
+        return R_captr
 
     def inclination(self, Rp):
         """
@@ -484,7 +495,8 @@ class PlanetesimalAccretion(object):
 
         rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
         
-        Rp = self.R_capt(Mp, Rp) / rH
+        R_captr = self.R_capt(Rp, Mp)
+        Rp = R_captr / rH
         i0 = self.inclination(Rp) / rH
 
         T_k = (2*np.pi) / star.Omega_k(Rp) # Orbital period in 2pi*years
@@ -499,7 +511,7 @@ class PlanetesimalAccretion(object):
 
         # Calculate the accretion efficiency
         acc_eff = alpha_pla * b_p ** (beta_pla - 1)
-        return acc_eff
+        return acc_eff, R_captr
 
 
     def computeMdot(self, Rp, Mp, dRdt):
@@ -514,23 +526,14 @@ class PlanetesimalAccretion(object):
         disc = self._disc
         Sigma_pla = disc.interp(Rp, disc.Sigma_D[2])
         r_dot = disc.interp(Rp, disc.v_drift[2])
-        acc_eff = disc.interp(Rp, self.computeAccEff(Rp, Mp, dRdt))
+        acc_eff = self.computeAccEff(Rp, Mp, dRdt)
+        R_captr = disc.interp(Rp, acc_eff[1])
+        acc_eff_Rp = disc.interp(Rp, acc_eff[0])
 
         # Calculate the planetesimal accretion rate
-        Mdot = 2 * np.pi * Rp * r_dot * Sigma_pla * acc_eff
+        Mdot = 2 * np.pi * Rp * r_dot * Sigma_pla * acc_eff_Rp
 
-        print('Mdot', Mdot)
-        print('acc_eff', acc_eff)
-        print('r dot', r_dot)
-        print('Sigma pla', Sigma_pla)
-        print('Planetsimal', disc.Sigma_D[2])
-
-        return Mdot
-
-
-    def __call__(self, planets):
-        """Compute planetesimal accretion rate"""
-        return self.computeMdot(planets.R, planets.M)
+        return Mdot, R_captr
 
 
     def update(self):
@@ -954,7 +957,10 @@ class Bitsch2015Model(object):
 
             # Compute the mass accretion rate due to planetesimal accretion
             if self._pl_acc:
-                Mdot_pla = self._pl_acc.computeMdot(R_p, M_core, Rdot)
+                Mdot = self._pl_acc.computeMdot(R_p, M_core, Rdot)
+                Mdot_pla = Mdot[0]
+                
+                planets._R_capt = Mdot[1]
 
                 Mcdot += Mdot_pla
 
