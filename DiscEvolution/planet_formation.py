@@ -270,7 +270,7 @@ class PebbleAccretionHill(object):
         St    = disc.interp(Rp, disc.Stokes()[1])
         Sig_p = disc.interp(Rp, disc.Sigma_D[1])
 
-        rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
+        rH   = star.r_Hill(Rp, Mp*Mearth/Msun) # gravity of star takes over gravity of planet
         Om_k = star.Omega_k(Rp)
         r_eff = rH * (St/0.1)**(1/3.)
 
@@ -867,11 +867,11 @@ class Bitsch2015Model(object):
 
     def set_disc(self, disc):
         """Set up the current disc model"""
-        self._gas_acc.set_disc(r, Sigma_G, eos)
-        self._peb_acc.set_disc(r, Sigma_G, Sigma_p, St, eos)
+        self._gas_acc.set_disc(disc)
+        self._peb_acc.set_disc(disc)
 
         if self._migrate:
-            self._migrate.set_disc(r, Sigma_G, eos)
+            self._migrate.set_disc(disc)
 
         self._disc = disc
             
@@ -937,11 +937,14 @@ class Bitsch2015Model(object):
         def dMdt(R_p, M_core, M_env):
             Mdot_s = self._peb_acc.computeMdot(R_p, M_core + M_env)
             Mdot_g = self._gas_acc.computeMdot(R_p, M_core, M_env)
+            #print(f"Mdot_s: {Mdot_s}, Mdot_g: {Mdot_g}")  # Debugging print
             return Mdot_s*(1-f), Mdot_g + Mdot_s*f
 
         def dRdt(R_p, M_core, M_env):
             if self._migrate:
-                return self._migrate.migration_rate(R_p, M_core + M_env)
+                migration_rate = self._migrate.migration_rate(R_p, M_core + M_env)
+                #print(f"migration_rate: {migration_rate}")  # Debugging print
+                return migration_rate
             else:
                 return np.zeros_like(R_p)
 
@@ -995,7 +998,9 @@ class Bitsch2015Model(object):
             X0 = np.concatenate([planets.R, planets.M_core, planets.M_env])
         integ.set_initial_value(X0, 0)
 
+        #print(f"Before integration: R: {planets.R}, M_core: {planets.M_core}, M_env: {planets.M_env}")  # Debugging print
         integ.integrate(dt)
+        #print(f"After integration: R: {integ.y[:N]}, M_core: {integ.y[N:2*N]}, M_env: {integ.y[2*N:3*N]}")  # Debugging print
 
         # Compute the fraction of the core / envelope that was accreted in
         # solids
@@ -1193,4 +1198,4 @@ if __name__ == "__main__":
     
     plt.xlabel('$t\,[yr]$')
     plt.show()
-        
+
