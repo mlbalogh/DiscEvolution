@@ -471,6 +471,7 @@ class SingleFluidDrift(object):
         
         # Prevent empty cells limiting the time-step
         dVtot[disc.dust_frac < 1e-20] *= 1e-3
+        #print ('dust:', dVtot.max(),v_visc.min(),v_visc.max(),Cou * (disc.grid.dRe / dVtot).min()/6.28)
         return Cou * (disc.grid.dRe / dVtot).min()
     
     def _donor_flux(self, Ree, deltaV_i, Sigma, eps_i):
@@ -628,6 +629,7 @@ class SingleFluidDrift(object):
         # Store the azimuthal velocity.
         self._DeltaVphi =  (-0.5*u_gas / (St_av + St_av**-1) 
                                + v_gas / (1     + St_av** 2))
+        #print ('deltaV:',v_gas.max(),(2*v_gas / (St_av + St_av**-1)).max(),u_gas.min(),(u_gas / (1     + St_av**-2)).min(),DeltaV.max())
 
         return DeltaV
 

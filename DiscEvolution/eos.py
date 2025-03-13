@@ -2,6 +2,7 @@ from __future__ import print_function
 import numpy as np
 from .brent import brentq
 from .constants import GasConst, sig_SB, AU, Omega0
+from .disc_utils import debug_pause
 from . import opacity
 ################################################################################
 # Thermodynamics classes
@@ -149,7 +150,6 @@ class SimpleDiscEOS(EOS_Table):
         self._mu = mu
         self._K0 = K0
         self._star = star
-        
         self._Tnu = np.sqrt(27/64*alpha_t*Omega0*GasConst*K0/(mu*sig_SB))
 
         self._set_constants()
@@ -333,7 +333,7 @@ class IrradiatedEOS(EOS_Table):
             self._compute_constants()
         star = self._star
             
-        # Temperature/gensity independent quantities:
+        # Temperature/density independent quantities:
         R = self._R
         Om_k = Omega0 * star.Omega_k(R)
 

@@ -51,7 +51,7 @@ try:
 except ImportError:
     def SmoluchowskiDust(*args, **kwargs):
         raise RuntimeError(
-            "Trying to using the SmoluchowskiDust class, which requires the "
+            "Test  Trying to using the SmoluchowskiDust class, which requires the "
             "coag_toolkit, but we can't find it. Please set the environment "
             "variable COAG_TOOLKIT to point to the folder containg the "
             "library.")

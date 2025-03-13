@@ -65,7 +65,8 @@ class Planets(object):
 
     @property
     def chem(self):
-        return self._Nchem > 0
+        #return self._Nchem > 0
+        return self._Nchem is not None and self._Nchem > 0
 
     def __getitem__(self, idx):
         """Get a sub-set of the planets"""
@@ -337,7 +338,7 @@ def _G(p):
 class TypeIMigration(object):
     """Type 1 Migration model of Paardekooper et al (2011)
 
-    Only implemented for sofenting the default sofetning parameter b/h=0.4
+    Only implemented for softening the default sofetning parameter b/h=0.4
 
     args:
         disc  : accretion disc model
@@ -369,7 +370,7 @@ class TypeIMigration(object):
         disc = self._disc
         
         lgR = np.log(disc.R)
-        # Horibble hack to smooth out artifacts?
+        # Horrible hack to smooth out artifacts?
         _lgSig = ispline(lgR, np.log(disc.Sigma))
         _lgT   = ispline(lgR, np.log(disc.T))
 
@@ -445,6 +446,7 @@ class TypeIMigration(object):
     def migration_rate(self, Rp, Mp):
         """Migration rate, dRdt, of the planet"""
         J = Mp*Rp*self._disc.star.v_k(Rp)
+        x=2 * (Rp/J) * self.compute_torque(Rp, Mp)
         return 2 * (Rp/J) * self.compute_torque(Rp, Mp)
     
     def __call__(self, planets):
@@ -753,7 +755,8 @@ class Bitsch2015Model(object):
         with open(filename, 'w') as f:
             head = self.ASCII_header()
             f.write(head+'\n')
-            print('# time: {}yr\n'.format(time / (2 * np.pi)))
+            #print('# time: {}yr\n'.format(time / (2 * np.pi)))
+            f.write('# time: {}yr\n'.format(time / (2 * np.pi)))
 
             head = '# R M_core M_env t_form'
             if planets.chem:

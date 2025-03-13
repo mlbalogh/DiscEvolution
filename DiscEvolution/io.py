@@ -115,7 +115,7 @@ class Event_Controller(object):
 ################################################################################
 # Write data to an ASCII file
 ################################################################################
-def dump_ASCII(filename, disc, time, header=None):
+def dump_ASCII(filename, disc, time, header=None,gas=None):
     """Write an ASCII dump of the disc data.
 
     args:
@@ -168,7 +168,8 @@ def dump_ASCII(filename, disc, time, header=None):
                 head += ' s{}'.format(k)
         except AttributeError:
             pass
-
+        if gas:
+            head += ' Mdot MdotSS'
         f.write(head+'\n')
         
         R, Sig, T = disc.R, disc.Sigma, disc.T
@@ -183,15 +184,63 @@ def dump_ASCII(filename, disc, time, header=None):
                     f.write(' {}'.format(chem.gas[k][i]))
                 for k in chem.ice:
                     f.write(' {}'.format(chem.ice[k][i]))
-            f.write('\n')
+            if gas:
+                vr=gas.viscous_velocity(disc)
+                #Mdot_actual=disc.Mdot(vr)
+                Mdot_actual=-2.*np.pi*disc.R[:-1]*disc.Sigma[:-1]*vr/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                #Mdot_SS=(2./3.)*3.*np.pi*disc.alpha*disc.cs*disc.cs*disc.Sigma/disc.Omega_k/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                Mdot_SS=3.*np.pi*disc.nu*disc.Sigma/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                if (i<Ncell-1):
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[i],Mdot_SS[i]))
+                else:
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[Ncell-2],Mdot_SS[Ncell-2]))
 
+            f.write('\n')
+# def dump_planets_ASCII(filename, disc, planet_model, planets, time, header=None):
+#     """Write an ASCII dump of the planet data.
+
+#     args:
+#         filename : string
+#             Name of the new dump file
+#         planets     : disc object
+#             Planets that will be saved to disc.
+#         time     : float 
+#             Current time (in Omega0)
+#         header   : string, list of strings, or None
+#             Additional header data to write 
+#     """
+#     if header is None:
+#         header = []
+#     if isinstance(header, string_types):
+#         header = [header,]
+
+#     # Construct the header
+#     head = planet_model.ASCII_header() + '\n'
+#     for h in header:
+#         head += h
+#         if not h.endswith('\n'):
+#             head += '\n'
+
+#     with open(filename, 'w') as f:
+#         f.write(head)
+#         f.write('# time: {}yr\n'.format(time / constants.yr))
+
+#         head = '# R Mcore Menv'
+#         f.write(head+'\n')
+#         # Construct the list of variables that we are going to print
+#         Rp, Mcp, Mep = planets.R, planets.M_core, planets.M_env
+#         for i in range(np.size(Rp)):
+#             f.write('{} {} {}'.format(Rp[i], Mcp[i], Mep[i]))
+#             f.write('\n')
+
+        
 ################################################################################
 # Write data using HDF5
 ################################################################################
 def _write_nested_hdf5_header(hdf_obj, header):
     """Write the header data as attributes in a nested fashion."""
     for key, value in header.items():
-        if isinstance(value, collections.Mapping):
+        if isinstance(value, collections.abc.Mapping):
             group = hdf_obj.create_group(key)
             _write_nested_hdf5_header(group, value)
         else:

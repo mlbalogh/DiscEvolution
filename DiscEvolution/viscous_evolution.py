@@ -128,6 +128,8 @@ class ViscousEvolution(object):
         dXe2 = np.diff(2 * np.sqrt(grid.Re)) ** 2
 
         tc = ((dXe2 * grid.Rc) / (2 * 3 * nu)).min()
+
+        #print ('gas:',tc/6.28,self._tol*tc/6.28,nu.max())
         return self._tol * tc
 
     def __call__(self, dt, disc, tracers=[], adv=[]):
@@ -436,7 +438,6 @@ class HybridWindModel(object):
 
         v_DW   = 1.5 * (disc.nu/grid.Rc) * self._psi / (1 + self._psi)
         t_wind = (np.diff(0.5*grid.Re**2) / (grid.Rc * v_DW)).min()
-
         return self._tol * min(t_visc, t_wind)
 
     def __call__(self, dt, disc, tracers=[], adv=[]):

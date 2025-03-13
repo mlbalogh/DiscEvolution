@@ -56,6 +56,8 @@ class DiscSnap(object):
         self._R     = data['R']
         self._Sigma = data['Sigma']
         self._T     = data['T']
+        self._Mdot     = data['Mdot']
+        self._MdotSS     = data['MdotSS']
 
         self._eps = np.empty([Ndust, Ndata], dtype='f8')
         self._a   = np.empty([Ndust, Ndata], dtype='f8')
@@ -103,14 +105,22 @@ class DiscSnap(object):
     @property
     def chem(self):
         return self._chem
+    @property
+    def Mdot(self):
+        return self._Mdot
+    @property
+    def MdotSS(self):
+        return self._MdotSS
 
 class PlanetSnap(object):
 
-    def __init__(self, filename):
+    #def __init__(self, filename):
+    #MLB edit Feb 21, 2025
+    def __init__(self, filename, chem_on=False):
         self.read(filename)
 
 
-    def read(self, filename):
+    def read(self, filename, chem_on=False):
         """Read disc data from file"""
         # read the header
         head = ''
@@ -129,17 +139,35 @@ class PlanetSnap(object):
                     continue
                 # Get data variables stored
                 vars = line[2:].split(' ')
-                assert(len(vars) % 2 == 0)
-
+                try:
+                    assert(len(vars) % 2 == 0)
+                except AssertionError:
+                    print (count,filename)
+                    print (vars)
+                    print ("Error: Number of variables is not odd")
+# MLB edits Feb 2025 so this works when chem_on=False.  Don't know yet if it works when chem_on=True!
+                # # Get the number of dust species
+                # Nchem = (len(vars) - 4) / 2
+                # iChem = 4
+                # chem_spec = vars[iChem:iChem + Nchem]
+                # break
                 # Get the number of dust species
-                Nchem = (len(vars) - 4) / 2
-                iChem = 4
-                chem_spec = vars[iChem:iChem + Nchem]
+                Ndust = len([x for x in vars  if x.startswith('epsilon')])
+
+                # If chemistry was used, get the number of chemical species
+                if chem_on:
+                    Nchem = (len(vars) - 3 - 2*Ndust) / 2
+                    
+                    iChem = 2*Ndust + 3
+                    chem_spec = vars[iChem:iChem + Nchem]
+                else:
+                    Nchem=None
                 break
             
         # Parse the actual data:
         data = np.genfromtxt(filename, skip_header=count, names=True)
         planets = Planets(Nchem)
+
         planets.R      = data['R']
         planets.M_core = data['M_core']
         planets.M_env  = data['M_env']
@@ -206,10 +234,9 @@ class DiscReader(Reader):
         super(DiscReader, self).__init__(DiscSnap, DIR, base, chem_on)
 
 class PlanetReader(Reader):
-    """Read disc snaphshots from file"""
+    """Read disc snapshots from file"""
     def __init__(self, DIR, base='planets'):
         super(PlanetReader, self).__init__(PlanetSnap, DIR, base)
-
     def compute_planet_evo(self):
         """Compute the time evolution of each planet"""
         planets = []
