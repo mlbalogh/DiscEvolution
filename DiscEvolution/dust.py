@@ -7,9 +7,9 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-from constants import *
-from disc import AccretionDisc
-from reconstruction import DonorCell, VanLeer
+from DiscEvolution.constants import *
+from DiscEvolution.disc import AccretionDisc
+from DiscEvolution.reconstruction import DonorCell, VanLeer
 
 class DustyDisc(AccretionDisc):
     """Dusty accretion disc. Base class for an accretion disc that also
@@ -592,28 +592,50 @@ class PlanetesimalFormation(object):
         disc._v_drift = np.array([v_drift_0, v_drift_1, v_drift_2])
 
     def is_flux_critical(self, disc):
-            """
-            Check if the flux is critical for planetesimal formation.
+        """
+        Check if the flux is critical for planetesimal formation.
 
-            Parameters:
-            - pla_eff (float): The efficiency factor.
+        Parameters:
+        - pla_eff (float): The efficiency factor.
 
-            Returns:
-            - Tuple[bool, float]: A tuple containing a boolean value indicating whether the flux is critical,
-                and the critical mass (M_cr) for planetesimal formation.
-            """
-            M_cr = disc._M_planetesimal / (self._pla_eff * self._trap_lifetime)
-            is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
-            disc._is_critical = is_critical
-            disc._M_cr = M_cr
-            
-            return is_critical
+        Returns:
+        - Tuple[bool, float]: A tuple containing a boolean value indicating whether the flux is critical,
+            and the critical mass (M_cr) for planetesimal formation.
+        """
+        M_cr = disc._M_planetesimal / (self._pla_eff * self._trap_lifetime)
+        is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
+        disc._is_critical = is_critical
+        disc._M_cr = M_cr
+        
+        return is_critical
     
     def update(self, dt, disc, drift):
         """Do the standard disc update, and update planetesimals"""
         v_drift = drift.radial_drift_velocity(disc)
         self.compute_M_peb(v_drift, disc)
         self.is_flux_critical(disc)
+
+    def ASCII_header(self):
+        """Planetesimal formation header"""
+        head = '# PlanetesimalFormation\n'
+        head += '# d_planetesimal: {} km\n'.format(self._R_planetesimal * AU / 1e5 * 2)
+        head += '# St_min: {}\n'.format(self._St_min)
+        head += '# St_max: {}\n'.format(self._St_max)
+        head += '# trap_lifetime: {} orbits\n'.format(self._trap_lifetime / self._t)
+        head += '# pla_eff: {}\n'.format(self._pla_eff)
+        return head
+
+    def HDF5_attributes(self):
+        """Class information for HDF5 headers"""
+        head = {
+            "d_planetesimal": "{} km".format(self._R_planetesimal * AU / 1e5 * 2),
+            "St_min": "{}".format(self._St_min),
+            "St_max": "{}".format(self._St_max),
+            "trap_lifetime": "{} orbits".format(self._trap_lifetime / self._t),
+            "pla_eff": "{}".format(self._pla_eff)
+        }
+        return self.__class__.__name__, head
+        
 
 ################################################################################
 # Radial drift

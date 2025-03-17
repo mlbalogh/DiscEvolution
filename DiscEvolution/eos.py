@@ -1,8 +1,8 @@
 from __future__ import print_function
 import numpy as np
-from brent import brentq
-from constants import GasConst, sig_SB, AU, Omega0
-import opacity
+from DiscEvolution.brent import brentq
+from DiscEvolution.constants import GasConst, sig_SB, AU, Omega0
+import DiscEvolution.opacity
 ################################################################################
 # Thermodynamics classes
 ################################################################################

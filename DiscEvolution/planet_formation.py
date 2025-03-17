@@ -3,8 +3,8 @@ import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline as ispline
 from scipy.interpolate import UnivariateSpline as spline
 from scipy.integrate import ode
-from constants import *
-from disc_utils import make_ASCII_header
+from DiscEvolution.constants import *
+from DiscEvolution.disc_utils import make_ASCII_header
 
 ################################################################################
 # Planet collections class
@@ -496,15 +496,15 @@ class PlanetesimalAccretion(object):
         rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
         
         R_captr = self.R_capt(Rp, Mp)
-        Rp = R_captr / rH
+        R_p = R_captr / rH
         i0 = self.inclination(Rp) / rH
 
         T_k = (2*np.pi) / star.Omega_k(Rp) # Orbital period in 2pi*years
 
-        alpha_pla = 2.5 * np.sqrt(Rp / (1 + 0.37 * i0*i0 / Rp))
+        alpha_pla = 2.5 * np.sqrt(R_p / (1 + 0.37 * i0*i0 / R_p))
         beta_pla = 0.79 * (1 + 10 * i0*i0)**(-0.17)
 
-        tau_mig = Rp / np.abs(dRdt) * (rH*rH / T_k)
+        tau_mig = R_p / np.abs(dRdt) * (rH*rH / T_k)
         tau_mig = tau_mig / rH # Normalize to Hill radius
 
         b_p = 1 / tau_mig # migration speed
@@ -854,16 +854,17 @@ class Bitsch2015Model(object):
             head += '\n' + self._migrate.ASCII_header()
         return head
 
-        def HDF5_attributes(self):
-            """Class information for HDF5 headers"""
-            head = dict([("pb_gas_f",  "{}".format(self._f_gas)),
-                         ("migrate", "{}".format(self._migrate)),
-                         self._gas_acc.HDF5_attributes(),
-                         self._peb_acc.HDF5_attirbutes()])
-            if self._migrate:
-                head.update(dict(self._migrate.HDF5_attributes()))
-
-            return self.__class__.__name__, head
+    def HDF5_attributes(self):
+        """Class information for HDF5 headers"""
+        head = {
+            "pb_gas_f": "{}".format(self._f_gas),
+            "migrate": "{}".format(self._migrate)
+        }
+        head.update(self._gas_acc.HDF5_attributes()[1])
+        head.update(self._peb_acc.HDF5_attributes()[1])
+        if self._migrate:
+            head.update(self._migrate.HDF5_attributes()[1])
+        return self.__class__.__name__, head
 
     def set_disc(self, disc):
         """Set up the current disc model"""

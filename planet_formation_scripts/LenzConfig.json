@@ -1,0 +1,81 @@
+{
+    "grid": {
+        "R0": 0.1,
+        "R1": 1000,
+        "N": 1000,
+        "spacing": "natural",
+        "Mdot": 1e-8,
+        "fixed": false
+    },
+
+    "disc": {
+        "alpha": 1e-3,
+        "mass": 0.05,
+        "unit": "jup",
+        "Rc": 35.0,
+        "d2g": 0.01
+    },
+
+    "eos": {
+        "type": "iso",
+        "h0": 0.033,
+        "q": -0.25,
+        "mu": 2.5
+    },
+
+    "transport": {
+        "gas": true,
+        "radial drift": true,
+        "diffusion": false
+    },
+
+    "dust_transport" : {
+        "van leer" : false,
+        "settling" : false,
+        "diffusion" : true
+    },
+
+    "photoevaporation" : {
+        "on" : false,
+        "method" : "internal_const",
+        "coeff"  : 1e-9
+    },   
+
+    "dust": {
+        "feedback": false,
+        "settling": false,
+        "ice_frag_v" : 1000,
+        "dust_frag_v" : 1000,
+        "density" : 1.2
+    },
+
+    "planetesimal": {
+        "active": false,
+        "diameter": 100,
+        "St_min": 0.01,
+        "St_max": 10,
+        "pla_eff": 0.1
+    },
+
+    "planets": {
+        "active": true,
+        "planet model": "Bitsch2015Model",
+        "Rp": [3],
+        "Mp": [1]
+    },
+
+    "output" : {
+        "directory" : "output",
+        "base" : "disc",
+        "format"    : "ascii",
+        "first"     : 0.0,
+        "last"      : 1e6,
+        "interval"  : 1e4,
+        "plot"      : false,
+        "plot_times" : [0, 1e5, 5e5, 1e6]
+    },
+
+    "chemistry" : {
+        "on"   : false 
+    }
+}

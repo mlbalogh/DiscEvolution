@@ -6,9 +6,9 @@
 # Models for photo-evaporation of a disc
 ###############################################################################
 import numpy as np
-from constants import AU, Msun, yr, Mjup
-from dust import DustyDisc
-from FRIED import photorate
+from DiscEvolution.constants import AU, Msun, yr, Mjup
+from DiscEvolution.dust import DustyDisc
+from DiscEvolution.FRIED import photorate
 
 class ExternalPhotoevaporationBase(object):
     """Base class for handling the external photo-evaporation of discs

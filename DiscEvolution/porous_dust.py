@@ -7,8 +7,8 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-from constants import *
-from disc import AccretionDisc
+from DiscEvolution.constants import *
+from DiscEvolution.disc import AccretionDisc
 
 class DustyDisc(AccretionDisc):
     """Dusty accretion disc. Base class for an accretion disc that also

@@ -8,9 +8,9 @@
 from __future__ import print_function
 import numpy as np
 import os
-from photoevaporation import FixedExternalEvaporation
-from constants import yr
-import io
+from DiscEvolution.photoevaporation import FixedExternalEvaporation
+from DiscEvolution.constants import yr
+import DiscEvolution.io as io
 
 
 class PlanetDiscDriver(object):
@@ -224,6 +224,8 @@ class PlanetDiscDriver(object):
             head += self._dust.ASCII_header() + '\n'
         if self._planetesimal:
             head += self._planetesimal.ASCII_header() + '\n'
+        if self._planet_model:
+            head += self._planet_model.ASCII_header() + '\n'
         if self._diffusion:
             head += self._diffusion.ASCII_header() + '\n'
         if self._chemistry:
@@ -232,9 +234,6 @@ class PlanetDiscDriver(object):
             head += self._external_photo.ASCII_header() + '\n'
         if self._internal_photo:
             head += self._internal_photo.ASCII_header() + '\n'
-        if self._planets:
-            for p in self._planets:
-                head += p.ASCII_header()
 
         # Write it all to disc
         io.dump_ASCII(filename, self._disc, self.t, head)
@@ -245,15 +244,11 @@ class PlanetDiscDriver(object):
         if self._gas:            headers.append(self._gas.HDF5_attributes())
         if self._dust:           headers.append(self._dust.HDF5_attributes())
         if self._planetesimal:   headers.append(self._planetesimal.HDF5_attributes())
+        if self._planet_model:   headers.append(self._planet_model.HDF5_attributes())
         if self._diffusion:      headers.append(self._diffusion.HDF5_attributes())
         if self._chemistry:      headers.append(self._chemistry.HDF5_attributes())
         if self._external_photo: headers.append(self._external_photo.HDF5_attributes())
         if self._internal_photo: headers.append(self._internal_photo.HDF5_attributes())
-        if self._planets:
-            for i, p in enumerate(self._planets):
-                name, data = p.HDF5_attributes()
-                name += '[{}]'.format(i)
-                headers.append([name, data])
 
         io.dump_hdf5(filename, self._disc, self.t, headers)
 
