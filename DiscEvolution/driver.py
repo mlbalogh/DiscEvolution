@@ -8,10 +8,270 @@
 from __future__ import print_function
 import numpy as np
 import os
+from .disc_utils import debug_pause
 from .photoevaporation import FixedExternalEvaporation
 from .constants import yr
 from . import io
+ 
+class PlanetEvolutionDriver(object):
+    """Driver class for full evolution model.  
 
+    Author: MLB Feb 2025 modification of Booth's DiscEvolutionDriver
+
+    Required Arguments:
+        disc : Disc model to update
+
+    Optional Physics update:
+        dust             : Update the dust, i.e. radial drift
+        gas              : Update due to gas effects, i.e. Viscous evolution
+        planets          : Update planet mass and radius
+        diffusion        : Seperate diffusion update
+        internal_photo   : Remove gas by internal photoevaporation
+        photoevaporation : Remove gas by external photoevaporation
+        chemistry        : Solver for the chemical evolution
+
+    History:
+        history          : Tracks values of key parameters over time
+
+    Note: Diffusion is usually handled in the dust dynamics module
+
+    Other options:
+        t0  : Starting time, default = 0, code units
+        t_out:Previous output times, default = None, years
+    """
+
+    def __init__(self, disc, gas=None, dust=None, planets=None, planet_model=None, diffusion=None, chemistry=None, ext_photoevaporation=None, int_photoevaporation=None, history=None, t0=0.):
+
+        self._disc = disc
+
+        self._gas       = gas
+        self._dust      = dust
+        self._planets   = planets
+        self._planet_model = planet_model
+        self._diffusion = diffusion
+        self._chemistry = chemistry
+        self._external_photo = ext_photoevaporation
+        self._internal_photo = int_photoevaporation
+        #self._peb_acc = PebbleAccretionHill(disc)
+
+        self._history = history
+
+        self._t = t0
+        self._nstep = 0
+
+    def __call__(self, tmax):
+        """Evolve the disc and planet for a single timestep
+
+        args:
+            dtmax : Upper limit to time-step
+
+        returns:
+            dt : Time step taken
+        """
+        disc = self._disc
+        planets = self._planets
+        planet_model = self._planet_model
+
+        # Compute the maximum time-step
+        # This is only based on the disc parameters - nothing to do with the planets
+        dt = tmax - self.t
+        #print ('1',dt/yr)
+        if self._gas:
+            dt = min(dt, self._gas.max_timestep(self._disc))
+            # print("gas dt:", dt)
+            #print ('2',dt/yr,self._gas.max_timestep(self._disc)/yr)
+        if self._dust:
+            v_visc  = self._gas.viscous_velocity(disc)
+            # print("dust dt:", self._dust.max_timestep(self._disc, v_visc))
+            dt = min(dt, self._dust.max_timestep(self._disc, v_visc))
+            #print ('3',dt/yr,self._dust.max_timestep(self._disc, v_visc)/yr)
+            if self._dust._diffuse:
+                dt = min(dt, self._dust._diffuse.max_timestep(self._disc))
+                #print ('4',dt/yr,self._dust._diffuse.max_timestep(self._disc)/yr)
+        if self._diffusion:
+            dt = min(dt, self._diffusion.max_timestep(self._disc))       
+            #print ('5',dt/yr,self._diffusion.max_timestep(self._disc)/yr)
+        if self._external_photo and hasattr(self._external_photo,"_density"): # If we are using density to calculate mass loss rates, we need to limit the time step based on photoevaporation
+            (dM_dot, dM_gas) = self._external_photo.optically_thin_weighting(disc)
+            Dt = dM_gas[(dM_dot>0)] / dM_dot[(dM_dot>0)]
+            Dt_min = np.min(Dt)
+            dt = min(dt,Dt_min)
+            #print ('6',dt/yr,Dt_min)
+        #print (dt/yr)
+        # Determine tracers for dust step
+        gas_chem, ice_chem = None, None
+        dust = None
+        tracers = None
+
+        try:
+            gas_chem = disc.chem.gas.data
+            ice_chem = disc.chem.ice.data
+        except AttributeError:
+            pass
+
+        # Do dust evolution    
+        if self._dust:
+            self._dust(dt, disc,
+                       gas_tracers=gas_chem,
+                       dust_tracers=ice_chem, 
+                       v_visc=v_visc)
+        try:
+            gas_chem = disc.chem.gas.data
+            ice_chem = disc.chem.ice.data
+        except AttributeError:
+            pass
+
+        try:
+            dust = disc.dust_frac
+        except AttributeError:
+            pass
+
+        # Do Advection-diffusion update
+        if self._gas:
+            self._gas(dt, disc, [gas_chem], [dust, ice_chem])
+
+        if self._diffusion:
+            if gas_chem is not None:
+                gas_chem[:] += dt * self._diffusion(disc, gas_chem)
+            if ice_chem is not None:
+                ice_chem[:] += dt * self._diffusion(disc, ice_chem)
+            if dust is not None:
+                dust[:] += dt * self._diffusion(disc, dust)
+
+
+        # Do external photoevaporation
+        if self._external_photo:
+            self._external_photo(disc, dt)
+
+        # Do internal photoevaporation
+        if self._internal_photo:
+            self._internal_photo(disc, dt/yr, self._external_photo)
+
+        # Pin the values to >= 0 and <=1:
+        disc.Sigma[:] = np.maximum(disc.Sigma, 0)        
+        try:
+            disc.dust_frac[:] = np.maximum(disc.dust_frac, 0)
+            disc.dust_frac[:] /= np.maximum(disc.dust_frac.sum(0), 1.0)
+        except AttributeError:
+            pass
+        try:
+            disc.chem.gas.data[:] = np.maximum(disc.chem.gas.data, 0)
+            disc.chem.ice.data[:] = np.maximum(disc.chem.ice.data, 0)
+        except AttributeError:
+            pass
+
+        # Chemistry
+        if self._chemistry:
+            rho = disc.midplane_gas_density
+            eps = disc.dust_frac.sum(0)
+            grain_size = disc.grain_size[-1]
+            T = disc.T
+
+            self._chemistry.update(dt, T, rho, eps, disc.chem, 
+                                   grain_size=grain_size)
+
+            # If we have dust, we should update it now the ice fraction has
+            # changed
+            disc.update_ices(disc.chem.ice)
+
+        # Now we should update the auxillary properties, do grain growth etc
+        #vr=self._gas.viscous_velocity(disc)
+        #Mdot_actual = disc.Mdot(vr)
+        #print (self.t,Mdot_actual[0:5],disc.T[0:5])
+        #debug_pause()
+        disc.update(dt)
+        #planet_model.update()
+        # Do planet evolution
+        if self._planet_model:
+            # Is this update needed?  I think integrate does the update
+            #self._planet_model.update()
+            self._planet_model.integrate(dt, planets)
+            #Mdot_s = self._planet_model._peb_acc.computeMdot(planets.R, planets.M_core + planets.M_env)
+        self._t += dt
+        self._nstep += 1
+        return dt
+
+    @property
+    def disc(self):
+        return self._disc
+    @property
+    def planets(self):
+        return self._planets
+
+    @property
+    def planet_model(self):
+        return self._planet_model
+
+    @property
+    def t(self):
+        return self._t
+
+    @property
+    def num_steps(self):
+        return self._nstep
+
+    @property
+    def gas(self):
+        return self._gas
+    @property
+    def dust(self):
+        return self._dust
+    @property
+    def diffusion(self):
+        return self._diffusion
+    @property
+    def chemistry(self):
+        return self._chemistry
+    @property
+    def photoevaporation_external(self):
+        return self._external_photo
+    @property
+    def photoevaporation_internal(self):
+        return self._internal_photo
+    @property
+    def history(self):
+        return self._history
+
+    def dump_ASCII(self, filename):
+        """Write the current state to a file, including header information"""
+
+        # Put together a header containing information about the physics
+        # included
+        head = ''
+        if self._gas:
+            head += self._gas.ASCII_header() + '\n'
+        if self._dust:
+            head += self._dust.ASCII_header() + '\n'
+        if self._planet_model:
+            head += self._planet_model.ASCII_header() + '\n'
+        if self._diffusion:
+            head += self._diffusion.ASCII_header() + '\n'
+        if self._chemistry:
+            head += self._chemistry.ASCII_header() + '\n'
+        if self._external_photo:
+            head += self._external_photo.ASCII_header() + '\n'
+        if self._internal_photo:
+            head += self._internal_photo.ASCII_header() + '\n'
+
+        # Write it all to disc
+        io.dump_ASCII(filename, self._disc, self.t, head,gas=self._gas)
+
+    # def dump_planets_ASCII(self, filename):
+    #     head = ''
+    #     io.dump_planets_ASCII(filename, self._disc, self._planet_model, self._planets, self.t, head)
+
+    def dump_hdf5(self, filename):
+        """Write the current state in HDF5 format, with header information"""
+        headers = []
+        if self._gas:            headers.append(self._gas.HDF5_attributes())
+        if self._dust:           headers.append(self._dust.HDF5_attributes())
+        if self._planet_model:   headers.append(self._planet_model.HDF5_attributes())
+        if self._diffusion:      headers.append(self._diffusion.HDF5_attributes())
+        if self._chemistry:      headers.append(self._chemistry.HDF5_attributes())
+        if self._external_photo: headers.append(self._external_photo.HDF5_attributes())
+        if self._internal_photo: headers.append(self._internal_photo.HDF5_attributes())
+
+        io.dump_hdf5(filename, self._disc, self.t, headers)
 class DiscEvolutionDriver(object):
     """Driver class for full evolution model.
 

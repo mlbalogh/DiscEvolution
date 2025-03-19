@@ -1,5 +1,5 @@
 import errno    
-import os
+import os,sys,code
 
 
 def mkdir_p(path):
@@ -23,3 +23,11 @@ def make_ASCII_header(HDF5_attributes):
         return "{}: {}".format(key, value)
 
     return head + ", ".join(map(make_item, HDF5_attributes[1].items()))
+def debug_pause():
+    """Pause execution and allow user to inspect the state before continuing or exiting."""
+    print("\n--- Debug Pause ---")
+    choice = input("Press Enter to continue or type 'exit' to stop: ").strip().lower()
+    if choice == "exit":
+        sys.exit("Exiting program.")
+    else:
+        code.interact(local=dict(globals(), **locals()))

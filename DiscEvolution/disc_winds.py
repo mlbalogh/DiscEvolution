@@ -28,20 +28,31 @@ class DiskWindEvolution:
         self.k0 = k0
         self.edge = edge
 
-        self._tol = 0.5
+        self._tol = 10
 
         self.cs0 = ((Constants.gamma)*(Constants.boltz)*self.T0/(Constants.mu*Constants.mH))**0.5
 
-    def __call__(self, R, t):
+        self._time = 0
+
+    def __call__(self, dt, disc, tracers=None, adv=None):
         '''Returns the surface density, temperature, total mass, and accretion rate at a given time t and radius R.'''
         star = self._star
-        mask = R > self.edge
-        try:
-            self.fw = np.where(mask, self.deadzone_fw, self.fw)
-            self.v0 = np.where(mask, self.deadzone_v0, self.v0)
-        except AttributeError:
-            pass
 
+        self._time += dt/(2*np.pi)
+        t = self._time
+        # mask = R > self.edge
+        # try:
+        #     self.fw = np.where(mask, self.deadzone_fw, self.fw)
+        #     self.v0 = np.where(mask, self.deadzone_v0, self.v0)
+        # except AttributeError:
+        #     pass
+        type = "disc"
+        try:
+            R = disc.R
+        except: 
+            R = disc
+            type = "grid"
+        
         R=R*AU
         t=t*yr
         Mstar = star.M * Msun  # Convert star mass to grams
@@ -92,7 +103,12 @@ class DiskWindEvolution:
         Mtot /= Msun  # Total mass in solar masses
         Macc /= Msun / 3.154e7  # Accretion rate in solar masses per year
 
-        return sigma, T, Mtot, Macc
+        self._set_constants(T, Mtot, Macc)
+
+        if type == "disc":
+            disc.Sigma[:] = sigma
+        else:
+            return sigma
     
     def get_suzuki_params(self):
         """
@@ -120,6 +136,16 @@ class DiskWindEvolution:
         else:
             return fw, v0
         
+    def viscous_velocity(self, disc, Sigma=None):
+        Sigma = disc.Sigma
+        R = disc.R
+        nu = disc.nu
+
+        # v_r = -3/(Sigma*np.sqrt(R)) * np.diff(nu*Sigma*np.sqrt(R)) / np.diff(R)
+        v_r = -3 / (Sigma[:-1] * np.sqrt(R[:-1])) * np.diff(nu * Sigma * np.sqrt(R)) / np.diff(R)
+    
+        return v_r
+    
     def max_timestep(self, disc):
         """Courant limited time-step"""
         grid = disc.grid
@@ -133,6 +159,12 @@ class DiskWindEvolution:
     def set_dead_zone_params(self, alpha_turb, alpha_wind):
         self.deadzone_fw, self.deadzone_v0 = self.calculate_chambers_params(alpha_turb, alpha_wind)
 
+    def _set_constants(self, T, M_tot, M_acc):
+        self._T = T
+        self._M_tot = M_tot
+        self._M_acc = M_acc
+
+
     def ASCII_header(self):
         """header"""
         return '# {} tol: {}'.format(self.__class__.__name__, self._tol)
@@ -144,3 +176,13 @@ class DiskWindEvolution:
     @property
     def Omega_ref(self):
         return self._star.Omega_k(self.r0/AU)*(2*np.pi)/yr
+    
+    @property
+    def M_acc(self):
+        """Accretion rate onto star"""
+        return self._M_acc
+    
+    @property
+    def M_tot(self):
+        """Total disk mass"""
+        return self._M_tot

@@ -3,8 +3,8 @@ import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline as ispline
 from scipy.interpolate import UnivariateSpline as spline
 from scipy.integrate import ode
-from .constants import *
-from .disc_utils import make_ASCII_header
+from DiscEvolution.constants import *
+from DiscEvolution.disc_utils import make_ASCII_header
 
 ################################################################################
 # Planet collections class
@@ -23,6 +23,7 @@ class Planets(object):
         self.M_core = np.array([], dtype='f4')
         self.M_env  = np.array([], dtype='f4')
         self.t_form = np.array([], dtype='f4')
+        self.Mdot = np.array([], dtype='f4')
 
         self._N = 0
 
@@ -45,6 +46,7 @@ class Planets(object):
         self.M_env  = np.append(self.M_env, Menv)
         
         self.t_form = np.append(self.t_form, np.ones_like(Menv)*t)
+        self.Mdot = np.append(self.Mdot, R)
 
         self._N += 1
 
@@ -65,7 +67,8 @@ class Planets(object):
 
     @property
     def chem(self):
-        return self._Nchem > 0
+        if self._Nchem is not None:
+            return self._Nchem > 0
 
     def __getitem__(self, idx):
         """Get a sub-set of the planets"""
@@ -74,6 +77,7 @@ class Planets(object):
         sub.R      = self.R[idx]
         sub.M_core = self.M_core[idx]
         sub.M_env  = self.M_env[idx]
+        sub.Mdot   = self.Mdot[idx]
         sub.t_form = self.t_form[idx]
         if self.chem:
             sub.X_core = self.X_core[...,idx]
@@ -737,6 +741,7 @@ class Bitsch2015Model(object):
         planets.R = integ.y[:N]
         planets.M_core = integ.y[N:2*N]
         planets.M_env  = integ.y[2*N:3*N]
+        planets.Mdot = self._peb_acc.computeMdot(planets.R, planets.M_core + planets.M_env)
         
         if chem:
             Ns = np.prod(planets.X_core.shape)
@@ -755,7 +760,7 @@ class Bitsch2015Model(object):
             f.write(head+'\n')
             print('# time: {}yr\n'.format(time / (2 * np.pi)))
 
-            head = '# R M_core M_env t_form'
+            head = '# R M_core M_env t_form Mdot'
             if planets.chem:
                 chem = self._disc.chem
                 for k in chem.gas:
@@ -765,8 +770,8 @@ class Bitsch2015Model(object):
             f.write(head+'\n')
 
             for p in planets:
-                f.write('{} {} {} {}'.format(p.R, p.M_core, p.M_env, 
-                                             p.t_form / (2 * np.pi)))
+                f.write('{} {} {} {} {}'.format(p.R, p.M_core, p.M_env, 
+                                             p.t_form / (2 * np.pi), p.Mdot))
                 if planets.chem:
                     for Xi in p.X_core:
                         f.write(' {}'.format(Xi))
@@ -911,7 +916,7 @@ if __name__ == "__main__":
 
     Rs, Mcs, Mes = [ np.array(X) for X in [Rs, Mcs, Mes]]
         
-    ax =plt.subplot(311)
+    ax = plt.subplot(311)
     plt.loglog(times, Mcs)
     plt.ylabel('$M_\mathrm{core}\,[M_\oplus]$')
     plt.ylim(ymax=1e3)

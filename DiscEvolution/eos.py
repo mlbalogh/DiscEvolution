@@ -546,18 +546,19 @@ class ChambersEOS(EOS_Table):
         
         self._tol=0.5
 
-        self._T = None
-        self._time = 0
+        self._eos_time = 0
 
         self.config = Config
 
         self.cs0 = ((Constants.gamma)*(Constants.boltz)*self.T0/(Constants.mu*Constants.mH))**0.5
 
-    def calculate_T(self, dt, star):
-        
-        dt = ((self._time-dt)/(2*np.pi))
+    def set_grid(self, grid):
+        self._R = grid.Rc
+        self._T = self.calculate_T(0, self._star)
 
-        self._star = star
+    def calculate_T(self, t, star):
+        
+        # dt = ((self._time-dt)/(2*np.pi))
             
         # mask = R > self.edge
         # try:
@@ -567,7 +568,7 @@ class ChambersEOS(EOS_Table):
         #     pass
 
         R=self._R*AU
-        t=dt*yr
+        t*=yr
 
         Mstar = star.M * Msun  # Convert star mass to grams
         s0 = np.sqrt(self.rexp / self.r0)
@@ -604,19 +605,17 @@ class ChambersEOS(EOS_Table):
         Ttop = sig ** 2 + 1
         Tbottom = sig ** 2 + V ** 3 * x ** 3
         T = self.Tevap * (Ttop / Tbottom) ** (1 / 3)
-
         self._T = T
-        self._set_arrays()
 
         return T
-    
-    def set_grid(self, grid):
-        self._R = grid.Rc
-        self._T = None
 
     def update(self, dt, Sigma, amax=1e-5, star=None):
-        self._time += dt
-        self._T = self.calculate_T(dt, star)
+        if star == None:
+            star = self._star
+        self._eos_time += dt/(2*np.pi)
+        t = self._eos_time
+        self._T = self.calculate_T(t, star)
+
         self._set_arrays()
 
     def _Omega(self, R):
@@ -629,6 +628,7 @@ class ChambersEOS(EOS_Table):
         T = self._T
         cs = (k_B*T/(Constants.mu*m_H))**0.5
         cs = cs*2.10805e-6/(2*np.pi) # convert to au/yr
+        # cs = np.sqrt(GasConst * self._T / mu) * (Omega0**-1/AU)
         return cs
 
     def _f_alpha(self, R=None):

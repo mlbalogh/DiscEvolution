@@ -531,11 +531,11 @@ class TaboneSolution(object):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from .disc import AccretionDisc
-    from .grid import Grid
-    from .constants import AU, Msun
-    from .eos import LocallyIsothermalEOS
-    from .star import SimpleStar
+    from DiscEvolution.disc import AccretionDisc
+    from DiscEvolution.grid import Grid
+    from DiscEvolution.constants import AU, Msun
+    from DiscEvolution.eos import LocallyIsothermalEOS
+    from DiscEvolution.star import SimpleStar
 
     alpha = 5e-3
 
