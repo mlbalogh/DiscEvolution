@@ -165,7 +165,7 @@ class PlanetSnap(object):
         planets.M_core = data['M_core']
         planets.M_env  = data['M_env']
         planets.t_form = data['t_form']
-        planets._N = data.shape[0]
+        #planets._N = data.shape[0]
 
 
         if Nchem:
