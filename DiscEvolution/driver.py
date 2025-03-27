@@ -181,6 +181,14 @@ class PlanetDiscDriver(object):
     @property
     def disc(self):
         return self._disc
+    
+    @property
+    def planets(self):
+        return self._planets
+
+    @property
+    def planet_model(self):
+        return self._planet_model
 
     @property
     def t(self):

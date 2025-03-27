@@ -9,18 +9,21 @@
     },
 
     "disc": {
+        "type": "Booth-Rd",
         "alpha": 1e-3,
         "mass": 0.05,
         "unit": "jup",
+        "Schmidt" : 1.0,
+        "gamma"  : 1.0,
         "Rc": 35.0,
-        "d2g": 0.01
+        "d2g": 0.01,
+        "Mdot"  : 1e-8,
+        "amin"  : 1e-5
     },
 
     "eos": {
-        "type": "iso",
-        "h0": 0.033,
-        "q": -0.25,
-        "mu": 2.5
+        "type": "simple",
+        "opacity" : "Tazzari2016"
     },
 
     "transport": {
@@ -50,7 +53,7 @@
     },
 
     "planetesimal": {
-        "active": false,
+        "active": true,
         "diameter": 100,
         "St_min": 0.01,
         "St_max": 10,
@@ -65,8 +68,9 @@
     },
 
     "output" : {
-        "directory" : "output",
-        "base" : "disc",
+        "directory" : "output_planetesimals",
+        "base"	: "disc",
+        "planet"  : "planet",
         "format"    : "ascii",
         "first"     : 0.0,
         "last"      : 1e6,
@@ -76,6 +80,15 @@
     },
 
     "chemistry" : {
-        "on"   : false 
+    "on"   : false, 
+    "type" : "NoReact", 
+    "fix_mu" : true,
+    "mu"     : 2.4,
+    "crate" : 1e-17,
+    "use_abundance_file" : true,
+    "abundances" : "Eistrup2016.dat",
+    "normalize" : true,
+    "variable_grain_size" : true,
+    "substep" : 1
     }
 }

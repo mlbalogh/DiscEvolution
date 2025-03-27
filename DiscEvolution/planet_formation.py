@@ -1025,7 +1025,8 @@ class Bitsch2015Model(object):
         with open(filename, 'w') as f:
             head = self.ASCII_header()
             f.write(head+'\n')
-            print('# time: {}yr\n'.format(time / (2 * np.pi)))
+            #print('# time: {}yr\n'.format(time / (2 * np.pi)))
+            f.write('# time: {}yr\n'.format(time / (2 * np.pi)))
 
             head = '# R M_core M_env t_form'
             if planets.chem:
