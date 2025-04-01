@@ -663,11 +663,10 @@ class SingleFluidDrift(object):
         settling  : Include settling in the velocity calculation, default=False
         van_leer  : Use 2nd-order Van-Leer reconstruction, default=False
     """
-    def __init__(self, diffusion=None, settling=False, van_leer=False, planetesimal=False):
+    def __init__(self, diffusion=None, settling=False, van_leer=False):
         self._diffuse = diffusion
         self._settling = settling
         self._van_leer = van_leer
-        self._planetesimal = planetesimal
 
     def ASCII_header(self):
         """Radial drift header"""
@@ -915,7 +914,7 @@ class SingleFluidDrift(object):
         fluxes = self._fluxes(disc, disc.dust_frac, DeltaV, disc.Stokes(), dt)
         
         # Update the dust fraction with the sink term included
-        if self._planetesimal:
+        if disc._planetesimal:
             # Note that this is under the assumption that the dust population 
             # is modelled under Birnstiel et al. (2012) two-population
             try:
@@ -929,8 +928,6 @@ class SingleFluidDrift(object):
                 
                 disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
 
-                if max(disc._v_drift[1]) > 0:
-                    print("V_drift: ", max(disc._v_drift[1]))
             except:
                 pass
         else:

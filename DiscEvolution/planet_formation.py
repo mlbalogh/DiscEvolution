@@ -68,6 +68,8 @@ class Planets(object):
 
     @property
     def chem(self):
+        if self._Nchem is None:
+            return False
         return self._Nchem > 0
     
     @property
@@ -352,7 +354,7 @@ class PlanetesimalAccretion(object):
 
         # Calculate the drag coefficient for the different regimes
         # Apply conditions: Ma < 1 and Re < 10^3
-        condition = (Ma < 1) & (Re < 1e3)
+        condition = (Ma < 1) & (Re < 1e3) & (Re > 1)
         drag_coeff[condition] = 6 / np.sqrt(Re[condition])
 
         # Apply conditions: Ma < 1 and 10^3 < Re < 10^5
@@ -386,7 +388,7 @@ class PlanetesimalAccretion(object):
         star = disc.star
 
         rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
-        c_s  = disc.cs
+        c_s  = disc.interp(Rp, disc.cs)
         M_p  = Mp * Mearth / Msun
 
         return G * M_p / (c_s*c_s + (G * M_p / (0.25 * rH)))
@@ -405,7 +407,7 @@ class PlanetesimalAccretion(object):
         star    = disc.star
 
         rH      = star.r_Hill(Rp, Mp*Mearth/Msun)
-        D       = self.drag_coeff()
+        D       = disc.interp(Rp, self.drag_coeff())
         R_pla   = disc.R_planetesimal
         rho_p   = disc._rho_s
 
@@ -467,7 +469,8 @@ class PlanetesimalAccretion(object):
         mmn_ref = 2.4e4 * 1000 * AU*AU  # in g/AU^2
         
         # Calculate normalized gas surface density
-        fg = disc.Sigma_G / (mmn_ref * (Rp/1.0)**-1)
+        Sigma_G = disc.interp(Rp, disc.Sigma_G)
+        fg = Sigma_G / (mmn_ref * (Rp/1.0)**-1)
         
         R_pla = disc.R_planetesimal  # in km
         rho_p = disc._rho_s  # in g/cm^3
@@ -527,8 +530,8 @@ class PlanetesimalAccretion(object):
         Sigma_pla = disc.interp(Rp, disc.Sigma_D[2])
         r_dot = disc.interp(Rp, disc.v_drift[2])
         acc_eff = self.computeAccEff(Rp, Mp, dRdt)
-        R_captr = disc.interp(Rp, acc_eff[1])
-        acc_eff_Rp = disc.interp(Rp, acc_eff[0])
+        R_captr = acc_eff[1]
+        acc_eff_Rp = acc_eff[0]
 
         # Calculate the planetesimal accretion rate
         Mdot = 2 * np.pi * Rp * r_dot * Sigma_pla * acc_eff_Rp

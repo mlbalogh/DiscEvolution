@@ -383,17 +383,14 @@ def setup_planets(model, disc):
         return None
 
     planet_params = model['planets']
-        
-    planets = Planets(Nchem = 0)
-    
-    Rp = planet_params['Rp']
-    Mp = planet_params['Mp']
+    planets = Planets(Nchem=0)
+    p=planet_params['planets']
 
-    for i in range(len(Rp)):
-        planets.add_planet(0, Rp[i], Mp[i], 0)
+    for i in np.arange(np.size(p)):
+        planets.add_planet(p[i]['t'],p[i]['R'],p[i]['Mp'],p[i]['Menv'])
 
     if planet_params['planet model'] == 'Bitsch2015Model':
-        planet_model = Bitsch2015Model(disc, pb_gas_f=0.1)
+        planet_model = Bitsch2015Model(disc, pb_gas_f=0.1,migrate=planet_params['migrate'])
 
     return planets, planet_model
     
@@ -443,6 +440,7 @@ def setup_model(model, disc, start_time):
             chemistry = setup_simple_chem(model)
 
     if model['planetesimal']['active']:
+        print("Planetesimal formation active")
         disc._planetesimal = True
         planetesimal_params = model['planetesimal']
         planetesimal = PlanetesimalFormation(disc, d_planetesimal=planetesimal_params['diameter'], St_min=planetesimal_params['St_min'], 
