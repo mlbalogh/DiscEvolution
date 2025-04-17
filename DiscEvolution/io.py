@@ -158,6 +158,8 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
             head += ' epsilon[{}]'.format(i)
         for i in range(Ndust):
             head += ' a[{}]'.format(i)
+        for i in range(Ndust):
+            head += ' H_p[{}]'.format(i)
             
         chem = None
         try:
@@ -179,6 +181,8 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
                 f.write(' {}'.format(disc.dust_frac[j, i]))
             for j in range(Ndust):
                 f.write(' {}'.format(disc.grain_size[j, i]))
+            for j in range(Ndust):  
+                f.write(' {}'.format(disc.Hp[j, i]))
             if chem:
                 for k in chem.gas:
                     f.write(' {}'.format(chem.gas[k][i]))

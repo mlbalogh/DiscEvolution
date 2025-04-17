@@ -54,7 +54,9 @@ class StarBase(object):
             R : radius, AU
             M : planet mass
         """
-        return R * (M / (3*self._M))**(1/3.)
+        try:
+            return R * (M / (3*self._M))**(1/3.)
+        except: print("-------------", np.min(R), np.min(M), np.min(self._M), "-------------")
 
     def evolve(self, age, M=None):
         """Update the stellar properties based on current age and mass

@@ -17,8 +17,9 @@ class Planets(object):
 
     args:
         Nchem : number of chemical species to track, default = None
+        grid  : create a grid of planets instead (that won't grow)
     """
-    def __init__(self, Nchem=None):
+    def __init__(self, Nchem=None, evolve = False):
         self.R  = np.array([], dtype='f4')
         self.M_core = np.array([], dtype='f4')
         self.M_env  = np.array([], dtype='f4')
@@ -26,6 +27,8 @@ class Planets(object):
         self.Mdot = np.array([], dtype='f4')
 
         self._N = 0
+
+        self._evolve = evolve
 
         if Nchem:
             self.X_core = np.array([[] for _ in range(Nchem)], dtype='f4')
@@ -64,6 +67,10 @@ class Planets(object):
     def N(self):
         """Number of planets"""
         return self._N
+    
+    @property
+    def evolve(self):
+        return self._evolve
 
     @property
     def chem(self):
@@ -673,6 +680,12 @@ class Bitsch2015Model(object):
         """
         if planets.N == 0: return
         self.update()
+
+        if planets.evolve == False:
+            planets.Mdot = self._peb_acc.computeMdot(planets.R, planets.M_core + planets.M_env)
+            self.update()
+            return
+        
         
         chem = False
         if planets.chem:

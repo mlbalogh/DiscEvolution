@@ -61,9 +61,15 @@ class DiscSnap(object):
 
         self._eps = np.empty([Ndust, Ndata], dtype='f8')
         self._a   = np.empty([Ndust, Ndata], dtype='f8')
+        try:
+            self._Hp = np.empty([Ndust, Ndata], dtype='f8')
+        except: pass
         for i in range(Ndust):
             self._eps[i] = data['epsilon{}'.format(i)]
             self._a[i]   = data['a{}'.format(i)]
+            try:
+                self._Hp[i]  = data['H_p{}'.format(i)]
+            except: pass
 
         # Only if chemistry used
         if chem_on:
@@ -99,6 +105,9 @@ class DiscSnap(object):
     @property
     def dust_frac(self):
         return self._eps
+    @property
+    def Hp(self):
+        return self._Hp
     @property
     def grain_size(self):
         return self._a
@@ -194,7 +203,87 @@ class PlanetSnap(object):
     @property
     def planets(self):
         return self._planets
+    
+class PlanetSnapBetter:
+    def __init__(self, directory):
+        self.directory = directory
+        self.times = []
+        self.R = []
+        self.M_core = []
+        self.M_env = []
+        self.t_form = []
+        self.Mdot = []
 
+    def load_data(self, filename):
+        R = []
+        M_core = []
+        M_env = []
+        t_form = []
+        Mdot = []
+
+        filename = self.directory+filename
+
+        with open(filename, 'r') as file:
+            lines = file.readlines()
+            data_started = False
+
+            for line in lines:
+                if line.startswith("#"):
+                    continue
+                else:
+                    data_started = True
+                
+                if data_started:
+                    values = line.split()
+                    R.append(float(values[0]))
+                    M_core.append(float(values[1]))
+                    M_env.append(float(values[2]))
+                    t_form.append(float(values[3]))
+                    try:
+                        Mdot.append(float(values[4]))
+                    except: pass
+
+        R = np.array(R)
+        M_core = np.array(M_core)
+        M_env = np.array(M_env)
+        t_form = np.array(t_form)
+        Mdot = np.array(Mdot)
+
+        return R, M_core, M_env, t_form, Mdot
+
+    def get_planet_properties(self):
+        return {
+            "R": self.R,
+            "M_core": self.M_core,
+            "M_env": self.M_env,
+            "t_form": self.t_form,
+            "Mdot": self.Mdot
+        }
+    
+    def load_all_timesteps(self):
+        times = []
+        R = []
+        M_core = []
+        M_env = []
+        Mdot = []
+        
+        for t in np.arange(0, 300+1, 1):
+            filenum = f"{int(t):04d}"
+            filename = self.directory + f'planet_{filenum}.dat'
+            r, m_core, m_env, t_form, mdot = self.load_data(filename)
+            
+            times.append(t * 1e4)
+            R.append(r)
+            M_core.append(m_core)
+            M_env.append(m_env)
+            Mdot.append(mdot)
+        
+        self.times = np.array(times)
+        self.R = np.array(R)
+        self.M_core = np.array(M_core)
+        self.M_env = np.array(M_env)
+        self.t_form = np.array(t_form)
+        self.Mdot = np.array(Mdot)
 
 class Reader(object):
 

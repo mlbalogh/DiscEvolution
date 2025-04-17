@@ -59,7 +59,7 @@ from DiscEvolution.planet_formation import (Planets, PebbleAccretionHill, Bitsch
 # Global Constants
 ###############################################################################
 
-DefaultModel = "example/model.json"
+DefaultModel = "example/new_model.json"
 
 ###############################################################################
 # Global Functions
@@ -306,7 +306,7 @@ def setup_disc(model):
             alpha=alpha*(Mdot/Msun*yr)/Mdot_actual
         Sigma = Sigma0
 
-    elif p['type'] == "Chambers":
+    elif p['type'] == "chambers":
         params = model['chambers params']
         wind = DiskWindEvolution(star, params['sigma0'], params['r0'], params['T0'],
                     params['v0'], params['fw'],
@@ -395,6 +395,22 @@ def setup_planets(model,disc):
     p=model['planets']['planets']
     for i in np.arange(np.size(p)):
         planets.add_planet(p[i]['t'],p[i]['R'],p[i]['Mp'],p[i]['Menv'])
+
+    if model['planets']['grid'] == True:
+        planets = Planets(evolve = model['planets']['evolve'])
+        p = model['planets_grid']
+        M_start, M_stop, n_M = p['M_start'],  p['M_stop'], p['n_M']
+        R_start, R_stop, n_R = p['R_start'],  p['R_stop'], p['n_R']
+        
+        # masses = np.linspace(M_start, M_stop, n_M)
+        # radii  = np.linspace(R_start, R_stop, n_R)
+        masses = np.logspace(M_start, M_stop, n_M)
+        radii  = np.logspace(R_start, R_stop, n_R)
+
+        for R in radii:
+            for M in masses:
+                planets.add_planet(0, R, M, 0)
+
     planet_model = Bitsch2015Model(disc,migrate=model['planets']['migrate'])
     #planet_model.insert_new_planet(planet_tinit, Rp, planets)
     # if model['planets']['enabled']==True:
@@ -509,6 +525,11 @@ def setup_output(model):
     
     # Base string for output:
     mkdir_p(out['directory'])
+
+    # Save model configuration
+    with open(os.path.join(out['directory'], 'sim_params.json'), 'w') as f:
+        json.dump(model, f, indent=4)
+
     base_name = os.path.join(out['directory'], out['base'] + '_{:04d}')
     base_planet_name = os.path.join(out['directory'], out['planet'] +'_{:04d}')
 
