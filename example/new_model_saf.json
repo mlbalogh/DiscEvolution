@@ -1,0 +1,137 @@
+{
+  "grid" : {
+    "N"  : 500,
+    "R0" : 0.1,
+    "R1" : 1000.0,
+    "spacing" : "natural"
+  },
+
+  "disc" : {
+    "alpha"   : 0.001,
+    "mass"    : 0.05,
+    "Rc"      : 100.0,
+    "d2g"     : 0.01,
+    "Schmidt" : 1.0,
+    "gamma"  : 1.0,
+    "type"  : "chambers",
+    "Mdot"  : 1e-9,
+    "amin"  : 1e-5,
+    "feedback"  : false
+  },
+  
+  "coagulation" : {
+    "use_smoluchowski" : false,
+    "f_grow" : 1.0, 
+    "amin"   : 1e-5, 
+    "rho_s"  : 1.0,
+    
+    "u_frag"   : 1000.0,
+    "u_bounce" : 0.0,
+    "kernel_type" : "Birnstiel",
+    "amax"     : 10,
+    "Nbins"    : 180,
+    
+    "gsd" : "MRN",
+    "gsd_params" : {}
+  },
+    
+  "planets" : {
+    "enabled" : true,
+    "planets" : [
+      {"Mp" : 0.1, "R" : 1, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.1, "R" : 5, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.1, "R" : 10, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.1, "R" : 20, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.1, "R" : 30, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.01, "R" : 1, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.01, "R" : 5, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.01, "R" : 10, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.01, "R" : 20, "t" : 0.0,"Menv" : 0.0},
+      {"Mp" : 0.01, "R" : 30, "t" : 0.0,"Menv" : 0.0}
+    ],
+    "migrate" : false,
+    "grid"    : true,
+    "evolve"  : false
+  },
+
+  "planets_grid"  : {
+    "M_start"   : -5,
+    "M_stop"    : 1,
+    "n_M"       : 300,
+    "R_start"   : -1,
+    "R_stop"    : 2,
+    "n_R"       : 400
+  },
+
+  "chemistry" : {
+    "on"   : false, 
+    "type" : "NoReact", 
+    "fix_mu" : true,
+    "mu"     : 2.4,
+    "crate" : 1e-17,
+    "use_abundance_file" : true,
+    "abundances" : "Eistrup2016.dat",
+    "normalize" : true,
+    "variable_grain_size" : true,
+    "substep" : 1
+  },
+
+  "eos" : {
+     "type" : "irradiated", 
+     "h0"   : 0.033,
+     "q"    : -0.25,
+     "opacity" : "Tazzari2016"
+
+  },
+  "chambers params": {
+      "sigma0": 300,
+      "r0": 1,
+      "T0": 150,
+      "v0": 30,
+      "fw": 0,
+      "K": 0,
+      "alpha_turb": 0.001,
+      "alpha_wind": 0,
+      "Tevap": 1500,
+      "rexp": 95,
+      "k0": 0.1,
+      "initial_frac": 0.01
+  },
+
+  "star" : {
+  "mass" : 1.0,
+  "radius" : 2.5,
+  "T_eff" : 4000.0
+  },
+
+  "transport" : {
+    "gas"          : "chambers", 
+    "radial drift" : true,
+    "diffusion"	   : true		   
+  },
+
+  "dust_transport" : {
+    "van leer" : true,
+    "settling" : false,
+    "diffusion" : true
+    },
+
+  "photoevaporation" : {
+    "on" : false,
+    "method" : "internal_const",
+    "coeff"  : 1e-9
+  },   
+
+
+  "output" : {
+    "directory" : "output/A_irr/",
+    "base"	: "disc",
+    "planet"  : "planet",
+    "format"    : "ascii",
+    "first"     : 0.0,
+    "last"      : 3e6,
+    "interval"  : 1e4,
+    "plot"      : false,
+    "plot_times" : [0, 1e5, 5e5, 1e6, 2e6, 3e6]
+  }
+}
