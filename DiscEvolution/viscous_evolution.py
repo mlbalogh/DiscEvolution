@@ -375,7 +375,7 @@ class HybridWindModel(object):
     def _init_fluxes_wind(self, disc, dt=0):
         """Compute the flux and mass-loss rate due to the wind"""
         #Use first order Donor cell method:
-        v_DW = 1.5 * (disc.nu/disc.R) * self._psi / (1 + self._psi)
+        v_DW = 1.5 * (disc.nu/disc.R) * self._psi / (1 + self._psi) 
 
         F = np.zeros(len(disc.Sigma_G) + 1, dtype='f8')
         F[:-1] = v_DW * disc.Sigma_G
@@ -535,7 +535,7 @@ if __name__ == "__main__":
     from .disc import AccretionDisc
     from .grid import Grid
     from .constants import AU, Msun
-    from .eos import LocallyIsothermalEOS
+    from .eos import LocallyIsothermalEOS, SimpleDiscEOS
     from .star import SimpleStar
 
     alpha = 5e-3
@@ -547,7 +547,8 @@ if __name__ == "__main__":
     grid = Grid(0.1, 1000, 1000, spacing='natural')
     star = SimpleStar()
     eos = LocallyIsothermalEOS(star, 1 / 30., -0.25, alpha)
-    eos.set_grid(grid)
+    eos.set_grid(grid)    
+
 
     nud = np.interp(Rd, grid.Rc, eos.nu)
     sol = LBP_Solution(M, Rd, nud, 1)

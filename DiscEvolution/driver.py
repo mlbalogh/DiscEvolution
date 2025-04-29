@@ -75,27 +75,20 @@ class PlanetEvolutionDriver(object):
         # Compute the maximum time-step
         # This is only based on the disc parameters - nothing to do with the planets
         dt = tmax - self.t
-        #print ('1',dt/yr)
         if self._gas:
             dt = min(dt, self._gas.max_timestep(self._disc))
-            #print ('2',dt/yr,self._gas.max_timestep(self._disc)/yr)
         if self._dust:
             v_visc  = self._gas.viscous_velocity(disc)
             dt = min(dt, self._dust.max_timestep(self._disc, v_visc))
-            #print ('3',dt/yr,self._dust.max_timestep(self._disc, v_visc)/yr)
             if self._dust._diffuse:
                 dt = min(dt, self._dust._diffuse.max_timestep(self._disc))
-                #print ('4',dt/yr,self._dust._diffuse.max_timestep(self._disc)/yr)
         if self._diffusion:
             dt = min(dt, self._diffusion.max_timestep(self._disc))       
-            #print ('5',dt/yr,self._diffusion.max_timestep(self._disc)/yr)
         if self._external_photo and hasattr(self._external_photo,"_density"): # If we are using density to calculate mass loss rates, we need to limit the time step based on photoevaporation
             (dM_dot, dM_gas) = self._external_photo.optically_thin_weighting(disc)
             Dt = dM_gas[(dM_dot>0)] / dM_dot[(dM_dot>0)]
             Dt_min = np.min(Dt)
             dt = min(dt,Dt_min)
-            #print ('6',dt/yr,Dt_min)
-        #print (dt/yr)
         # Determine tracers for dust step
         gas_chem, ice_chem = None, None
         dust = None

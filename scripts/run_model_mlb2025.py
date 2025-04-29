@@ -235,25 +235,26 @@ def setup_disc(model):
             print (j,alpha,Mtot/Msun)
     elif p['type'] == 'Booth-Rd':
         # For fixed alpha, Mdot and Mdisk, solve for Rd
-    
-        # Initial guess for Sigma:
+
+        # Get model parameters
         Mdot=model['disc']['Mdot']* Msun/yr / AU**2
         Mdisk=model['disc']['mass']* Msun
         alpha=model['disc']['alpha']
-        Rd=model['disc']['Rc']
+        Rd=model['disc']['Rc'] # Required as an initial guess
         R = grid.Rc
 
+        # Initial guess for Sigma:
         Sigma = (Mdot / (0.1 * alpha * R**2 * star.Omega_k(R))) * np.exp(-R/Rd)
         eos.update(0, Sigma)
-        # iterate to get alpha
+        # iterate to get Rd
         for j in range(10):
-            # Iterate to get Mdot
+            # Iterate to get Sigma given Mdot and Rd
             for i in range(100):
                 Sigma = 0.5 * (Sigma + (Mdot / (3 * np.pi * eos.nu)) * np.exp(-R/Rd))
                 eos.update(0, Sigma)
+            # Calculate total mass of disk (Mtot).  Rescale Rd so this matches Mdisk
             Mtot = AccretionDisc(grid, star, eos, Sigma).Mtot()
             Rd=Rd*Mdisk/Mtot
-            #print (j,Rd,Mtot/Msun)
         print ('Rd: ',Rd)
 
     elif p['type'] == 'LBP':
@@ -561,23 +562,23 @@ def run(model, io, base_name, restart, verbose=True, base_planet_name=None,n_pri
                 print('Nstep: {}'.format(model.num_steps))
                 print('Time: {} yr'.format(model.t / yr))
                 print('dt: {} yr'.format(dt / yr))            
-                #debug_pause()
                 vr=model.gas.viscous_velocity(model.disc,model.disc.Sigma)
                 Mdot_actual=model.disc.Mdot(vr)#* (Msun / yr)
                 Mdot_SS=3.*np.pi*model.disc.alpha*model.disc.cs*model.disc.cs*model.disc.Sigma/model.disc.Omega_k/(Msun/yr)*AU*AU
-                print('Mdot: {}, {}'.format(Mdot_actual[0],Mdot_SS[0]))
+                #print('Mdot: {}, {}'.format(Mdot_actual[0],Mdot_SS[0]))
+                #debug_pause()
 
 
         if io.check_event(model.t, 'save'):
             if base_name.endswith('.h5'):
                 model.dump_hdf5(base_name.format(io.event_number('save')))
                 if (base_planet_name):
-                	model.dump_planets_hdf5(base_planet_name.format(io.event_number('save')))
+                    model.dump_planets_hdf5(base_planet_name.format(io.event_number('save')))
             else:
                 model.dump_ASCII(base_name.format(io.event_number('save')))
                 if (base_planet_name):
                     model.planet_model.dump(base_planet_name.format(io.event_number('save')),ti,model.planets)
-                	#model.dump_planets_ASCII(base_planet_name.format(io.event_number('save')))
+                    #model.dump_planets_ASCII(base_planet_name.format(io.event_number('save')))
 
         if io.check_event(model.t, 'plot'):
             plot = True
@@ -606,11 +607,10 @@ def main(*args):
 
     args = parser.parse_args(*args)
     model = json.load(open(args.model, 'r'))
-    #stop    
     disc = setup_disc(model)		
     #print (disc.Mtot()/Msun)
     #debug_pause()
-    gas=ViscousEvolution()
+    #gas=ViscousEvolution()
     planets,planet_model = setup_planets(model,disc)
     #planets=planet_model = None
 
