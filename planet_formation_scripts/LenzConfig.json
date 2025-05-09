@@ -57,7 +57,7 @@
         "diameter": 100,
         "St_min": 0.01,
         "St_max": 10,
-        "pla_eff": 0.1
+        "pla_eff": 0.01
     },
 
     "planets": {
@@ -79,7 +79,7 @@
     },
 
     "output" : {
-        "directory" : "output_planetesimals",
+        "directory" : "output_planetesimals_eff_0.01",
         "base"	: "disc",
         "planet"  : "planet",
         "format"    : "ascii",
