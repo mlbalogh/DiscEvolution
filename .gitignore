@@ -7,3 +7,6 @@ __pycache__
 *.avi
 *.pdf
 *.eps
+chemo_dynamics_old.py
+run_model_chemo.py
+run_model_yuvan.py
