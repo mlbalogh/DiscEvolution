@@ -1,16 +1,3 @@
-# run_model.py
-#
-# Author: R. Booth
-# Date: 4 - Jun - 2018
-#
-# Run a disc evolution model with transport and absorption / desorption but
-# no other chemical reactions. 
-#
-# Note:
-#   The environment variable 
-#       "KROME_PATH=/home/rab200/WorkingCopies/krome_ilee/build"
-#   should be set.
-###############################################################################
 import os 
 import sys
 
@@ -20,19 +7,19 @@ import json
 import numpy as np
 import matplotlib.pyplot as plt
 from DiscEvolution.constants import Msun, AU, yr
-from DiscEvolution.grid import Grid, MultiResolutionGrid
+from DiscEvolution.grid import Grid
 from DiscEvolution.star import SimpleStar, MesaStar
 from DiscEvolution.eos  import IrradiatedEOS, LocallyIsothermalEOS, SimpleDiscEOS
 from DiscEvolution.disc import AccretionDisc
-from DiscEvolution.dust import DustGrowthTwoPop
+from DiscEvolution.dust import DustGrowthTwoPop, PlanetesimalFormation, FixedSizeDust
 from DiscEvolution.opacity import Tazzari2016, Zhu2012
-from DiscEvolution.viscous_evolution import ViscousEvolutionFV
+from DiscEvolution.viscous_evolution import ViscousEvolutionFV, LBP_Solution
 from DiscEvolution.dust import SingleFluidDrift
 from DiscEvolution.diffusion import TracerDiffusion
-from DiscEvolution.driver import DiscEvolutionDriver
+from DiscEvolution.driver import PlanetDiscDriver
 from DiscEvolution.io import Event_Controller, DiscReader
 from DiscEvolution.disc_utils import mkdir_p
-from DiscEvolution.planet import Planet, PlanetList
+from DiscEvolution.planet_formation import *
 
 from DiscEvolution.chemistry import (
     ChemicalAbund, MolecularIceAbund, SimpleCNOAtomAbund, SimpleCNOMolAbund,
@@ -50,16 +37,6 @@ except ImportError:
     # but this will never be used if krome_chem is not used
     UserDust2GasCallBack = object
 
-try:
-    from DiscEvolution.coagulation import SmoluchowskiDust
-except ImportError:
-    def SmoluchowskiDust(*args, **kwargs):
-        raise RuntimeError(
-            "Trying to using the SmoluchowskiDust class, which requires the "
-            "coag_toolkit, but we can't find it. Please set the environment "
-            "variable COAG_TOOLKIT to point to the folder containg the "
-            "library.")
-
 
 from DiscEvolution.photoevaporation import (
     FixedExternalEvaporation, TimeExternalEvaporation)
@@ -68,7 +45,7 @@ from DiscEvolution.internal_photo import ConstantInternalPhotoevap
 ###############################################################################
 # Global Constants
 ###############################################################################
-DefaultModel = "example/DiscConfig.json"
+DefaultModel = "planet_formation_scripts/LenzConfig.json"
 
 ###############################################################################
 # Global Functions
@@ -132,7 +109,7 @@ def init_abundances_from_file(model, abund, disc):
     return abund
 
 def setup_init_abund_krome(model, disc):
-    Ncell = disc.Ncells
+    Ncell = model['grid']['N']
 
     gas = KromeGasAbund(Ncell)
     ice = KromeIceAbund(Ncell)
@@ -183,7 +160,7 @@ def get_simple_chemistry_model(model):
 def setup_init_abund_simple(model, disc):
     chemistry = get_simple_chemistry_model(model)
 
-    X_solar = SimpleCNOAtomAbund(disc.Ncells)
+    X_solar = SimpleCNOAtomAbund(model['grid']['N'])
     X_solar.set_solar_abundances()
 
     # Iterate as the ice fraction changes the dust-to-gas ratio
@@ -207,39 +184,18 @@ def setup_init_abund_simple(model, disc):
 
     return chem
 
-def setup_grid(model):
-    p = model['grid']
-    R0, R1, N = p['R0'], p['R1'], p['N'],
-    
-    try:
-        if len(R0) > 1:
-            multi_grid = True
-    except:
-        multi_grid = False
-
-    if multi_grid:
-        if len(R0) != len(R1) and len(R0) != len(N):
-            raise ValueError("for MultiResolutionGrid R0, N, and R1 must be "
-                             "lists of the same length")        
-
-        print("Settup up a MultiResolutionGrid")
-        Radii = [(s, e) for s,e in zip(R0, R1)]
-        return MultiResolutionGrid(Radii, N, spacing=p['spacing'])
-
-    else:
-        return  Grid(R0, R1, N, spacing=p['spacing'])
-
 def setup_disc(model):
     '''Create disc object from initial conditions'''
     # Setup the grid, star and equation of state
-    grid = setup_grid(model)
+    p = model['grid']
+    grid = Grid(p['R0'], p['R1'], p['N'], spacing=p['spacing'])
 
-    p = model['star']
-    if 'MESA_file' in p:
-        age = p.get('age', 0)
-        star = MesaStar(p['MESA_file'], p['mass'], age)
-    else:
-        star = SimpleStar()
+    # p = model['star']
+    # if 'MESA_file' in p:
+    #     age = p.get('age', 0)
+    #     star = MesaStar(p['MESA_file'], p['mass'], age)
+    # else:
+    star = SimpleStar()
     
     p = model['eos']
     if p['type'] == 'irradiated':
@@ -263,49 +219,120 @@ def setup_disc(model):
     
     # Setup the physical part of the disc
     p = model['disc']
-    Sigma = np.exp(-grid.Rc / p['Rc']) / (grid.Rc)
-    Sigma *= p['mass'] / np.trapz(Sigma, np.pi*grid.Rc**2)
-    Sigma *= Msun / AU**2
+    if p['type'] == 'Booth-alpha':
+        # For fixed Rd, Mdot and Mdisk, solve for alpha
+    
+        # Initial guess for Sigma:
+        Mdot=model['disc']['Mdot']* Msun/yr / AU**2
+        Mdisk=model['disc']['mass']* Msun
+        alpha=model['disc']['alpha']
+        Rd=model['disc']['Rc']
+        R = grid.Rc
 
+        Sigma = (Mdot / (0.1 * alpha * R**2 * star.Omega_k(R))) * np.exp(-R/Rd)
+        eos.update(0, Sigma)
+        # iterate to get alpha
+        for j in range(10):
+            # Iterate to get Mdot
+            for i in range(100):
+                Sigma = 0.5 * (Sigma + (Mdot / (3 * np.pi * eos.nu)) * np.exp(-R/Rd))
+                eos.update(0, Sigma)
+            Mtot = AccretionDisc(grid, star, eos, Sigma).Mtot()
+            alpha=alpha*Mtot/(Mdisk)
+            pe = model['eos']
+            if pe['type'] == 'irradiated':
+                eos =IrradiatedEOS(star, alpha, kappa=kappa)
+            elif pe['type'] == 'iso':
+                eos = LocallyIsothermalEOS(star, p['h0'], p['q'],alpha)
+            elif pe['type'] == 'simple':
+                eos =SimpleDiscEOS(star, alpha)
+            eos.set_grid(grid)
+            eos.update(0, Sigma)
+            print (j,alpha,Mtot/Msun)
+    elif p['type'] == 'Booth-Rd':
+        # For fixed alpha, Mdot and Mdisk, solve for Rd
+    
+        # Initial guess for Sigma:
+        Mdot=model['disc']['Mdot']* Msun/yr / AU**2
+        Mdisk=model['disc']['mass']* Msun
+        alpha=model['disc']['alpha']
+        Rd=model['disc']['Rc']
+        R = grid.Rc
+
+        Sigma = (Mdot / (0.1 * alpha * R**2 * star.Omega_k(R))) * np.exp(-R/Rd)
+        eos.update(0, Sigma)
+        # iterate to get alpha
+        for j in range(10):
+            # Iterate to get Mdot
+            for i in range(100):
+                Sigma = 0.5 * (Sigma + (Mdot / (3 * np.pi * eos.nu)) * np.exp(-R/Rd))
+                eos.update(0, Sigma)
+            Mtot = AccretionDisc(grid, star, eos, Sigma).Mtot()
+            Rd=Rd*Mdisk/Mtot
+            #print (j,Rd,Mtot/Msun)
+        print ('Rd: ',Rd)
+
+    elif p['type'] == 'LBP':
+        gas = ViscousEvolutionFV()
+        gamma=model['disc']['gamma']
+        R = grid.Rc
+        Rd=model['disc']['Rc']
+        Mdot=model['disc']['Mdot']* Msun/yr 
+        Mdisk=model['disc']['mass']* Msun
+        alpha=model['disc']['alpha']
+        mu=model['chemistry']['mu']
+        rin=R[0]
+        xin=R[0]/Rd
+        fin=np.exp(-xin**(2.-gamma))*(1.-2.*(2.-gamma)*xin**(2.-gamma))
+        nud_goal=(Mdot/Mdisk)*(2.*Rd*Rd)/(3.*(2.-gamma))/fin*AU*AU #cm^2
+        nud_cgs=nud_goal*yr/3.15e7
+        Om_invsecond=star.Omega_k(Rd)*yr/3.15e7
+
+        cs0 = np.sqrt(Om_invsecond*nud_cgs/alpha) #cm/s
+        Td=cs0*cs0*mu*m_p/k_B #KT=Td*(R/Rd)**(gamma-1.5)
+        T=Td*(R/Rd)**(gamma-1.5)
+
+        cs = np.sqrt(GasConst * T / mu) #cgs
+        cs0 = np.sqrt(GasConst * Td / mu) #cgs
+        nu=alpha*cs*cs/(star.Omega_k(R)*yr/3.15e7) # cm2/s
+        nud=np.interp(Rd,grid.Rc,nu)*3.15e7/yr # cm^2 
+        Sigma=LBP_Solution(Mdisk,Rd*AU,nud,gamma=gamma)
+        Sigma0=Sigma(R*AU,0)    
+        # Adjust alpha so initial Mdot is correct
+        for i in range(10):
+            #eos = IrradiatedEOS(star, alpha,kappa=kappa)
+            eos = SimpleDiscEOS(star, alpha)
+            eos.set_grid(grid)
+            #Sigma0=Sigma(R*AU,0)
+            eos.update(0,Sigma0)
+            #cs0=np.interp(Rd,grid.Rc,eos.cs)
+            #cs0_cgs=cs0*AU*yr/3.15e7
+            disc = AccretionDisc(grid, star, eos, Sigma0)
+            #vr=gas.viscous_velocity(disc,Sigma=Sigma0)
+            vr=gas.viscous_velocity(disc,S=Sigma0)
+            Mdot_actual=disc.Mdot(vr[0])#* (Msun / yr)
+            alpha=alpha*(Mdot/Msun*yr)/Mdot_actual
+        Sigma = Sigma0
+       
+    else:
+        Sigma = np.exp(-grid.Rc / p['Rc']) / (grid.Rc)
+        Sigma *= p['mass'] / np.trapz(Sigma, np.pi*grid.Rc**2)
+        Sigma *= Msun / AU**2
     eos.update(0, Sigma)
-
     try:
         feedback = model['disc']['feedback']
     except KeyError:
         feedback = True
 
-    if p['d2g'] <= 0:
-        disc = AccretionDisc(grid, star, eos, Sigma)
+    if model['disc']['d2g'] > 0:
+        amin = model['disc']['amin']
+
+        disc = DustGrowthTwoPop(grid, star, eos, p['d2g'], Sigma=Sigma, 
+                                amin=amin, Sc=model['disc']['Schmidt'], 
+                                f_grow=model['disc'].get('f_grow',1.0),
+                                feedback=feedback)
     else:
-        coag = model['coagulation']
-        if coag['use_smoluchowski']:
-            amin, amax, Nbins = coag['amin'], coag['amax'], coag['Nbins']
-            rho_s = coag['rho_s']
-            m_min, m_max = [4*np.pi*rho_s*a**3/3 for a in [amin, amax]]
-
-            u_f, u_b = coag['u_frag'], coag['u_bounce']
-            kernel = coag['kernel_type']
-            gsd, gsd_params = coag['gsd'], coag['gsd_params']
-
-            settle =  model['dust_transport'].get('settling', False)
-
-            disc = SmoluchowskiDust(grid, star, eos, 
-                    m_min, m_max, Nbins, p['d2g'],
-                    gsd=gsd, gsd_params=gsd_params, Sigma=Sigma,
-                    Schmidt=model['disc']['Schmidt'], 
-                    feedback=feedback, settling=settle,
-                    rho_s=rho_s,
-                    kernel_type=kernel, u_frag=u_f, u_bounce=u_b)
-
-        else:
-            amin = coag['amin']
-            f_grow = coag.get('f_grow',1.0)
-            rho_s = coag['rho_s']
-
-            disc = DustGrowthTwoPop(grid, star, eos, p['d2g'], Sigma=Sigma, 
-                                    rho_s=rho_s, amin=amin, 
-                                    Sc=model['disc']['Schmidt'], 
-                                    f_grow=f_grow, feedback=feedback)
+        disc = AccretionDisc(grid, star, eos, Sigma)
 
     # Setup the chemical part of the disc
     if model['chemistry']["on"]:
@@ -351,15 +378,21 @@ def setup_krome_chem(model):
 def setup_simple_chem(model):
     return get_simple_chemistry_model(model)
 
-def setup_planets(model):
+def setup_planets(model, disc):
     if 'planets' not in model:
         return None
 
-    planets = PlanetList()
-    for p in model['planets']:
-        planets.append(Planet(**p))
+    planet_params = model['planets']
+    planets = Planets(Nchem=0)
+    p=planet_params['planets']
 
-    return planets
+    for i in np.arange(np.size(p)):
+        planets.add_planet(p[i]['t'],p[i]['R'],p[i]['Mp'],p[i]['Menv'])
+
+    if planet_params['planet model'] == 'Bitsch2015Model':
+        planet_model = Bitsch2015Model(disc, pb_gas_f=0.1,migrate=planet_params['migrate'])
+
+    return planets, planet_model
     
 
 def setup_model(model, disc, start_time):
@@ -368,6 +401,7 @@ def setup_model(model, disc, start_time):
     gas           = None
     dust          = None
     diffuse       = None
+    planetesimal  = None
     chemistry     = None
     ext_photoevap = None
     int_photoevap = None
@@ -405,15 +439,16 @@ def setup_model(model, disc, start_time):
         else:
             chemistry = setup_simple_chem(model)
 
-    planets = setup_planets(model)
+    if model['planetesimal']['active']:
+        print("Planetesimal formation active")
+        disc._planetesimal = True
+        planetesimal_params = model['planetesimal']
+        planetesimal = PlanetesimalFormation(disc, d_planetesimal=planetesimal_params['diameter'], St_min=planetesimal_params['St_min'], 
+                                             St_max=planetesimal_params['St_max'], pla_eff=planetesimal_params['pla_eff'])
 
-    return DiscEvolutionDriver(disc, 
-                               gas=gas, dust=dust, diffusion=diffuse,
-                               chemistry=chemistry, 
-                               planets=planets,
-                               ext_photoevaporation=ext_photoevap,
-                               int_photoevaporation=int_photoevap,
-                               t0=start_time)
+    planets, planet_model = setup_planets(model, disc)
+
+    return PlanetDiscDriver(disc, gas=gas, dust=dust, planetesimal=planetesimal, diffusion=diffuse, planets=planets, planet_model=planet_model, t0=start_time)
 
 def restart_model(model, disc, snap_number):
     
@@ -463,16 +498,19 @@ def setup_output(model):
     # Base string for output:
     mkdir_p(out['directory'])
     base_name = os.path.join(out['directory'], out['base'] + '_{:04d}')
+    base_planet_name = os.path.join(out['directory'], out['planet'] +'_{:04d}')
 
     format = out['format']
     if format.lower() == 'hdf5':
         base_name += '.h5'
+        base_planet_name += '.h5'
     elif format.lower() == 'ascii':
         base_name += '.dat'
+        base_planet_name += '.dat'
     else:
         raise ValueError ("Output format {} not recognized".format(format))
 
-    return base_name, EC
+    return base_name, EC, base_planet_name
 
 def _plot_grid(model, figs=None):
 
@@ -515,7 +553,7 @@ def _plot_grid(model, figs=None):
 
     return [f, subs]
 
-def run(model, io, base_name, restart, verbose=True, n_print=100, chem_sub=1):
+def run(model, io, base_name, restart, verbose=True, base_planet_name=None, n_print=100):
 
     if restart:
         # Skip evolution already completed
@@ -534,10 +572,7 @@ def run(model, io, base_name, restart, verbose=True, n_print=100, chem_sub=1):
     while not io.finished():
         ti = io.next_event_time()
         while model.t < ti:
-            # Sub-step the chemistry unless we are doing an output
-            sub = chem_sub if not io.check_event(model.t, 'save') else 1
-
-            dt = model(ti, chem_substep=sub)
+            dt = model(ti)
 
             if verbose and (model.num_steps % n_print) == 0:
                 print('Nstep: {}'.format(model.num_steps))
@@ -548,8 +583,14 @@ def run(model, io, base_name, restart, verbose=True, n_print=100, chem_sub=1):
         if io.check_event(model.t, 'save'):
             if base_name.endswith('.h5'):
                 model.dump_hdf5(base_name.format(io.event_number('save')))
+                if (base_planet_name):
+                	model.dump_planets_hdf5(base_planet_name.format(io.event_number('save')))
+                    
             else:
                 model.dump_ASCII(base_name.format(io.event_number('save')))
+                if (base_planet_name):
+                    model.planet_model.dump(base_planet_name.format(io.event_number('save')),ti,model.planets)
+                	#model.dump_planets_ASCII(base_planet_name.format(io.event_number('save')))
 
         if io.check_event(model.t, 'plot'):
             plot = True
@@ -589,14 +630,11 @@ def main(*args):
 
     driver = setup_model(model, disc, time)
 
-    output_name, io_control = setup_output(model)
+    output_name, io_control, base_planet_name = setup_output(model)
 
-    run(driver, io_control, output_name, args.restart, chem_sub=model['chemistry'].get("substep", 1))
+    run(driver, io_control, output_name, args.restart, base_planet_name=base_planet_name)
 
     np.seterr(**err_state)
 
 if __name__ == "__main__":
-    main() 
-
-
-
+    main()

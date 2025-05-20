@@ -12,8 +12,8 @@ import numpy as np
 import re
 import os
 
-from . import constants
-from .chemistry import create_abundances, MolecularIceAbund
+import DiscEvolution.constants as constants
+from DiscEvolution.chemistry import create_abundances, MolecularIceAbund
 
 __all__ = [ "Event_Controller", "dump_ASCII", "dump_hdf5", "DiscReader" ]
 ###############################################################################
@@ -115,7 +115,7 @@ class Event_Controller(object):
 ################################################################################
 # Write data to an ASCII file
 ################################################################################
-def dump_ASCII(filename, disc, time, header=None):
+def dump_ASCII(filename, disc, time, header=None,gas=None):
     """Write an ASCII dump of the disc data.
 
     args:
@@ -168,7 +168,8 @@ def dump_ASCII(filename, disc, time, header=None):
                 head += ' s{}'.format(k)
         except AttributeError:
             pass
-
+        if gas:
+            head += ' Mdot MdotSS'
         f.write(head+'\n')
         
         R, Sig, T = disc.R, disc.Sigma, disc.T
@@ -183,6 +184,17 @@ def dump_ASCII(filename, disc, time, header=None):
                     f.write(' {}'.format(chem.gas[k][i]))
                 for k in chem.ice:
                     f.write(' {}'.format(chem.ice[k][i]))
+            if gas:
+                vr=gas.viscous_velocity(disc)
+                #Mdot_actual=disc.Mdot(vr)
+                Mdot_actual=-2.*np.pi*disc.R[:-1]*disc.Sigma[:-1]*vr/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                #Mdot_SS=(2./3.)*3.*np.pi*disc.alpha*disc.cs*disc.cs*disc.Sigma/disc.Omega_k/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                Mdot_SS=3.*np.pi*disc.nu*disc.Sigma/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                if (i<Ncell-1):
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[i],Mdot_SS[i]))
+                else:
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[Ncell-2],Mdot_SS[Ncell-2]))
+
             f.write('\n')
 
 ################################################################################
