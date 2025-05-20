@@ -17,7 +17,7 @@
     },
   
   "chemistry" : {
-    "on"   : true, 
+    "on"   : false, 
     "type" : "NoReact", 
     "fix_mu" : true,
     "mu"     : 2.4,
@@ -35,8 +35,8 @@
 
   "star" : {
     "mass" : 1.0,
-    "age"  : 1e4,
-    "MESA_file" : "MesaStar/1.0M_starevo.out"
+    "radius" : 1.0,
+    "age"  : 1e4
   },
 
   "transport" : {
@@ -61,7 +61,7 @@
   "output" : {
     "directory" : "output",
     "base"	: "disc",
-    "format"    : "hdf5",
+    "format"    : "ascii",
     "first"     : 0.0,
     "last"      : 3e6,
     "interval"  : 1e4,

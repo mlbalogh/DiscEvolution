@@ -9,7 +9,7 @@ from __future__ import print_function
 import numpy as np
 from scipy.special import erf
 
-from .FV_interpolation import compute_centroids, construct_FV_edge_weights
+from DiscEvolution.FV_interpolation import compute_centroids, construct_FV_edge_weights
 
 class DonorCell(object):
     '''First-order upwind reconstruction

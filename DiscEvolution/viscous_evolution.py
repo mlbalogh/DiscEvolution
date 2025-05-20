@@ -320,11 +320,11 @@ class LBP_Solution(object):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from .disc import AccretionDisc
-    from .grid import Grid
-    from .constants import AU, Msun
-    from .eos import LocallyIsothermalEOS
-    from .star import SimpleStar
+    from disc import AccretionDisc
+    from grid import Grid
+    from constants import AU, Msun
+    from eos import LocallyIsothermalEOS
+    from star import SimpleStar
 
     alpha = 5e-3
 
