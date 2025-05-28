@@ -2,7 +2,7 @@ from __future__ import print_function
 import numpy as np
 from DiscEvolution.brent import brentq
 from DiscEvolution.constants import GasConst, sig_SB, AU, Omega0
-import DiscEvolution.opacity
+from DiscEvolution import opacity
 ################################################################################
 # Thermodynamics classes
 ################################################################################

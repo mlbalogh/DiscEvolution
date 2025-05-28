@@ -10,3 +10,5 @@ __pycache__
 chemo_dynamics_old.py
 run_model_chemo.py
 run_model_yuvan.py
+run_model_planetesimals.py
+backups/
