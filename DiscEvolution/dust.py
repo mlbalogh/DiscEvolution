@@ -152,8 +152,8 @@ class DustyDisc(AccretionDisc):
         return self._St_max
     
     @property
-    def M_planestesimal(self):
-        return self._M_planesetimal
+    def M_planetesimal(self):
+        return self._M_planetesimal
     
     @property
     def M_peb(self):
@@ -585,8 +585,8 @@ class PlanetesimalFormation(object):
             theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
             theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
 
-        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_0) * Sigma_d[0]) * theta_St_max_0 * theta_St_min_0)
-        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_1) * Sigma_d[1]) * theta_St_max_1 * theta_St_min_1)
+        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_0) * Sigma_d[0] * theta_St_max_0 * theta_St_min_0)
+        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1)
         disc._M_peb = np.array(disc._M_peb)
         
         disc._v_drift = np.array([v_drift_0, v_drift_1, v_drift_2])
@@ -695,6 +695,7 @@ class SingleFluidDrift(object):
         Cou = 0.5       # Courant number
         
         dV = self._compute_deltaV(disc, v_visc)
+        dV[2,:] = 0 # excluding planetesimals, as we approximate that they don't drift
         dVout = np.empty((dV.shape[0],dV.shape[-1]+2))
         dVout[:,1:-1] = dV
         dVout[:, 0] = dVout[:, 1]
@@ -941,7 +942,8 @@ class SingleFluidDrift(object):
         
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
-        # Update the dust fraction
+        # Update the dust fraction from flux, excluding planetesimals
+        fluxes[2,:] = 0
         disc.dust_frac[:] += dt * fluxes
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
