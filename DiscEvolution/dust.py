@@ -10,6 +10,7 @@ import numpy as np
 from DiscEvolution.constants import *
 from DiscEvolution.disc import AccretionDisc
 from DiscEvolution.reconstruction import DonorCell, VanLeer
+from DiscEvolution.chemistry import SimpleCOMolAbund
 
 class DustyDisc(AccretionDisc):
     """Dusty accretion disc. Base class for an accretion disc that also
@@ -67,10 +68,7 @@ class DustyDisc(AccretionDisc):
     @property
     def integ_dust_frac(self):
         """Total dust to gas ratio, or zero if not including dust feedback"""
-        if self._feedback:
-            return self.dust_frac.sum(0)
-        else:
-            return 0
+        return self.dust_frac.sum(0)
 
     @property
     def dust_frac(self):
@@ -539,6 +537,10 @@ class PlanetesimalFormation(object):
         disc._v_drift = np.zeros((2, len(disc.Sigma)))
         disc._R_planetesimal = self._R_planetesimal
         disc._planetesimal = True
+
+        self.ice_abund = None
+        if hasattr(disc, 'chem'):
+            self.ice_abund = SimpleCOMolAbund(disc.Ncells)
     
     def _compute_planetesimal_mass(self, disc):
         """Compute the mass of a planetesimal with a diameter of 100 km.
@@ -695,7 +697,6 @@ class SingleFluidDrift(object):
         Cou = 0.5       # Courant number
         
         dV = self._compute_deltaV(disc, v_visc)
-        dV[2,:] = 0 # excluding planetesimals, as we approximate that they don't drift
         dVout = np.empty((dV.shape[0],dV.shape[-1]+2))
         dVout[:,1:-1] = dV
         dVout[:, 0] = dVout[:, 1]
@@ -895,7 +896,7 @@ class SingleFluidDrift(object):
         # Convert to dust fraction when returning
         return sink_term_0 / Sigma, sink_term_1 / Sigma
     
-    def __call__(self, dt, disc, gas_tracers=None, dust_tracers=None, v_visc=None):
+    def __call__(self, dt, disc, gas_tracers=None, dust_tracers=None, v_visc=None, planetesimals=None):
         """Apply the update for radial drift over time-step dt"""
         eps = disc.dust_frac
         a = disc.grain_size
@@ -918,6 +919,7 @@ class SingleFluidDrift(object):
         if disc._planetesimal:
             # Note that this is under the assumption that the dust population 
             # is modelled under Birnstiel et al. (2012) two-population
+            L0, L1 = 0, 0
             try:
                 L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_peb, disc.M_cr)
                 
@@ -926,11 +928,27 @@ class SingleFluidDrift(object):
                 
                 disc.dust_frac[2] += L0 * dt
                 disc.dust_frac[2] += L1 * dt
-                
+
                 disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
 
             except:
                 pass
+
+            if planetesimals.ice_abund and (dust_tracers is not None):
+                #Calculate the change in dust grain and pebble mass throughout the disk
+                dM_dust_grain = (np.pi * disc.grid._dRe**2) * (L0 * dt) * disc.Sigma ####
+                dM_dust_peb = (np.pi * disc.grid._dRe**2) * (L1 * dt) * disc.Sigma ####
+
+                # Find mass fraction of each dust species
+                M_tracer_total = dust_tracers.sum(axis=0) #### Possibly multiply/divide by hydrogen mass to get grams, but could also not matter because same units stored in planetesimals
+                species_frac = dust_tracers/M_tracer_total
+
+                # Apply change in species mass to dust tracers
+                dust_tracers[:] -= species_frac * (dM_dust_grain + dM_dust_peb)
+
+                # Add the lost mass to the chemical tracer for planetesimals
+                planetesimals.ice_abund.data[:] += species_frac * (dM_dust_grain + dM_dust_peb)
+
         else:
             # drift velocity
             v_drift = self.radial_drift_velocity(disc, v_visc)
@@ -942,8 +960,7 @@ class SingleFluidDrift(object):
         
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
-        # Update the dust fraction from flux, excluding planetesimals
-        fluxes[2,:] = 0
+        fluxes[2,:] = 0  # No flux for planetesimals, as we assume they don't move radially
         disc.dust_frac[:] += dt * fluxes
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
