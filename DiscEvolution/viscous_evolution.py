@@ -142,8 +142,19 @@ class ViscousEvolution(object):
         self._init_fluxes(disc)
 
         f = self._fluxes()
-        Sigma_new = disc.Sigma + dt * f
+        if disc._planetesimal:
+            # Update sigma
+            Sigma_temp = disc.Sigma + dt * f
+            Sigma_G_old = disc.Sigma_G
+            # Find new dust sigmas
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
         
+            disc._eps = Dust_Frac_New
+        else:
+            Sigma_new = disc.Sigma + dt * f
         for t in tracers:
             if t is None: continue
             tracer_density = t*disc.Sigma

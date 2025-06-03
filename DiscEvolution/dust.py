@@ -585,8 +585,8 @@ class PlanetesimalFormation(object):
             theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
             theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
 
-        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_0) * Sigma_d[0]) * theta_St_max_0 * theta_St_min_0)
-        disc._M_peb.append(2 * np.pi * disc.R * np.sum(np.abs(v_drift_1) * Sigma_d[1]) * theta_St_max_1 * theta_St_min_1)
+        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_0) * Sigma_d[0] * theta_St_max_0 * theta_St_min_0)
+        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1)
         disc._M_peb = np.array(disc._M_peb)
         
         disc._v_drift = np.array([v_drift_0, v_drift_1, v_drift_2])
@@ -926,7 +926,7 @@ class SingleFluidDrift(object):
                 disc.dust_frac[2] += L0 * dt
                 disc.dust_frac[2] += L1 * dt
                 
-                disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
+                disc.grain_size[2] = np.where(disc.is_critical , disc._R_planetesimal * 1e5, 0)[0]
 
             except:
                 pass
@@ -942,7 +942,7 @@ class SingleFluidDrift(object):
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
         # Update the dust fraction
-        disc.dust_frac[:] += dt * fluxes
+        disc.dust_frac[:-1] += dt * fluxes[:-1]
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
         """

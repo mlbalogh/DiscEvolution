@@ -116,7 +116,7 @@ class PlanetDiscDriver(object):
 
         # Do Advection-diffusion update
         if self._gas:
-            self._gas(dt, disc, [dust, gas_chem, ice_chem])
+            self._gas(dt, disc, [dust[:-1], gas_chem, ice_chem])
 
         if self._diffusion:
             if gas_chem is not None:

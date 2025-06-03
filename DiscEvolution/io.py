@@ -153,7 +153,10 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
         except AttributeError:
             pass
 
-        head = '# R Sigma T'
+        if disc.planetesimal:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL Sigma_P T'
+        else:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL T'
         for i in range(Ndust):
             head += ' epsilon[{}]'.format(i)
         for i in range(Ndust):
@@ -172,9 +175,12 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
             head += ' Mdot MdotSS'
         f.write(head+'\n')
         
-        R, Sig, T = disc.R, disc.Sigma, disc.T
+        R, Sig, Sig_G, Sig_D, T = disc.R, disc.Sigma, disc.Sigma_G, disc.Sigma_D, disc.T
         for i in range(Ncell):
-            f.write('{} {} {}'.format(R[i], Sig[i], T[i]))
+            if disc.planetesimal:
+                f.write('{} {} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], Sig_D[2,i], T[i]))
+            else:
+                f.write('{} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], T[i]))
             for j in range(Ndust):
                 f.write(' {}'.format(disc.dust_frac[j, i]))
             for j in range(Ndust):
