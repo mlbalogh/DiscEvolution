@@ -908,8 +908,15 @@ class SingleFluidDrift(object):
             gas_tracers[:] += dt * self._fluxes(disc, gas_tracers, np.zeros(disc.Ncells-1), 0, dt)
 
         if dust_tracers is not None:
-            t_k = dust_tracers[..., None, :] * eps / (eps.sum(0) + np.finfo(eps.dtype).tiny)
-            d_tr = dt * self._fluxes(disc, t_k, DeltaV, disc.Stokes(), dt).sum(1)
+
+            if disc._planetesimal:
+                t_k = dust_tracers[..., None, :] * eps[:-1] / (eps[:-1].sum(0) + np.finfo(eps.dtype).tiny)
+                d_tr = dt * self._fluxes(disc, t_k, DeltaV[:-1], disc.Stokes()[:-1], dt).sum(1)
+            else:
+                t_k = dust_tracers[..., None, :] * eps / (eps.sum(0) + np.finfo(eps.dtype).tiny)
+                d_tr = dt * self._fluxes(disc, t_k, DeltaV, disc.Stokes(), dt).sum(1)
+
+
             dust_tracers[:] += d_tr
 
         # Compute the fluxes for dust fraction
@@ -936,18 +943,18 @@ class SingleFluidDrift(object):
 
             if planetesimals.ice_abund and (dust_tracers is not None):
                 #Calculate the change in dust grain and pebble mass throughout the disk
-                dM_dust_grain = (np.pi * disc.grid._dRe**2) * (L0 * dt) * disc.Sigma ####
-                dM_dust_peb = (np.pi * disc.grid._dRe**2) * (L1 * dt) * disc.Sigma ####
+                delta_dust_frac_grain = (np.pi * disc.grid._dRe**2) * (L0 * dt) * disc.Sigma * AU**2 / disc.Mtot()
+                delta_dust_frac_peb = (np.pi * disc.grid._dRe**2) * (L1 * dt) * disc.Sigma * AU**2 / disc.Mtot()
 
                 # Find mass fraction of each dust species
-                M_tracer_total = dust_tracers.sum(axis=0) #### Possibly multiply/divide by hydrogen mass to get grams, but could also not matter because same units stored in planetesimals
-                species_frac = dust_tracers/M_tracer_total
+                tracer_total = dust_tracers.sum(axis=0)
+                species_frac = dust_tracers/tracer_total
 
                 # Apply change in species mass to dust tracers
-                dust_tracers[:] -= species_frac * (dM_dust_grain + dM_dust_peb)
+                dust_tracers[:] -= species_frac * (delta_dust_frac_grain + delta_dust_frac_peb)
 
                 # Add the lost mass to the chemical tracer for planetesimals
-                planetesimals.ice_abund.data[:] += species_frac * (dM_dust_grain + dM_dust_peb)
+                planetesimals.ice_abund.data[:] += species_frac * (delta_dust_frac_grain + delta_dust_frac_peb) #### problem line
 
         else:
             # drift velocity
@@ -960,7 +967,12 @@ class SingleFluidDrift(object):
         
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
-        fluxes[2,:] = 0  # No flux for planetesimals, as we assume they don't move radially
+        # No flux for planetesimals, as we assume they don't move radially
+        try: 
+            fluxes[2,:] = 0  
+        except IndexError:
+            pass
+
         disc.dust_frac[:] += dt * fluxes
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
