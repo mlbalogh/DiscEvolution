@@ -318,11 +318,11 @@ class PlanetesimalAccretion(object):
         return: Reynolds number
         """
         disc = self._disc
-        v_r = disc.v_drift[2]
+        v = disc.Omega_k * disc.R
         R_pla = disc.R_planetesimal
         nu = disc.nu
 
-        Re = v_r * R_pla / nu
+        Re = v * R_pla / nu
         return Re
 
     def Mach(self):
@@ -335,10 +335,10 @@ class PlanetesimalAccretion(object):
         return: Mach number
         """
         disc = self._disc
-        v_r = disc.v_drift[2]
+        v = disc.Omega_k * disc.R
         c_s = disc.cs
 
-        Ma = v_r / c_s
+        Ma = v / c_s
         return Ma
 
     def drag_coeff(self):
@@ -420,7 +420,7 @@ class PlanetesimalAccretion(object):
         # Outer density and pressure of planet envelope (equation 4)
         # Interpolate the disc properties and assume value 
         #   to be outermomst envelope value
-        P0      = disc.interp(Rp, disc.Pr)
+        P0      = disc.interp(Rp, disc.P)
         rho0    = disc.interp(Rp, disc.midplane_density)
 
 
@@ -542,7 +542,6 @@ class PlanetesimalAccretion(object):
     def update(self):
         """Update internal quantities after the disc has evolved"""
         pass
-
 
 
 ################################################################################
@@ -832,14 +831,14 @@ class Bitsch2015Model(object):
         migrate  : Whether to include migration, default=True
         **kwargs : arguments passed to GasAccretion object
     """
-    def __init__(self, disc, pb_gas_f=0.1, migrate=True, **kwargs):
+    def __init__(self, disc, pb_gas_f=0.1, migrate=True, planetesimal_accretion=False, **kwargs):
 
         self._f_gas = pb_gas_f
         
         self._gas_acc = GasAccretion(disc, **kwargs)
         self._peb_acc = PebbleAccretionHill(disc)
         self._pl_acc = None
-        if disc._planetesimal:
+        if disc._planetesimal and planetesimal_accretion:
             self._pl_acc = PlanetesimalAccretion(disc)
         self._disc = disc
 
