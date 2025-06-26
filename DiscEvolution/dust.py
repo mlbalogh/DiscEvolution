@@ -942,19 +942,15 @@ class SingleFluidDrift(object):
                 pass
 
             if planetesimals.ice_abund and (dust_tracers is not None):
-                #Calculate the change in dust grain and pebble mass throughout the disk
-                delta_dust_frac_grain = (np.pi * disc.grid._dRe**2) * (L0 * dt) * disc.Sigma * AU**2 / disc.Mtot()
-                delta_dust_frac_peb = (np.pi * disc.grid._dRe**2) * (L1 * dt) * disc.Sigma * AU**2 / disc.Mtot()
-
                 # Find mass fraction of each dust species
                 tracer_total = dust_tracers.sum(axis=0)
                 species_frac = dust_tracers/tracer_total
 
                 # Apply change in species mass to dust tracers
-                dust_tracers[:] -= species_frac * (delta_dust_frac_grain + delta_dust_frac_peb)
+                dust_tracers[:] -= species_frac * (L0 + L1) * dt
 
                 # Add the lost mass to the chemical tracer for planetesimals
-                planetesimals.ice_abund.data[:] += species_frac * (delta_dust_frac_grain + delta_dust_frac_peb) #### problem line
+                planetesimals.ice_abund.data[:] += species_frac * (L0 + L1) * dt
 
         else:
             # drift velocity
