@@ -513,6 +513,9 @@ class PlanetesimalFormation(object):
 
         Returns:
         None
+
+        Notes:
+        If this class is being used, set disc._planetesimal = PlanetesimalFormation(...) in the disc setup.
         """
         self._rhos = disc._rho_s
         self._R_planetesimal = ((d_planetesimal/2) * 1e5) / AU # convert to AU
@@ -536,7 +539,6 @@ class PlanetesimalFormation(object):
         disc._pla_eff = pla_eff
         disc._v_drift = np.zeros((2, len(disc.Sigma)))
         disc._R_planetesimal = self._R_planetesimal
-        disc._planetesimal = True
 
         self.ice_abund = None
         if hasattr(disc, 'chem'):
@@ -896,7 +898,7 @@ class SingleFluidDrift(object):
         # Convert to dust fraction when returning
         return sink_term_0 / Sigma, sink_term_1 / Sigma
     
-    def __call__(self, dt, disc, gas_tracers=None, dust_tracers=None, v_visc=None, planetesimals=None):
+    def __call__(self, dt, disc, gas_tracers=None, dust_tracers=None, v_visc=None):
         """Apply the update for radial drift over time-step dt"""
         eps = disc.dust_frac
         a = disc.grain_size
@@ -930,27 +932,31 @@ class SingleFluidDrift(object):
             try:
                 L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_peb, disc.M_cr)
                 
-                disc.dust_frac[0] -= L0 * dt
-                disc.dust_frac[1] -= L1 * dt
+                disc._eps[0] -= L0 * dt
+                disc._eps[1] -= L1 * dt
                 
-                disc.dust_frac[2] += L0 * dt
-                disc.dust_frac[2] += L1 * dt
+                disc._eps[2] += L0 * dt
+                disc._eps[2] += L1 * dt
 
                 disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
 
             except:
                 pass
 
-            if planetesimals.ice_abund and (dust_tracers is not None):
-                # Find mass fraction of each dust species
+            if disc._planetesimal.ice_abund and (dust_tracers is not None):
+                # Find fraction of each dust species
                 tracer_total = dust_tracers.sum(axis=0)
                 species_frac = dust_tracers/tracer_total
 
-                # Apply change in species mass to dust tracers
+                # Apply change in species dust fraction to dust tracers
                 dust_tracers[:] -= species_frac * (L0 + L1) * dt
 
                 # Add the lost mass to the chemical tracer for planetesimals
-                planetesimals.ice_abund.data[:] += species_frac * (L0 + L1) * dt
+                disc._planetesimal.ice_abund.data[:] += species_frac * (L0 + L1) * dt
+
+                # fix planetesimal dust fraction to the ice abundance, as 
+                # done with grains and pebbles in disc.update_ices
+                disc._eps[2] = disc._planetesimal.ice_abund.total_abund
 
         else:
             # drift velocity
