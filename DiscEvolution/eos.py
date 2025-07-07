@@ -289,7 +289,7 @@ class IrradiatedEOS(EOS_Table):
     """
     def __init__(self, star, alpha_t, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
                  kappa=None,
-                 accrete=True, tol=None): # tol is no longer used
+                 accrete=True, tol=None, psi=0): # tol is no longer used
         super(IrradiatedEOS, self).__init__()
 
         self._star = star
@@ -311,6 +311,8 @@ class IrradiatedEOS(EOS_Table):
             self._kappa = kappa
         
         self._T = None
+
+        self._psi = psi
 
         self._compute_constants()
 
@@ -362,7 +364,7 @@ class IrradiatedEOS(EOS_Table):
             dEdt += star_heat * (f_flat + f_flare * (H/R))
 
             # Viscous Heating
-            visc_heat = 1.125*alpha*cs*cs * Om_k
+            visc_heat = 1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)
             dEdt += visc_heat*(0.375*tau*Sigma + 1./kappa)
             
             # Prevent heating above the temperature cap:
