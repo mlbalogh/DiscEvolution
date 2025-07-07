@@ -254,8 +254,7 @@ class PebbleAccretionHill(object):
         
         M_t = (1/3.)**0.5 * (eta*v_k)**3 / (G * Om_k) * Msun / Mearth
         return M_t
-        
-        
+
     def computeMdot(self, Rp, Mp):
         """Compute the pebble accretion rate
 
@@ -901,11 +900,13 @@ class Bitsch2015Model(object):
 
         
         if planets.chem:
-            Xc, Xe = self._compute_chem(R)
+            Xs, Xg, Xs_pla = self._compute_chem(R)
+            if self._pl_acc:
+                Xs += Xs_pla ####
         else:
-            Xc, Xe = None, None
+            Xs, Xg = None, None
             
-        planets.add_planet(t, R, Mc, Me, Xc, Xe)
+        planets.add_planet(t, R, Mc, Me, Xs, Xg)
 
 
     def _compute_chem(self, R_p):
@@ -914,13 +915,17 @@ class Bitsch2015Model(object):
         
         Xs = []
         Xg = []
-        eps = np.maximum(disc.interp(R_p, disc.integ_dust_frac), 1e-300)
+        Xs_pla = []
+        eps_dust = np.maximum(disc.interp(R_p, disc.dust_frac[:2].sum(0)), 1e-300)
         for spec in chem:
             Xs_i, Xg_i = chem.ice[spec], chem.gas[spec]
-            Xs.append(disc.interp(R_p, Xs_i) / eps)
+            Xs.append(disc.interp(R_p, Xs_i) / eps_dust)
             Xg.append(disc.interp(R_p, Xg_i))
 
-        return np.array(Xs), np.array(Xg)
+            if self._pl_acc:
+                Xs_pla.append(disc.interp(R_p, disc._planetesimal.ice_abund[spec]) / np.maximum(disc.interp(R_p, disc.dust_frac[2]), 1e-300))
+
+        return np.array(Xs), np.array(Xg), np.array(Xs_pla)
 
     def integrate(self, dt, planets):
         """Update the planet masses and radii:
@@ -962,13 +967,9 @@ class Bitsch2015Model(object):
             Mcdot, Medot = dMdt(R_p, M_core, M_env)
 
             # Compute the mass accretion rate due to planetesimal accretion
+            Mdot_pla = np.zeros_like(Mcdot)
             if self._pl_acc:
-                Mdot = self._pl_acc.computeMdot(R_p, M_core, Rdot)
-                Mdot_pla = Mdot[0]
-                
-                planets._R_capt = Mdot[1]
-
-                Mcdot += Mdot_pla
+                Mdot_pla, planets._R_capt = self._pl_acc.computeMdot(R_p, M_core, Rdot)
 
             accreted = R_p <= Rmin
             Rdot[accreted] = Mcdot[accreted] = Medot[accreted] = 0
@@ -979,13 +980,14 @@ class Bitsch2015Model(object):
             dydt[2*N:3*N] = Medot
 
             if chem:
-                Xs, Xg =  self._compute_chem(R_p)
+                Xs, Xg, Xs_pla =  self._compute_chem(R_p)
 
-                #Ms = Mcdot * f / (1-f)
-                Ms = 0
-                Mg = np.maximum(Medot - Mcdot,0)
+                Ms = Mcdot * f / (1-f)
+                #Ms = 0
+                #Mg = np.maximum(Medot - Mcdot,0)
+                Mg = np.maximum(Medot - Ms, 0)
                 Nspec = Xs.shape[0]
-                dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs).ravel()
+                dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs + Mdot_pla*Xs_pla).ravel()
                 dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (Ms*Xs + Mg*Xg).ravel()
             
             return dydt
