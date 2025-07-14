@@ -9,7 +9,10 @@
 from __future__ import print_function
 import numpy as np
 import os
-
+import sys
+import matplotlib.pyplot as plt
+sys.path.append(os.path.abspath(os.path.join('..')) + '/')
+sys.path.append('/Users/yuvan/GitHub/DiscEvolution')
 
 from DiscEvolution.diffusion import TracerDiffusion
 from DiscEvolution.dust import SingleFluidDrift
@@ -452,12 +455,14 @@ if __name__ == "__main__":
             l, = plt.loglog(grid.Rc, evo.disc.Sigma_G)
             plt.loglog(grid.Rc, evo.disc.Sigma_D.sum(0), '--', c=l.get_color())
             plt.xlabel('$R$')
-            plt.ylabel('$\Sigma_\mathrm{G, D}$')
+            plt.ylabel('$Sigma_{G, D}$')
+            plt.ylim(10**(-7), 10**(5))
 
             plt.subplot(322)
             l, = plt.loglog(grid.Rc, evo.disc.dust_frac.sum(0))
             plt.xlabel('$R$')
-            plt.ylabel('$\epsilon$')
+            plt.ylabel('$epsilon$')
+            plt.ylim(10**(-5), 10**(-1))
             plt.subplot(323)
             l, = plt.loglog(grid.Rc, evo.disc.Stokes()[1])
             plt.xlabel('$R$')
@@ -465,7 +470,7 @@ if __name__ == "__main__":
             plt.subplot(324)
             l, = plt.loglog(grid.Rc, evo.disc.grain_size[1])
             plt.xlabel('$R$')
-            plt.ylabel('$a\,[\mathrm{cm}]$')
+            plt.ylabel('$a,cm$')
 
             plt.subplot(325)
             gCO = evo.disc.chem.gas.atomic_abundance()
@@ -477,18 +482,17 @@ if __name__ == "__main__":
             plt.semilogx(grid.Rc, gCO['O'], '-', c=c, linewidth=2)
             plt.semilogx(grid.Rc, sCO['C'], ':', c=c, linewidth=1)
             plt.semilogx(grid.Rc, sCO['O'], ':', c=c, linewidth=2)
-            plt.xlabel('$R\,[\mathrm{au}}$')
-            plt.ylabel('$[X]_\mathrm{solar}$')
+            plt.xlabel('$R,au$')
+            plt.ylabel('$[X]_{solar}$')
 
             plt.subplot(326)
             plt.semilogx(grid.Rc, gCO['C'] / gCO['O'], '-', c=c)
             plt.semilogx(grid.Rc, sCO['C'] / sCO['O'], ':', c=c)
-            plt.xlabel('$R\,[\mathrm{au}}$')
-            plt.ylabel('$[C/O]_\mathrm{solar}$')
+            plt.xlabel('$R,au$')
+            plt.ylabel('$[C/O]_{solar}$')
 
             np.seterr(**err_state)
 
         IO.pop_times(evo.t)
 
-    if plot:
-        plt.show()
+    plt.savefig('output.png', bbox_inches='tight')

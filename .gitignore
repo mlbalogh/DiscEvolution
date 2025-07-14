@@ -3,9 +3,12 @@
 .idea
 .pytest_cache
 __pycache__
-*.dat
 *.png
-*.json
 *.avi
 *.pdf
 *.eps
+chemo_dynamics_old.py
+run_model_chemo.py
+run_model_yuvan.py
+run_model_planetesimals.py
+backups/

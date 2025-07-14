@@ -80,7 +80,7 @@
   "output" : {
     "directory" : "output",
     "base"	: "disc",
-    "format"    : "hdf5",
+    "format"    : "ascii",
     "first"     : 0.0,
     "last"      : 1e6,
     "interval"  : 1e4,

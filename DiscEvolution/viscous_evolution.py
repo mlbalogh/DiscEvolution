@@ -7,7 +7,7 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-import copy
+from  copy import deepcopy
 
 class ViscousEvolution(object):
     """Solves the 1D viscous evolution equation.
@@ -143,7 +143,30 @@ class ViscousEvolution(object):
         self._init_fluxes(disc)
 
         f = self._fluxes()
-        Sigma_new = disc.Sigma + dt * f
+
+        if disc._planetesimal:
+
+            # Update overall surface density
+            Sigma_temp = disc.Sigma + dt * f
+
+            # extract old planetesimal, dust, and gas surface densities
+            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
+            Sigma_G_old = deepcopy(disc.Sigma_G)
+            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
+
+            # Find new dust and gas usrface densities
+            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+
+            # update surface density and dust fraction
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
+            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
+            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
+            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
+        
+            disc._eps[:] = Dust_Frac_New
+        else:
+            Sigma_new = disc.Sigma + dt * f
         
         for t in (tracers+adv):
             if t is None: continue
@@ -453,7 +476,30 @@ class HybridWindModel(object):
         self._init_fluxes_wind(disc, dt)
 
         f = self._fluxes()
-        Sigma_new = disc.Sigma + dt * (f - self._s_wind)
+        
+        if disc._planetesimal:
+
+            # Update overall surface density
+            Sigma_temp = disc.Sigma + dt * (f - self._s_wind)
+
+            # extract old planetesimal, dust, and gas surface densities
+            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
+            Sigma_G_old = deepcopy(disc.Sigma_G)
+            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
+
+            # Find new dust and gas usrface densities
+            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+
+            # update surface density and dust fraction
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
+            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
+            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
+            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
+        
+            disc._eps[:] = Dust_Frac_New
+        else:
+            Sigma_new = disc.Sigma + dt * (f - self._s_wind)
 
         for t in tracers: # Tracers advected + removed
             if t is None: continue
@@ -531,11 +577,11 @@ class TaboneSolution(object):
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
-    from .disc import AccretionDisc
-    from .grid import Grid
-    from .constants import AU, Msun
-    from .eos import LocallyIsothermalEOS
-    from .star import SimpleStar
+    from disc import AccretionDisc
+    from grid import Grid
+    from constants import AU, Msun
+    from eos import LocallyIsothermalEOS
+    from star import SimpleStar
 
     alpha = 5e-3
 
