@@ -938,7 +938,7 @@ class SingleFluidDrift(object):
                 disc._eps[2] += L0 * dt
                 disc._eps[2] += L1 * dt
 
-                disc.grain_size[2] = np.where(disc.is_critical ,100 * 1e5, 0)[0]
+                disc.grain_size[2] = np.where(disc.is_critical, 100 * 1e5, 0)[0]
 
             except:
                 pass

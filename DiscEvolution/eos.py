@@ -3,6 +3,7 @@ import numpy as np
 from DiscEvolution.brent import brentq
 from DiscEvolution.constants import GasConst, sig_SB, AU, Omega0
 from DiscEvolution import opacity
+from DiscEvolution.constants import *
 ################################################################################
 # Thermodynamics classes
 ################################################################################
@@ -38,6 +39,10 @@ class EOS_Table(object):
     @property
     def nu(self):
         return self._nu
+    
+    @property
+    def visc_mol(self):
+        return self._f_visc_mol()
 
     @property
     def alpha(self):
@@ -96,6 +101,9 @@ class LocallyIsothermalEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
@@ -198,6 +206,9 @@ class SimpleDiscEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
@@ -431,6 +442,9 @@ class IrradiatedEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
