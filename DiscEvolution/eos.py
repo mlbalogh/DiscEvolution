@@ -286,10 +286,21 @@ class IrradiatedEOS(EOS_Table):
         kappa   : Opacity, default=Zhu2012
         accrete : Whether to include heating due to accretion,
                   default=True
+        psi : Ratio of disk winds to viscous turbulent alpha, default: psi = 0.
+        e_rad : fraction of energy lost to radiation (Suzuki et. al 2016), default = 1
+
+    Notes: 
+        If disk winds are being used, different choices of e_rad provide different heating
+        cases. See Suzuki et. al (2016). The special/edge cases are as follows.
+        - If e_rad = 3/(3 + psi), all (and only) turbulent energy goes into heating.
+        - If e_rad ~ 1, the weak winds case (from Suzuki et. al 2016) is applied.
+
+        If the user wishes to be self-consistent, one must choose a magnetic lever 
+        arm parameter (lambda) such that lambda = 1 + psi/(2(1 - e_rad)(3 + psi)). 
     """
     def __init__(self, star, alpha_t, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
                  kappa=None,
-                 accrete=True, tol=None, psi=0): # tol is no longer used
+                 accrete=True, tol=None, psi=0, e_rad=1): # tol is no longer used
         super(IrradiatedEOS, self).__init__()
 
         self._star = star
@@ -313,6 +324,8 @@ class IrradiatedEOS(EOS_Table):
         self._T = None
 
         self._psi = psi
+
+        self._e_rad = e_rad
 
         self._compute_constants()
 
@@ -364,7 +377,10 @@ class IrradiatedEOS(EOS_Table):
             dEdt += star_heat * (f_flat + f_flare * (H/R))
 
             # Viscous Heating
-            visc_heat = 1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)
+            # If psi > 0, includes heating from disk winds based off and 
+            # derived from the model proposed by Suzuki et. al (2018, 
+            #  doi:10.1051/0004-6361/201628955).
+            visc_heat = self._e_rad*1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)
             dEdt += visc_heat*(0.375*tau*Sigma + 1./kappa)
             
             # Prevent heating above the temperature cap:
