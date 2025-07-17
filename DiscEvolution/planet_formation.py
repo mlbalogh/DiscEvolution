@@ -6,6 +6,7 @@ from scipy.integrate import ode
 from DiscEvolution.constants import *
 from DiscEvolution.disc_utils import make_ASCII_header
 from DiscEvolution.grid import reduce
+import scipy.optimize as sci
 
 ################################################################################
 # Planet collections class
@@ -211,8 +212,8 @@ class GasAccretion(object):
         """Update internal quantities after the disc has evolved"""
         pass
     
-class PebbleAccretionHill(object):
-    """Pebble accretion model of Bitsch+ (2015).
+class PebbleAccretion(object):
+    """Pebble accretion model of Bitsch+ (2015) with Bondi regime added.
 
     See also, Lambrechts & Johansen (2012), Morbidelli+ (2015)
     """
@@ -236,59 +237,32 @@ class PebbleAccretionHill(object):
         h = self._disc.interp(R, self._disc.H) / R
         return 20. * (h/0.05)**3
 
-    def M_transition(self, R):
-        """Compute lowest mass for the hill accretion branch used by this model.
+    def M_transition(self, R, epsilon=None):
+        """Compute the transition mass between Bondi and Hill Regimes.
 
         args:
             R : radius, AU
+            epsilon : power law scaling of pressure with radius
 
         returns:
             M_t : transition mass, Mearth
         """
         h = self._disc.interp(R, self._disc.H) / R
+        
+        if epsilon:
+            eta = 0.5 * h**2 * np.abs(epsilon)
+        else:
+            # Use a safe, noise free approximation here
+            eta = - 0.5 * h*h * (-2.75)
 
-        # Use a safe, noise free approximation here:
-        #eta = - 0.5 * h*h * self._dlgP(np.log(R))
-        eta = - 0.5 * h*h * (-2.75)
         Om_k = self._disc.star.Omega_k(R)
         v_k = Om_k * R
         
         M_t = (1/3.)**0.5 * (eta*v_k)**3 / (G * Om_k) * Msun / Mearth
         return M_t
-
-    def computeMdot(self, Rp, Mp):
-        """Compute the pebble accretion rate
-
-        args :
-             Rp : radius of planet in AU
-             Mp : planet mass in M_earth
-        """
-        # Cache local varibales
-        disc = self._disc
-        star = disc.star
-        
-        # Interpolate disc properites to planet location
-        Hp    = disc.interp(Rp, disc.Hp[1])
-        St    = disc.interp(Rp, disc.Stokes()[1])
-        Sig_p = disc.interp(Rp, disc.Sigma_D[1])
-
-        rH   = star.r_Hill(Rp, Mp*Mearth/Msun) # gravity of star takes over gravity of planet
-        Om_k = star.Omega_k(Rp)
-        r_eff = rH * (St/0.1)**(1/3.)
-
-        Sig_p /= Mearth / AU**2
-        
-        # Accretion rate in the limit Hp << rH
-        Mdot = 2*np.minimum(rH*rH, r_eff*r_eff) * Om_k*Sig_p
-
-        # 3D correction for Hp >~ r_H:
-        # Replaces Sigma_p -> np.pi * rho_p * r_eff
-        Mdot *= np.minimum(1, r_eff *(np.pi/8)**0.5 / Hp)
-
-        return (Mp < self.M_iso(Rp)) * Mdot
     
     def Mdot_Hill(self, Rp, Mp):
-        """Compute the pebble accretion rate in the Hill regime, according to Bitsch et al. (2015)"""
+        """Compute the pebble accretion rate in the Hill regime, according to  Morbidelli+ (2015)"""
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -298,14 +272,14 @@ class PebbleAccretionHill(object):
         St    = disc.interp(Rp, disc.Stokes()[1])
         Sig_p = disc.interp(Rp, disc.Sigma_D[1])
 
-        rH   = star.r_Hill(Rp, Mp*Mearth/Msun) # gravity of star takes over gravity of planet
-        Om_k = star.Omega_k(Rp)
+        # Radius at which gravity of star takes over gravity of planet
+        rH   = star.r_Hill(Rp, Mp*Mearth/Msun) 
         r_eff = rH * (St/0.1)**(1/3.)
 
         Sig_p /= Mearth / AU**2
         
         # Accretion rate in the limit Hp << rH
-        Mdot = 2*np.minimum(rH*rH, r_eff*r_eff) * Om_k*Sig_p
+        Mdot = 2*np.minimum(rH*rH, r_eff*r_eff) * star.Omega_k(Rp) * Sig_p
 
         # 3D correction for Hp >~ r_H:
         # Replaces Sigma_p -> np.pi * rho_p * r_eff
@@ -313,7 +287,7 @@ class PebbleAccretionHill(object):
 
         return Mdot
     
-    def Mdot_Bondi(self, Rp, Mp, delta_v):
+    def Mdot_Bondi(self, Rp, Mp, epsilon):
         """Compute the pebble accretion rate in the Bondi regime, according to Lambretchs and Johansen (2012)."""
         # Cache local varibales
         disc = self._disc
@@ -323,38 +297,26 @@ class PebbleAccretionHill(object):
         Hp    = disc.interp(Rp, disc.Hp[1])
         St    = disc.interp(Rp, disc.Stokes()[1])
         Sig_p = disc.interp(Rp, disc.Sigma_D[1])*(AU**2 / Mearth)
-        peb_column_density = disc.interp(Rp, disc.column_density * disc._eps[1])*(AU**2 / Mearth)
-        #cs_p = disc.interp(Rp, disc.cs)
 
-        r_B = G * Mp * (Mearth/Msun) / delta_v**2  # Bondi radius
+        # approximate relative velocity between pebbles and planet
+        delta_v = epsilon * star.Omega_k(Rp) * Rp 
 
+        r_B = G * Mp * (Mearth/Msun) / delta_v**2  
+
+        # Find effective accretion radius
         tf = St/star.Omega_k(Rp)
         tB = r_B/delta_v
         r_d = r_B * (tB/tf)**(-0.5)
 
-        # compare with hill and bondi radii
-        #r_Hill = star.r_Hill(Rp, Mp*Mearth/Msun)
-
-        # calculate pebble volume density for 3D accretion
         rho_peb = Sig_p / (Hp * np.sqrt(2 * np.pi)) 
 
-        # calculate values for bondi regime
-        #h = self._disc.interp(Rp, self._disc.H) / Rp
-        #eta = - 0.5 * h*h * (-2.75)
-        #v_k = star.Omega_k(Rp) * Rp
-        #epsilon = np.abs((1 - (1 - eta)**2) * v_k**2 / cs_p**2)
-        #v_rel = eta * v_k
+        # Find 3D to 2D transition mass for Bondi regime
+        M_3D_to_2D = Hp * delta_v**2 * (tB/tf)**(0.5) / (G * Mearth/Msun)
 
-        #dim_transition_fraction = 4 * disc.alpha * epsilon * Hp**4 / (np.pi * Rp**4 * St * (St + disc.alpha))
-
-        #Mdot = np.where(Mp*Mearth/Msun < dim_transition_fraction, 
-        #    Sig_p * np.sqrt(8 * G * (Mearth/Msun) * Mp * v_rel * St / star.Omega_k(Rp)), 
-        #    10 * np.pi * r_Hill**3 * St * star.Omega_k(Rp) * rho_peb
-        #)
-
-        Mdot = np.where(r_d < Hp,
+        # compute mass accretion rate based on 2D or 3D regime
+        Mdot = np.where(Mp < M_3D_to_2D,
             np.pi * rho_peb * r_d**2 * delta_v,
-            2 * r_d * peb_column_density * delta_v
+            2 * r_d * Sig_p * delta_v
         )
 
         return np.array(Mdot)
@@ -368,85 +330,20 @@ class PebbleAccretionHill(object):
              Mp : mass of planet in M_earth
         '''
         disc = self._disc
-        star = disc.star
 
         # Interpolate disc properites to planet location
         St    = disc.interp(Rp, disc.Stokes()[1])
-        #cs_p = disc.interp(Rp, disc.cs)
+        epsilon = np.abs((np.diff(np.log(disc.P))) / (np.diff(np.log(disc.grid.Rc))))
+        epsilon = np.insert(epsilon, 0, epsilon[0])  # Epsilon is approximately constant at small radii.
+        epsilon = disc.interp(Rp, epsilon)
 
-        h = self._disc.interp(Rp, self._disc.H) / Rp
-        eta = - 0.5 * h*h * (-2.75)
-        v_k = star.Omega_k(Rp) * Rp
-        delta_v = eta * v_k * np.sqrt(4 * St**2 + 1)/(St**2 + 1)
+        M_transition = self.M_transition(Rp, epsilon)
 
-        M_transition = delta_v**3 / (np.sqrt(3) * G * star.Omega_k(Rp) * Mearth/Msun)
-        #epsilon = np.abs((1 - (1 - eta)**2) * v_k**2 / cs_p**2)
+        # compute mass accretion rate based on Bondi or Hill regime
+        Mdot = np.where(Mp < (M_transition/(8 * St)), self.Mdot_Bondi(Rp, Mp, epsilon), self.Mdot_Hill(Rp, Mp))
 
-        #regime_transition_fraction = (100/9) * epsilon**3 * cs_p**6 / (St * v_k**6)
-
-        #Mdot = np.where(Mp*Mearth/Msun < regime_transition_fraction, self.Mdot_Bondi(Rp, Mp), self.Mdot_Hill(Rp, Mp))
-
-        Mdot = np.where(Mp < M_transition, self.Mdot_Bondi(Rp, Mp, delta_v), self.Mdot_Hill(Rp, Mp))
-
+        # make accretion rate 0 if planet mass is above pebble isolation mass
         return np.array(Mdot) * (Mp < self.M_iso(Rp))
-
-    #def computeMdot(self, Rp, Mp):
-    #    '''
-    #    Calculate the pebble accretion rate according to Yap and Batygin (2024).
-   # 
-    #    args :
-    #         Rp : radius of planet in AU
-    #         M_core : planet core mass in M_earth
-    #         M_env : planet envelope mass in M_earth
-    #    '''
-    
-        # Cache local varibales
-    #    disc = self._disc
-    #    star = disc.star
-
-        # Interpolate disc properites to planet location
-    #    Hp    = disc.interp(Rp, disc.Hp[1])
-    #    St    = disc.interp(Rp, disc.Stokes()[1])
-    #    Sig_p = disc.interp(Rp, disc.Sigma_D[1])*(AU**2 / Mearth)
-    #    cs_p = disc.interp(Rp, disc.cs)
-
-        # compare with hill and bondi radii
-    #    r_Hill = star.r_Hill(Rp, Mp*Mearth/Msun)
-    #    r_Bondi = G * Mp * (Mearth/Msun) / cs_p**2
-
-        # find limiting radius for possible 3D accretion
-    #    r_acc = np.minimum(r_Hill, r_Bondi)
-
-        # calculate pebble volume density for 3D accretion
-    #    rho_peb = Sig_p / (Hp * np.sqrt(2 * np.pi)) 
-
-        # calculate values for bondi regime
-    #    h = self._disc.interp(Rp, self._disc.H) / Rp
-    #    eta = - 0.5 * h*h * (-2.75)
-    #    v_k = star.Omega_k(Rp) * Rp
-    #    epsilon = np.abs((1 - (1 - eta)**2) * v_k**2 / cs_p**2)
-    #    v_rel = eta * v_k
-
-    #    dim_transition_fraction = 4 * disc.alpha * epsilon * Hp**4 / (np.pi * Rp**4 * St * (St + disc.alpha))
-
-    #    regime_transition_fraction = (100/9) * epsilon**3 * cs_p**6 / (St * v_k**6)
-
-        # differentiate between the Bondi (first) and Hill (second) regimes
-    #    #Mdot = np.where(Mp < self.M_transition(Rp)/(8 * St), 
-    #    #    Sig_p * np.sqrt(8 * G * (Mearth/Msun) * Mp * v_rel * St / star.Omega_k(Rp)), 
-    #    #    2 * Sig_p * r_Hill**2 * star.Omega_k(Rp) * (St/0.1)**(2/3)
-    #    #)
-    #    Mdot = np.where(Mp*Mearth/Msun < regime_transition_fraction, 
-    #        Sig_p * np.sqrt(8 * G * (Mearth/Msun) * Mp * v_rel * St / star.Omega_k(Rp)), 
-    #        2 * Sig_p * r_Hill**2 * star.Omega_k(Rp) * (St/0.1)**(2/3)
-    #    )
-
-        # If the accretion radius is smaller than the scale height, use 3D 
-        # acceretion regime, which is roughly the same rate for Bondi and Hill regimes.
-    #    #Mdot = np.where(r_acc <= Hp, 10 * np.pi * r_Hill**3 * St * star.Omega_k(Rp) * rho_peb, Mdot)
-    #    Mdot = np.where(Mp*Mearth/Msun < dim_transition_fraction, 10 * np.pi * r_Hill**3 * St * star.Omega_k(Rp) * rho_peb, Mdot)
-
-    #    return np.array(Mdot) * (Mp < self.M_iso(Rp))
 
     def __call__(self, planets):
         """Compute pebble accretion rate"""
@@ -1015,7 +912,7 @@ class Bitsch2015Model(object):
 
         self._peb_acc = None
         if pebble_accretion:
-            self._peb_acc = PebbleAccretionHill(disc)
+            self._peb_acc = PebbleAccretion(disc)
 
         self._pl_acc = None
         if disc._planetesimal and planetesimal_accretion:
@@ -1339,7 +1236,7 @@ if __name__ == "__main__":
     #Sigma = 1700 * R**-1.5
     Rp = [0.5, 5., 50.]
     
-    PebAcc = PebbleAccretionHill(disc)
+    PebAcc = PebbleAccretion(disc)
     GasAcc = GasAccretion(disc)
 
 
