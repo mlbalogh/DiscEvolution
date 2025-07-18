@@ -249,7 +249,7 @@ class PebbleAccretion(object):
         """
         h = self._disc.interp(R, self._disc.H) / R
         
-        if epsilon:
+        if not epsilon is None:
             eta = 0.5 * h**2 * np.abs(epsilon)
         else:
             # Use a safe, noise free approximation here
