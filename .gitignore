@@ -8,10 +8,3 @@ __pycache__
 *.pdf
 *.eps
 *.out
-chemo_dynamics_old.py
-run_model_chemo.py
-run_model_yuvan.py
-run_model_planetesimals.py
-backups/
-run_model_winds.py
-run_model_planets.py

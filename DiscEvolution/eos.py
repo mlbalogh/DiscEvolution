@@ -152,7 +152,6 @@ class SimpleDiscEOS(EOS_Table):
     def __init__(self, star, alpha_t, mu=2.33, K0=0.01):
         super(SimpleDiscEOS, self).__init__()
         
-
         self._alpha_t = alpha_t
         self._mu = mu
         self._K0 = K0
@@ -171,7 +170,7 @@ class SimpleDiscEOS(EOS_Table):
 
         self._cs0 = (Omega0**-1/AU) * (GasConst / self._mu)**0.5
         self._H0  = (Omega0**-1/AU) * (GasConst / (self._mu*self._star.M))**0.5
-        self._nu0 = self._alpha_t * self._cs0 * self._cs0 / Omega0
+        self._nu0 = self._alpha_t * self._cs0**2 / Omega0
 
     def update(self, dt, Sigma, amax=1e-5, star=None):
         if star:

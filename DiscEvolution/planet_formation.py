@@ -215,7 +215,7 @@ class GasAccretion(object):
 class PebbleAccretion(object):
     """Pebble accretion model of Bitsch+ (2015) with Bondi regime added.
 
-    See also, Lambrechts & Johansen (2012), Morbidelli+ (2015)
+    See also, Lambrechts & Johansen (2012) for Bondi regime, Morbidelli+ (2015) for Hill regime.
     """
     def __init__(self, disc):
         self.set_disc(disc)
@@ -242,7 +242,7 @@ class PebbleAccretion(object):
 
         args:
             R : radius, AU
-            epsilon : power law scaling of pressure with radius
+            epsilon : approximate power law scaling of pressure with radius
 
         returns:
             M_t : transition mass, Mearth
@@ -342,7 +342,7 @@ class PebbleAccretion(object):
         # compute mass accretion rate based on Bondi or Hill regime
         Mdot = np.where(Mp < (M_transition/(8 * St)), self.Mdot_Bondi(Rp, Mp, epsilon), self.Mdot_Hill(Rp, Mp))
 
-        # make accretion rate 0 if planet mass is above pebble isolation mass
+        # Mdot=0 if planet mass is above pebble isolation mass
         return np.array(Mdot) * (Mp < self.M_iso(Rp))
 
     def __call__(self, planets):
@@ -357,7 +357,7 @@ class PebbleAccretion(object):
 
 class PlanetesimalAccretion(object):
     """
-    Planetesimal accretion model based on Danti et al.
+    Planetesimal accretion model based on Danti et al (2023).
     """
     def __init__(self, disc, gamma=1e-4):
         self._stirring = gamma
@@ -374,31 +374,17 @@ class PlanetesimalAccretion(object):
         # Double check v_drift
 
     def Reynolds(self):
-        """
-        Calculate the Reynolds number.
-        
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in solar masses)
-
-        return: Reynolds number
-        """
+        """Calculate the Reynolds number."""
         disc = self._disc
-        v = self.relative_velocity()       #self._compute_deltaV(disc) #
-        nu = disc.nu#/(AU*yr/3.15e7) #cgs
+        v = self.relative_velocity()
+        nu = disc.nu
         nu = (disc.visc_mol*Omega0*AU) / (disc.midplane_density*AU**3)
         Re = v * reduce(disc.R_planetesimal / nu)
         return Re
 
     def Mach(self):
-        """
-        Calculate the Mach number.
-        
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in solar masses)
-
-        return: Mach number
-        """
-        v = self.relative_velocity()#self._compute_deltaV(disc) #
+        """Calculate the Mach number."""
+        v = self.relative_velocity()
 
         c_s = self._disc.cs
 
@@ -408,8 +394,6 @@ class PlanetesimalAccretion(object):
     def drag_coeff(self):
         """
         Calculate the drag coefficient given by Podolak et al. (1988).
-
-        return: Drag coefficient (D)
         """
         Ma = self.Mach()
         Re = self.Reynolds()
@@ -440,13 +424,11 @@ class PlanetesimalAccretion(object):
         return drag_coeff
 
     def R_p_out(self, Rp, Mp):
-        """
-        Calculate the protoplanet outer radius.
+        """Calculate the protoplanet's outer radius.
         
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in Earth masses)
-
-        return: Protoplanet outer radius
+        args:
+            Rp: Protoplanet heliocentric radius (in AU)
+            Mp: Protoplanet mass (in Earth masses)
         """
         disc = self._disc
         star = disc.star
@@ -455,7 +437,6 @@ class PlanetesimalAccretion(object):
         c_s  = disc.interp(Rp, disc.cs)
         M_p  = Mp * Mearth / Msun
 
-        #return G * M_p / (c_s*c_s + (G * M_p / (0.25 * rH)))
         return M_p / (c_s*c_s + (M_p / (0.25 * rH)))
     
     def R_captr_attached(self, Rp, Mp):
@@ -463,10 +444,9 @@ class PlanetesimalAccretion(object):
         Calculate the protoplanet capture radius 
         according to Valletta & Helled (2021).
         
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in Earth masses)
-
-        return: Protoplanet capture radius
+        args:
+            Rp: Protoplanet heliocentric radius (in AU)
+            Mp: Protoplanet mass (in Earth masses)
         """
         disc    = self._disc
         star    = disc.star
@@ -474,7 +454,7 @@ class PlanetesimalAccretion(object):
         rH      = star.r_Hill(Rp, Mp*Mearth/Msun)
         D       = np.interp(Rp, reduce(disc.R), self.drag_coeff())
         R_pla   = disc.R_planetesimal
-        rho_p   = 2 # disc._rho_s
+        rho_p   = 2
 
         # Convert Mp to solar masses for calculations
         Mp_solar_masses     = Mp * Mearth / Msun
@@ -484,13 +464,12 @@ class PlanetesimalAccretion(object):
 
         # Outer density and pressure of planet envelope (equation 4)
         # Interpolate the disc properties and assume value 
-        #   to be outermomst envelope value
+        # to be outermomst envelope value
         P0      = disc.interp(Rp, disc.P)
         rho0    = disc.interp(Rp, disc.midplane_density)
 
-
         # Calculate alpha parameter (equation 5)
-        #alpha   = G * M_p * rho0 / (P0 * R0) ######################bug?
+        #alpha   = G * M_p * rho0 / (P0 * R0)
         alpha   = Mp_solar_masses * rho0 / (P0 * R0)
         
         # Calculate rho_star (equation 8) # NOT rho of central star
@@ -997,7 +976,9 @@ class Bitsch2015Model(object):
         Xs = []
         Xg = []
         Xs_pla = []
+
         eps_dust = np.maximum(disc.interp(R_p, disc.dust_frac[:2].sum(0)), 1e-300)
+
         for spec in chem:
             Xs_i, Xg_i = chem.ice[spec], chem.gas[spec]
             Xs.append(disc.interp(R_p, Xs_i) / eps_dust)
@@ -1005,13 +986,13 @@ class Bitsch2015Model(object):
 
             if self._pl_acc:
                 Xs_pla.append(disc.interp(R_p, disc._planetesimal.ice_abund[spec]) / np.maximum(disc.interp(R_p, disc.dust_frac[2]), 1e-300))
-        if not self._pl_acc:
-            Xs_pla = np.zeros_like(Xs)
+            else:
+                Xs_pla = np.zeros_like(Xs)
 
         return np.array(Xs), np.array(Xg), np.array(Xs_pla)
 
     def integrate(self, dt, planets):
-        """Update the planet masses and radii:
+        """Update the planet masses and radii.
 
         args:
             dt      : Time to integrate for
@@ -1033,13 +1014,12 @@ class Bitsch2015Model(object):
             Mdot_s = np.zeros_like(R_p)
             if self._peb_acc:
                 Mdot_s = self._peb_acc.computeMdot(R_p, M_core + M_env)
-            #print(f"Mdot_s: {Mdot_s}, Mdot_g: {Mdot_g}")  # Debugging print
+
             return Mdot_s*(1-f), Mdot_g + Mdot_s*f
 
         def dRdt(R_p, M_core, M_env):
             if self._migrate:
                 migration_rate = self._migrate.migration_rate(R_p, M_core + M_env)
-                #print(f"migration_rate: {migration_rate}")  # Debugging print
                 return migration_rate
             else:
                 return np.zeros_like(R_p)
@@ -1071,12 +1051,9 @@ class Bitsch2015Model(object):
                 Xs, Xg, Xs_pla =  self._compute_chem(R_p)
 
                 Ms = Mcdot * f / (1-f)
-                #Ms = 0
-                #Mg = np.maximum(Medot - Mcdot,0)
                 Mg = np.maximum(Medot - Ms, 0)
                 Nspec = Xs.shape[0]
 
-                #### Planetesimals only being added to core. Consider adding to envelope
                 dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs + Mdot_pla*Xs_pla).ravel()
                 dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (Ms*Xs + Mg*Xg).ravel()
             
@@ -1119,8 +1096,7 @@ class Bitsch2015Model(object):
         with open(filename, 'w') as f:
             head = self.ASCII_header()
             f.write(head+'\n')
-            #print('# time: {}yr\n'.format(time / (2 * np.pi)))
-            f.write('# time: {}yr\n'.format(time / (2 * np.pi)))
+            print('# time: {}yr\n'.format(time / (2 * np.pi)))
 
             head = '# R M_core M_env t_form'
             if planets.chem:

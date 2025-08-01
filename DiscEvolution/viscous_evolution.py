@@ -144,6 +144,8 @@ class ViscousEvolution(object):
 
         f = self._fluxes()
 
+        # The following makes sure planetesimal 
+        # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
 
             # Update overall surface density
@@ -477,6 +479,8 @@ class HybridWindModel(object):
 
         f = self._fluxes()
         
+        # The following makes sure planetesimal 
+        # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
 
             # Update overall surface density
