@@ -304,11 +304,6 @@ class ViscousEvolutionFV(object):
         for t in (tracers + adv):
             if t is None: continue
             t[:] += dt*(self._tracer_fluxes(t) - t*f) / (Sigma_new + 1e-300)
-
-        for t in adv: # Tracers advected only
-            if t is None: continue
-            t[:] += dt*(self._tracer_fluxes(t) +  - (t + self._s_wind)*f) / (Sigma_new + 1e-300)
-        
         disc.Sigma[:] = Sigma_new
 
 
@@ -479,25 +474,17 @@ class HybridWindModel(object):
         # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
 
-            # Update overall surface density
-            Sigma_temp = disc.Sigma + dt * (f - self._s_wind)
-
-            # extract old planetesimal, dust, and gas surface densities
-            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
-            Sigma_G_old = deepcopy(disc.Sigma_G)
-            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
-
-            # Find new dust and gas usrface densities
-            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
-            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-
-            # update surface density and dust fraction
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
-            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
-            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
-            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
+            # Update sigma
+            Sigma_temp = disc.Sigma + dt * f
         
-            disc._eps[:] = Dust_Frac_New
+            Sigma_G_old = disc.Sigma_G
+            # Find new dust sigmas
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+        
+            disc._eps = Dust_Frac_New
         else:
             Sigma_new = disc.Sigma + dt * (f - self._s_wind)
 
@@ -551,11 +538,11 @@ class TaboneSolution(object):
         rc     : Critical radius at t=0
         n_c    : viscosity at rc (from alpha_ss)
         psi_DW : Ratio of viscous to wind-driven alpha
-        d2g    : Dust to gas ratio (for when using Sigma_G in the Tabone solution)
+        d2g    : Dust to gas ratio
         lambda_dW : mass-loss efficiency
     """
 
-    def __init__(self, M, rc, nuc, psi_DW, d2g = 0, lambda_DW=3):
+    def __init__(self, M, rc, nuc, psi_DW, d2g = 0.01, lambda_DW=3):
         from scipy.special import gamma as gamma_fun
         self._rc = rc
         self._nuc = nuc
@@ -630,7 +617,6 @@ if __name__ == "__main__":
     t = 0
     n = 0
     for ti in times:
-        break
         while t < ti:
             dt = visc.max_timestep(disc)
             dti = min(dt, ti - t)

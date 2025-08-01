@@ -86,7 +86,7 @@ class LocallyIsothermalEOS(EOS_Table):
         star    : stellar properties
         mu      : mean molecular weight, default=2.4
     """
-    def __init__(self, star, h0, q, alpha_t, mu=2.4,alpha_DW = None):
+    def __init__(self, star, h0, q, alpha_t, mu=2.4):
         super(LocallyIsothermalEOS, self).__init__()
         
         self._h0 = h0
@@ -96,7 +96,6 @@ class LocallyIsothermalEOS(EOS_Table):
         self._H0 = h0
         self._T0 = (AU*Omega0)**2 * mu / GasConst
         self._mu = mu
-        self._alpha_DW = alpha_DW
 
     def _f_cs(self, R):
         return self._cs0 * R**self._q
@@ -316,7 +315,7 @@ class IrradiatedEOS(EOS_Table):
         If the user wishes to be self-consistent, one must choose a magnetic lever 
         arm parameter (lambda) such that lambda = 1 + psi/(2(1 - e_rad)(3 + psi)). 
     """
-    def __init__(self, star, alpha_t, alpha_DW = None, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
+    def __init__(self, star, alpha_t, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
                  kappa=None,
                  accrete=True, tol=None, psi=0, e_rad=1): # tol is no longer used
         super(IrradiatedEOS, self).__init__()
@@ -326,7 +325,6 @@ class IrradiatedEOS(EOS_Table):
         self._dlogHdlogRm1 = 2/7.
 
         self._alpha_t = alpha_t
-        self._alpha_DW = alpha_DW
         
         self._Tc = Tc
         self._Tmax = Tmax

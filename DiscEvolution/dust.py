@@ -338,50 +338,50 @@ class DustGrowthTwoPop(DustyDisc):
                                                       f_grow, a0))
 
         self.update(0)
-    def Stokes(self, Sigma=None, size=None):
-        """
-        Impliment different drag regimes. Not thoroughly tested"""
-        return super(DustGrowthTwoPop,self).Stokes(Sigma, size)
-        if size is None:
-            size = self.grain_size
-        if Sigma is None:
-            Sigma = self.Sigma_G
-        
-        
-            
-
-        if len(Sigma) == len(self.Sigma)-1:
-            def reduce(arr: np.array):
-                if len(arr.shape) == 1:
-                    return (arr[1:] + arr[:-1])/2
-                else:
-                    return np.transpose((np.transpose(arr)[1:] + np.transpose(arr)[:-1])/2)
-            # Mean free path
-            mfp = self.mass()/(2*10**15*self.midplane_gas_density)
-
-            # Boolean array of where each regime is
-            stokes_regime = reduce(self.grain_size) > reduce(9/4*mfp)
-            epstein_regime = np.invert(stokes_regime)
-            # Stokes numbers in each regime
-            St = np.empty_like(reduce(self.dust_frac))
-            St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*reduce(mfp)*Sigma))[stokes_regime]
-            St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
-            St[St == 0] = 1e-300
-            return St
-        else:
-            # Mean free path
-            mfp = self.mu*m_p/(2*10**-15*self.midplane_gas_density)
-
-            # Boolean array of where each regime is
-            stokes_regime = self.grain_size > 9/4*mfp
-            epstein_regime = np.invert(stokes_regime)
-
-            # Stokes numbers in each regime
-            St = np.empty_like(self.dust_frac)
-            St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*mfp*Sigma))[stokes_regime]
-            St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
-            St[St == 0] = 1e-300
-            return St
+    #def Stokes(self, Sigma=None, size=None):
+        #"""
+        #Impliment different drag regimes. Not thoroughly tested"""
+        #return super(DustGrowthTwoPop,self).Stokes(Sigma, size)
+        #if size is None:
+        #    size = self.grain_size
+        #if Sigma is None:
+        #    Sigma = self.Sigma_G
+        #
+        # 
+        #    
+        #
+        #if len(Sigma) == len(self.Sigma)-1:
+        #    def reduce(arr: np.array):
+        #        if len(arr.shape) == 1:
+        #            return (arr[1:] + arr[:-1])/2
+        #        else:
+        #            return np.transpose((np.transpose(arr)[1:] + np.transpose(arr)[:-1])/2)
+        #    # Mean free path
+        #    mfp = self.mass()/(2*10**15*self.midplane_gas_density)
+        #
+        #    # Boolean array of where each regime is
+        #    stokes_regime = reduce(self.grain_size) > reduce(9/4*mfp)
+        #    epstein_regime = np.invert(stokes_regime)
+        #    # Stokes numbers in each regime
+        #    St = np.empty_like(reduce(self.dust_frac))
+        #    St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*reduce(mfp)*Sigma))[stokes_regime]
+        #    St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
+        #    St[St <= 0] = 1e-300
+        #    return St
+        #else:
+        #    # Mean free path
+        #    mfp = self.mu*m_p/(2*10**-15*self.midplane_gas_density)
+        # 
+        #    # Boolean array of where each regime is
+        #    stokes_regime = self.grain_size > 9/4*mfp
+        #    epstein_regime = np.invert(stokes_regime)
+        #
+        #    # Stokes numbers in each regime
+        #    St = np.empty_like(self.dust_frac)
+        #    St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*mfp*Sigma))[stokes_regime]
+        #    St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
+        #    St[St <= 0] = 1e-300
+        #    return St
     
     def ASCII_header(self):
         """Dust growth header"""
@@ -517,7 +517,7 @@ class DustGrowthTwoPop(DustyDisc):
         self._eps[0] = dust_frac
 
     def set_gas(self, gas):
-        """Set gas oject"""
+        """Set gas object"""
         self._gas = gas
 
     @property
@@ -1001,7 +1001,7 @@ class SingleFluidDrift(object):
         
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
-        # Update the dust fraction
+        # Update the dust fraction, but leave planetesimals unchanged
         disc.dust_frac[:2] += dt * fluxes[:2]
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
