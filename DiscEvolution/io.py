@@ -14,6 +14,8 @@ import os
 
 import DiscEvolution.constants as constants
 from DiscEvolution.chemistry import create_abundances, MolecularIceAbund
+from DiscEvolution.viscous_evolution import TaboneSolution
+from DiscEvolution.constants import Msun
 
 __all__ = [ "Event_Controller", "dump_ASCII", "dump_hdf5", "DiscReader" ]
 ###############################################################################
@@ -152,8 +154,20 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
             Ndust = disc.dust_frac.shape[0]
         except AttributeError:
             pass
+        
+        try:
+            f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}, Psi: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],disc.RC(),disc.alpha,disc._eos._alpha_DW/disc.alpha))
+        except:
+            try:
+                f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],disc.RC(),disc.alpha))
+            except:
+                f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],'error',disc.alpha))
+            
 
-        head = '# R Sigma T'
+        if disc.planetesimal:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL Sigma_P T Stokes_DS Stokes_DL'
+        else:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL T'
         for i in range(Ndust):
             head += ' epsilon[{}]'.format(i)
         for i in range(Ndust):
@@ -172,9 +186,12 @@ def dump_ASCII(filename, disc, time, header=None,gas=None):
             head += ' Mdot MdotSS'
         f.write(head+'\n')
         
-        R, Sig, T = disc.R, disc.Sigma, disc.T
+        R, Sig, Sig_G, Sig_D, T, Stokes_DS, Stokes_DL = disc.R, disc.Sigma, disc.Sigma_G, disc.Sigma_D, disc.T, disc.Stokes()[0], disc.Stokes()[1]
         for i in range(Ncell):
-            f.write('{} {} {}'.format(R[i], Sig[i], T[i]))
+            if disc.planetesimal:
+                f.write('{} {} {} {} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], Sig_D[2,i], T[i], Stokes_DS[i], Stokes_DL[i]))
+            else:
+                f.write('{} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], T[i]))
             for j in range(Ndust):
                 f.write(' {}'.format(disc.dust_frac[j, i]))
             for j in range(Ndust):

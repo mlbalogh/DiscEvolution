@@ -7,7 +7,7 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-from  copy import deepcopy
+from copy import deepcopy
 
 class ViscousEvolution(object):
     """Solves the 1D viscous evolution equation.
@@ -147,29 +147,21 @@ class ViscousEvolution(object):
         # The following makes sure planetesimal 
         # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
-
-            # Update overall surface density
+            # Update sigma
             Sigma_temp = disc.Sigma + dt * f
-
-            # extract old planetesimal, dust, and gas surface densities
-            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
-            Sigma_G_old = deepcopy(disc.Sigma_G)
-            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
-
-            # Find new dust and gas usrface densities
-            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
-            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-
-            # update surface density and dust fraction
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
-            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
-            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
-            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
         
-            disc._eps[:] = Dust_Frac_New
+            Sigma_G_old = disc.Sigma_G
+            # Find new dust sigmas
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+        
+            disc._eps = Dust_Frac_New
+
         else:
             Sigma_new = disc.Sigma + dt * f
-        
+
         for t in (tracers+adv):
             if t is None: continue
             tracer_density = t*disc.Sigma
@@ -312,7 +304,6 @@ class ViscousEvolutionFV(object):
         for t in (tracers + adv):
             if t is None: continue
             t[:] += dt*(self._tracer_fluxes(t) - t*f) / (Sigma_new + 1e-300)
-
         disc.Sigma[:] = Sigma_new
 
 
@@ -483,25 +474,17 @@ class HybridWindModel(object):
         # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
 
-            # Update overall surface density
-            Sigma_temp = disc.Sigma + dt * (f - self._s_wind)
-
-            # extract old planetesimal, dust, and gas surface densities
-            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
-            Sigma_G_old = deepcopy(disc.Sigma_G)
-            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
-
-            # Find new dust and gas usrface densities
-            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
-            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-
-            # update surface density and dust fraction
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
-            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
-            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
-            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
+            # Update sigma
+            Sigma_temp = disc.Sigma + dt * f
         
-            disc._eps[:] = Dust_Frac_New
+            Sigma_G_old = disc.Sigma_G
+            # Find new dust sigmas
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+        
+            disc._eps = Dust_Frac_New
         else:
             Sigma_new = disc.Sigma + dt * (f - self._s_wind)
 
@@ -553,22 +536,23 @@ class TaboneSolution(object):
     args:
         M      : Disc mass
         rc     : Critical radius at t=0
-        n_c    : viscosity at rc
+        n_c    : viscosity at rc (from alpha_ss)
         psi_DW : Ratio of viscous to wind-driven alpha
+        d2g    : Dust to gas ratio
         lambda_dW : mass-loss efficiency
     """
 
-    def __init__(self, M, rc, nuc, psi_DW, lambda_DW=3):
+    def __init__(self, M, rc, nuc, psi_DW, d2g = 0.01, lambda_DW=3):
         from scipy.special import gamma as gamma_fun
         self._rc = rc
         self._nuc = nuc
-        self._tc = rc * rc / (3 * nuc)
+        self._tc = rc * rc / (3 * nuc * (1 + psi_DW))
 
         self._psi = psi_DW
         
         C = 4*psi_DW/((lambda_DW-1)*(1+psi_DW)**2)
         self._xi = 0.25*(1 + psi_DW) * (np.sqrt(1 + C)-1) 
-        self._Sigma0 = M / (2 * np.pi * rc ** 2 * gamma_fun(1 + self._xi))
+        self._Sigma0 = M * (1-d2g) / (2 * np.pi * rc ** 2 * gamma_fun(1 + self._xi))
 
     def __call__(self, R, t):
         """Surface density at R and t"""
@@ -578,6 +562,24 @@ class TaboneSolution(object):
         ft = tt ** -(2.5 + self._xi + self._psi/2)
 
         return self._Sigma0 * ft * Xg * np.exp(- X)
+    
+    def viscous_velocity(self, disc, Sigma = None):
+        """Compute the radial velocity of gas due to viscosity + winds"""
+        if Sigma is None:
+            Sigma = disc.Sigma
+        v_dw = -1.5*self._psi * disc.nu/disc.R
+        
+        v_vs = -4.5 / ((disc.Sigma[:-1]+disc.Sigma[1:]) ) * np.diff(disc.nu * disc.Sigma * disc.R**0.5)/np.diff(disc.grid.Rc**1.5)
+        
+        return ((v_dw[:-1] + v_dw[1:])/2 + v_vs)/2
+
+    def ASCII_header(self):
+        """header"""
+        return '# {}'.format(self.__class__.__name__)
+
+    def HDF5_attributes(self):
+        """Class information for HDF5 headers"""
+        return self.__class__.__name__, ""
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -639,6 +641,11 @@ if __name__ == "__main__":
     sol = TaboneSolution(M / AU**2, Rd, nud, psi_DW=1)
 
     Sigma = sol(grid.Rc, 0.)
+    fig1, ax1 = plt.subplots()
+    for t in times:
+        ax1.loglog(grid.Rc,sol(grid.Rc,t))
+    ax1.set_title("Tabone")
+    plt.show()
 
     disc = AccretionDisc(grid, star, eos, Sigma)
 

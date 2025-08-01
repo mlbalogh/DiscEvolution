@@ -11,7 +11,7 @@ import os
 from DiscEvolution.photoevaporation import FixedExternalEvaporation
 from DiscEvolution.constants import yr
 import DiscEvolution.io as io
-
+from DiscEvolution.viscous_evolution import TaboneSolution
 
 class PlanetDiscDriver(object):
     """Driver class for full evolution model including planet evolution.
@@ -70,11 +70,13 @@ class PlanetDiscDriver(object):
             dt : Time step taken
         """
         disc = self._disc
+        is_analytic = isinstance(self._gas,TaboneSolution)
 
         # Compute the maximum time-step
         dt = tmax - self.t
-        if self._gas:
-            dt = min(dt, self._gas.max_timestep(self._disc))
+        if self._gas and not is_analytic:
+            dt = min(dt, self.
+            _gas.max_timestep(self._disc))
         if self._dust:
             v_visc  = self._gas.viscous_velocity(disc)
             dt = min(dt, self._dust.max_timestep(self._disc, v_visc))
@@ -115,16 +117,34 @@ class PlanetDiscDriver(object):
             pass
 
         # Do Advection-diffusion update
-        if self._gas:
-            self._gas(dt, disc, [dust, gas_chem, ice_chem])
+        if is_analytic:
+            if disc._planetesimal:
+                    
+                Sigma_G_new = self._gas(disc.R, self.t)
+                Sigma_D_new = disc.Sigma_D[:-1]*Sigma_G_new/disc.Sigma_G
+                Sigma_P_new = disc.Sigma_D[-1]
+                Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_P_new
+                Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [Sigma_P_new / Sigma_new]),axis=0)
+                disc._eps = Dust_Frac_New
+                
+            else:
+                Sigma_new = self._gas(disc.R, self.t)
+            disc.Sigma[:] = Sigma_new
+     
+        else:
+            if self._gas:
+                if disc._planetesimal:
+                    self._gas(dt, disc, [dust[:-1], gas_chem, ice_chem])
+                else: 
+                    self._gas(dt, disc, [dust, gas_chem, ice_chem])
 
-        if self._diffusion:
-            if gas_chem is not None:
-                gas_chem[:] += dt * self._diffusion(disc, gas_chem)
-            if ice_chem is not None:
-                ice_chem[:] += dt * self._diffusion(disc, ice_chem)
-            if dust is not None:
-                dust[:] += dt * self._diffusion(disc, dust)
+            if self._diffusion:
+                if gas_chem is not None:
+                    gas_chem[:] += dt * self._diffusion(disc, gas_chem)
+                if ice_chem is not None:
+                    ice_chem[:] += dt * self._diffusion(disc, ice_chem)
+                if dust is not None:
+                    dust[:] += dt * self._diffusion(disc, dust)
 
         # Do external photoevaporation
         if self._external_photo:
