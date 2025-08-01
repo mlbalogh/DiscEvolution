@@ -391,7 +391,7 @@ class PlanetesimalAccretion(object):
         eta = - np.interp(Rp, reduce(disc.R), np.diff(disc.P) / disc.grid.dRc / reduce(disc.midplane_gas_density)) / disc.star.Omega_k(Rp)
         return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),(reduce(disc.v_drift[2]) - disc.gas.viscous_velocity(disc)))**2)
  
-    def Reynolds(self, Rp):
+    def Reynolds(self, Rp, v = None):
         """Calculate the Reynolds number of planetesimals at given orbital radii"""
         disc = self._disc
         if v is None:
