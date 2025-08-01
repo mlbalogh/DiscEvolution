@@ -45,10 +45,6 @@ class EOS_Table(object):
         return self._f_visc_mol()
 
     @property
-    def visc_mol(self):
-        return self._f_visc_mol
-
-    @property
     def alpha(self):
         return self._alpha
 
