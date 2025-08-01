@@ -245,7 +245,7 @@ class PebbleAccretion(object):
             epsilon : approximate power law scaling of pressure with radius
 
         returns:
-            M_t : transition mass, Mearth
+            M_t (ndarray): transition mass, Mearth
         """
         h = self._disc.interp(R, self._disc.H) / R
         
@@ -262,7 +262,16 @@ class PebbleAccretion(object):
         return M_t
     
     def Mdot_Hill(self, Rp, Mp):
-        """Compute the pebble accretion rate in the Hill regime, according to  Morbidelli+ (2015)"""
+        """
+        Compute the pebble accretion rate in the Hill regime, according to  Morbidelli+ (2015).
+        
+        args:
+            Rp : heliocentric radius of planet, AU
+            Mp : mass of planet, M_earth
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles in Hill regime for each planet.
+        """
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -288,7 +297,17 @@ class PebbleAccretion(object):
         return Mdot
     
     def Mdot_Bondi(self, Rp, Mp, epsilon):
-        """Compute the pebble accretion rate in the Bondi regime, according to Lambretchs and Johansen (2012)."""
+        """
+        Compute the pebble accretion rate in the Bondi regime, according to Lambretchs and Johansen (2012).
+        
+        args:
+            Rp : heliocentric radius of planet, AU
+            Mp : mass of planet, M_earth
+            epsilon : approximate power law scaling of pressure with radius
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles in Bondi regime for each planet.
+        """
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -325,9 +344,12 @@ class PebbleAccretion(object):
         '''
         Calculate the pebble accretion rate.
     
-        args :
+        args:
              Rp : radius of planet in AU
              Mp : mass of planet in M_earth
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles for each planet.
         '''
         disc = self._disc
 
