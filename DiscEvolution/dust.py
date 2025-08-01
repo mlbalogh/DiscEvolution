@@ -94,8 +94,8 @@ class DustyDisc(AccretionDisc):
 
     @property
     def Sc(self):
-        """Schmidt number, Sc = nu/D"""
-        return self._Sc
+        """Schmidt number, Sc = alpha cs H / D"""
+        return self._Sc / self.gap_profile
 
     # Overload Accretion disc densities to make it dusty
     @property
@@ -126,7 +126,7 @@ class DustyDisc(AccretionDisc):
         """Dust scale height"""
 
         St = self.Stokes()
-        a  = self.alpha/self.Sc
+        a  = self.alpha/self._Sc
         eta = 1 - 1. / (2 + 1./St)
 
         return self.H * np.sqrt(eta * a / (a + St))
@@ -305,7 +305,8 @@ class DustGrowthTwoPop(DustyDisc):
     """
     def __init__(self, grid, star, eos, eps, Sigma=None,
                  rho_s=1., Sc=1., uf_0=100., uf_ice=1e3, f_ice=1, thresh=0.1,
-                 f_grow=1.0, a0=1e-5, amin=1e-5, f_drift=0.55, f_frag=0.37, feedback=True, start_small=True, distribution_slope=3.5):
+                 f_grow=1.0, a0=1e-5, amin=1e-5, f_drift=0.55, f_frag=0.37, feedback=True,
+                 start_small=True, distribution_slope=3.5, gas = None):
         super(DustGrowthTwoPop, self).__init__(grid, star, eos, Sigma, rho_s, Sc, feedback)
         
         self._uf_0   = uf_0 / (AU * Omega0)
@@ -339,12 +340,57 @@ class DustGrowthTwoPop(DustyDisc):
         self._start_small = start_small         # Whether to start at monomer size (True, default) or equilibrium (False)
         self._p = distribution_slope            # The slope d ln n(a) / d ln a of the number distribution with size (3.5 for MRN)
 
+        self._gas = gas
         self._head = (', uf_0: {}cm s^-1, uf_ice: {}cm s^-1, thresh: {}'
                       ', f_grow: {}, a0: {}cm'.format(uf_0, uf_ice, thresh,
                                                       f_grow, a0))
 
         self.update(0)
+    def Stokes(self, Sigma=None, size=None):
+        """
+        Impliment different drag regimes. Not thoroughly tested"""
+        return super(DustGrowthTwoPop,self).Stokes(Sigma, size)
+        if size is None:
+            size = self.grain_size
+        if Sigma is None:
+            Sigma = self.Sigma_G
+        
+        
+            
 
+        if len(Sigma) == len(self.Sigma)-1:
+            def reduce(arr: np.array):
+                if len(arr.shape) == 1:
+                    return (arr[1:] + arr[:-1])/2
+                else:
+                    return np.transpose((np.transpose(arr)[1:] + np.transpose(arr)[:-1])/2)
+            # Mean free path
+            mfp = self.mass()/(2*10**15*self.midplane_gas_density)
+
+            # Boolean array of where each regime is
+            stokes_regime = reduce(self.grain_size) > reduce(9/4*mfp)
+            epstein_regime = np.invert(stokes_regime)
+            # Stokes numbers in each regime
+            St = np.empty_like(reduce(self.dust_frac))
+            St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*reduce(mfp)*Sigma))[stokes_regime]
+            St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
+            St[St == 0] = 1e-300
+            return St
+        else:
+            # Mean free path
+            mfp = self.mu*m_p/(2*10**-15*self.midplane_gas_density)
+
+            # Boolean array of where each regime is
+            stokes_regime = self.grain_size > 9/4*mfp
+            epstein_regime = np.invert(stokes_regime)
+
+            # Stokes numbers in each regime
+            St = np.empty_like(self.dust_frac)
+            St[stokes_regime] = (2*np.pi*self._rho_s*size**2/(9*mfp*Sigma))[stokes_regime]
+            St[epstein_regime] = (self._Kdrag * size / (Sigma + 1e-300))[epstein_regime]
+            St[St == 0] = 1e-300
+            return St
+    
     def ASCII_header(self):
         """Dust growth header"""
         return super(DustGrowthTwoPop, self).ASCII_header() + self._head
@@ -478,6 +524,13 @@ class DustGrowthTwoPop(DustyDisc):
         """Set the initial dust density"""
         self._eps[0] = dust_frac
 
+    def set_gas(self, gas):
+        """Set gas oject"""
+        self._gas = gas
+
+    @property
+    def gas(self):
+        return self._gas
 
     def update(self, dt):
         """Do the standard disc update, and apply grain growth"""

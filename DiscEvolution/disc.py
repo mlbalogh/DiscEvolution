@@ -143,6 +143,10 @@ class AccretionDisc(object):
         return self._eos.nu / self._gap_profile
     
     @property
+    def visc_mol(self):
+        return self._eos.visc_mol()
+    
+    @property
     def Re(self):
         """Reynolds number"""
         return (self.alpha*self.Sigma_G*sig_H2) / (2*self._eos.mu*m_H)
@@ -159,6 +163,10 @@ class AccretionDisc(object):
     @property
     def FUV(self):
         return self._FUV
+    
+    @property
+    def gap_profile(self):
+        return self._gap_profile
 
     """Methods to determine global properties of a viscous accretion disc"""
     def Rout(self, thresh=1e-5):

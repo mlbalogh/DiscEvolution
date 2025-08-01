@@ -1,8 +1,8 @@
 from __future__ import print_function
 import numpy as np
 from DiscEvolution.brent import brentq
-from DiscEvolution.constants import GasConst, sig_SB, AU, Omega0
-import DiscEvolution.opacity
+from DiscEvolution.constants import GasConst, sig_SB, AU, Omega0, m_H, sig_H2
+import DiscEvolution.opacity as opacity
 ################################################################################
 # Thermodynamics classes
 ################################################################################
@@ -38,6 +38,10 @@ class EOS_Table(object):
     @property
     def nu(self):
         return self._nu
+
+    @property
+    def visc_mol(self):
+        return self._f_visc_mol
 
     @property
     def alpha(self):
@@ -77,7 +81,7 @@ class LocallyIsothermalEOS(EOS_Table):
         star    : stellar properties
         mu      : mean molecular weight, default=2.4
     """
-    def __init__(self, star, h0, q, alpha_t, mu=2.4):
+    def __init__(self, star, h0, q, alpha_t, mu=2.4,alpha_DW = None):
         super(LocallyIsothermalEOS, self).__init__()
         
         self._h0 = h0
@@ -87,7 +91,8 @@ class LocallyIsothermalEOS(EOS_Table):
         self._H0 = h0
         self._T0 = (AU*Omega0)**2 * mu / GasConst
         self._mu = mu
-        
+        self._alpha_DW = alpha_DW
+
     def _f_cs(self, R):
         return self._cs0 * R**self._q
 
@@ -96,6 +101,9 @@ class LocallyIsothermalEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
@@ -287,7 +295,7 @@ class IrradiatedEOS(EOS_Table):
         accrete : Whether to include heating due to accretion,
                   default=True
     """
-    def __init__(self, star, alpha_t, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
+    def __init__(self, star, alpha_t, alpha_DW = None, Tc=10, Tmax=1500., mu=2.4, gamma=1.4,
                  kappa=None,
                  accrete=True, tol=None): # tol is no longer used
         super(IrradiatedEOS, self).__init__()
@@ -297,6 +305,7 @@ class IrradiatedEOS(EOS_Table):
         self._dlogHdlogRm1 = 2/7.
 
         self._alpha_t = alpha_t
+        self._alpha_DW = alpha_DW
         
         self._Tc = Tc
         self._Tmax = Tmax
@@ -413,6 +422,9 @@ class IrradiatedEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
