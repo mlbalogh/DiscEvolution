@@ -143,6 +143,9 @@ class ViscousEvolution(object):
         self._init_fluxes(disc)
 
         f = self._fluxes()
+
+        # The following makes sure planetesimal 
+        # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
             # Update sigma
             Sigma_temp = disc.Sigma + dt * f
@@ -158,6 +161,7 @@ class ViscousEvolution(object):
 
         else:
             Sigma_new = disc.Sigma + dt * f
+
         for t in (tracers+adv):
             if t is None: continue
             tracer_density = t*disc.Sigma
@@ -301,6 +305,10 @@ class ViscousEvolutionFV(object):
             if t is None: continue
             t[:] += dt*(self._tracer_fluxes(t) - t*f) / (Sigma_new + 1e-300)
 
+        for t in adv: # Tracers advected only
+            if t is None: continue
+            t[:] += dt*(self._tracer_fluxes(t) +  - (t + self._s_wind)*f) / (Sigma_new + 1e-300)
+        
         disc.Sigma[:] = Sigma_new
 
 
@@ -356,7 +364,7 @@ class HybridWindModel(object):
 
     def _init_fluxes_visc(self, disc):
         """Compute the flux due to viscosity"""
-        nuRh = disc.nu *  self._Rh / (1 + self._psi) #########################################
+        nuRh = disc.nu *  self._Rh
 
         S = np.zeros(len(nuRh) + 2, dtype='f8')
         S[1:-1] = disc.Sigma_G * nuRh
@@ -386,7 +394,7 @@ class HybridWindModel(object):
     def _init_fluxes_wind(self, disc, dt=0):
         """Compute the flux and mass-loss rate due to the wind"""
         #Use first order Donor cell method:
-        v_DW = 1.5 * (disc.nu/disc.R) * self._psi / (1 + self._psi) #########################################
+        v_DW = 1.5 * (disc.nu/disc.R) * self._psi
 
         F = np.zeros(len(disc.Sigma_G) + 1, dtype='f8')
         F[:-1] = v_DW * disc.Sigma_G
@@ -441,13 +449,13 @@ class HybridWindModel(object):
     def max_timestep(self, disc):
         """Courant limited time-step"""
         grid = disc.grid
-        nu = disc.nu / (1 + self._psi) #########################################
+        nu = disc.nu
 
         dXe2 = np.diff(2 * np.sqrt(grid.Re)) ** 2
 
         t_visc = ((dXe2 * grid.Rc) / (2 * 3 * nu)).min()
 
-        v_DW   = 1.5 * (disc.nu/grid.Rc) * self._psi / (1 + self._psi) #########################################
+        v_DW   = 1.5 * (disc.nu/grid.Rc) * self._psi
         t_wind = (np.diff(0.5*grid.Re**2) / (grid.Rc * v_DW)).min()
 
         return self._tol * min(t_visc, t_wind)
@@ -466,7 +474,32 @@ class HybridWindModel(object):
         self._init_fluxes_wind(disc, dt)
 
         f = self._fluxes()
-        Sigma_new = disc.Sigma + dt * (f - self._s_wind)
+        
+        # The following makes sure planetesimal 
+        # surface density is not evolved with viscous evolution.
+        if disc._planetesimal:
+
+            # Update overall surface density
+            Sigma_temp = disc.Sigma + dt * (f - self._s_wind)
+
+            # extract old planetesimal, dust, and gas surface densities
+            Sigma_plan_old = deepcopy(disc.Sigma_D[-1])
+            Sigma_G_old = deepcopy(disc.Sigma_G)
+            Sigma_D_old = deepcopy(disc.Sigma_D[:-1])
+
+            # Find new dust and gas usrface densities
+            Sigma_D_new = Sigma_D_old*Sigma_temp/disc.Sigma
+            Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
+
+            # update surface density and dust fraction
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + Sigma_plan_old
+            Dust_Frac_New = np.zeros(disc.dust_frac.shape, dtype='f8')
+            Dust_Frac_New[:-1] = Sigma_D_new / Sigma_new
+            Dust_Frac_New[-1] = disc.Sigma_D[-1] / Sigma_new
+        
+            disc._eps[:] = Dust_Frac_New
+        else:
+            Sigma_new = disc.Sigma + dt * (f - self._s_wind)
 
         for t in tracers: # Tracers advected + removed
             if t is None: continue
@@ -627,6 +660,7 @@ if __name__ == "__main__":
         ax1.loglog(grid.Rc,sol(grid.Rc,t))
     ax1.set_title("Tabone")
     plt.show()
+
     disc = AccretionDisc(grid, star, eos, Sigma)
 
     visc = HybridWindModel(psi_DW=1)

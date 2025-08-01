@@ -144,7 +144,7 @@ class AccretionDisc(object):
     
     @property
     def visc_mol(self):
-        return self._eos.visc_mol()
+        return self._eos.visc_mol
     
     @property
     def Re(self):
