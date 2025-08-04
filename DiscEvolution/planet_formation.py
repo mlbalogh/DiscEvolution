@@ -1230,8 +1230,8 @@ class Bitsch2015Model(object):
             
             dydt = np.empty_like(y)
             dydt[:N]    = Rdot
-            dydt[N:2*N]  = Mcdot + Mdot_pla
-            dydt[2*N:3*N] = Medot
+            dydt[N:2*N]  = Mcdot + Mdot_pla*(1-f)
+            dydt[2*N:3*N] = Medot + Mdot_pla*f
 
             if chem:
                 Xs, Xg, Xs_pla =  self._compute_chem(R_p)
@@ -1240,8 +1240,8 @@ class Bitsch2015Model(object):
                 Mg = np.maximum(Medot - Ms, 0)
                 Nspec = Xs.shape[0]
 
-                dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs + Mdot_pla*Xs_pla).ravel()
-                dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (Ms*Xs + Mg*Xg).ravel()
+                dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs + Mdot_pla*(1-f)*Xs_pla).ravel()
+                dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (Ms*Xs + Mg*Xg + Mdot_pla*f*Xs_pla).ravel()
             
             return dydt
             
