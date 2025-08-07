@@ -6,7 +6,6 @@ from scipy.integrate import ode
 from DiscEvolution.constants import *
 from DiscEvolution.disc_utils import make_ASCII_header
 from DiscEvolution.grid import reduce
-
 ################################################################################
 # Planet collections class
 ################################################################################
@@ -418,7 +417,7 @@ class PlanetesimalAccretion(object):
         disc = self._disc
         if v is None:
             v = self.relative_velocity(Rp) 
-        nu = (disc.visc_mol*Omega0*AU) / (disc.midplane_density*AU**3)
+        nu = (disc.visc_mol*Omega0*AU) / (disc.midplane_gas_density*AU**3)
         Re = v * disc.interp(Rp,disc.R_planetesimal / nu)
         return Re
     
@@ -626,7 +625,7 @@ class PlanetesimalAccretion(object):
         acc_eff_Rp = acc_eff[0]
 
         # Calculate the planetesimal accretion rate
-        Mdot = 2 * np.pi * Rp * (-dRdt) * Sigma_pla * acc_eff_Rp / Mearth * AU**2
+        Mdot = 2 * np.pi * Rp * np.abs(dRdt) * Sigma_pla * acc_eff_Rp / Mearth * AU**2
         self.dRdt = dRdt
         return Mdot
 
@@ -757,7 +756,7 @@ class PlanetesimalAccretion(object):
         Mdot = 0
         if dRdt is None:
             dRdt = np.zeros_like(Rp)
-        if (dRdt < 0).any():
+        if any(dRdt != 0):
             Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
         else:
             Mdot = self.computeMdotTwoPhase(Rp, Mp)

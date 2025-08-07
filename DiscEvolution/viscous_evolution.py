@@ -326,9 +326,7 @@ class HybridWindModel(object):
 
     Notes :
        The alpha provided by the disc model is assumed to be the total alpha, i.e.
-       the viscous + turbulent alpha. To get the usual diffusion coefficient and
-       turbulent collision velocity the Schmidt number should be defined as 
-       Sc = (1 + psi_DW)
+       the viscous + disk wind alpha.
     """
     def __init__(self, psi_DW, lambda_DW=3, tol=0.5, boundary='power_law', in_bound='Mdot'):
         self._tol = tol
