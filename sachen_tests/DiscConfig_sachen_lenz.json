@@ -1,0 +1,110 @@
+{
+"grid" : {
+"N" : 1000,
+"R0" : 0.1,
+"R1" : 1000.0,
+"spacing" : "natural"
+},
+
+"disc" : {
+"alpha" : 1e-3,
+"alpha_t" : 1e-3,
+"psi" : 0,
+"mass" : 0.05,
+"unit" : "jup",
+"Rc" : 35,
+"d2g" : 0.01,
+"Schmidt" : 1.0,
+"type" : "Booth-Rd",
+"gamma" : 1,
+"Mdot" : 1e-8,
+"amin" : 1e-5
+},
+
+"eos" : {
+"type" : "iso",
+"opacity" : "Tazzari2016",
+"h0" : 0.025,
+"q" : -0.2,
+"mu" : 2.5
+},
+
+"star" : {
+"mass" : 1.0,
+"radius" : 1,
+"T_eff" : 4000.0
+},
+
+"transport" : {
+"gas" : true,
+"type" : "ViscousEvolution",
+"radial drift" : true,
+"diffusion" : true
+},
+
+"output" : {
+"directory" : "sachen_tests/Data/dusty_disc_lenz_N_1000_stlim_alpha_1e3",
+"base" : "disc",
+"format" : "ascii",
+"arrange" : "explicit",
+"first" : 0,
+"last" : 1e6,
+"interval" : 1e3,
+"plot" : true,
+"plot_times" : [0, 1e5, 5e5, 1e6],
+"save_times" : [0, 1e3, 1e4, 1e5, 1e6],
+"plot_name" : "disc",
+"history" : false,
+"history_times": [0]
+},
+
+"planetesimal": {
+        "active": true,
+        "diameter": 100,
+        "St_min": 0.01,
+        "St_max": 10,
+        "pla_eff": 0.1
+},
+
+"planets": {
+        "active": false,
+        "planet_model": "Bitsch2015Model",
+        "planets" : [
+            {"Mp" : 0.1, "Rp" : 1, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.1, "Rp" : 5, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.1, "Rp" : 10, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.1, "Rp" : 20, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.1, "Rp" : 30, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.01, "Rp" : 1, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.01, "Rp" : 5, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.01, "Rp" : 10, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.01, "Rp" : 20, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 0.01, "Rp" : 30, "t" : 0.0,"Menv" : 0.0}
+        ],
+        "migrate" : true
+},
+
+"fuv" : {
+"photoevaporation" : "None",
+"fuv_field" : 0
+},
+
+"dust" : {
+"radii_thresholds" : [0.68, 0.95],
+"ice_frag_v" : 1000,
+"dust_frag_v" : 1000,
+"p" : 3.5,
+"density" : 1.2,
+"f_grow" : 1.0
+},
+
+"x-ray" : {
+"model": "Picogna",
+"L_X" : 0
+},
+
+"euv" : {
+"Phi" : 0
+}
+
+}

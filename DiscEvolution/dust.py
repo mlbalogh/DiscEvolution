@@ -117,7 +117,7 @@ class DustyDisc(AccretionDisc):
     
     @property
     def midplane_density(self):
-        return self.midplane_gas_density + self.midplane_dust_density.sum(0)
+        return self.midplane_gas_density + self.midplane_dust_density[:2].sum(0)
     
     @property
     def Hp(self):

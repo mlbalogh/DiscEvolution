@@ -1,0 +1,106 @@
+{
+"grid" : {
+"N" : 500,
+"R0" : 0.1,
+"R1" : 1000.0,
+"spacing" : "natural"
+},
+
+"disc" : {
+"psi" : 0.02,
+"alpha" : 1e-3, 
+"mass" : 0.05,
+"unit" : "jup",
+"Rc" : 35,
+"d2g" : 0.01,
+"Schmidt" : 1.0,
+"type" : "winds-mdot",
+"gamma" : 1,
+"Mdot" : 2.5e-9,
+"amin" : 1e-5
+},
+
+"eos" : {
+"type" : "iso",
+"opacity" : "Tazzari2016",
+"h0" : 0.025,
+"q" : -0.2,
+"mu" : 2.5
+},
+
+"star" : {
+"mass" : 1.0,
+"radius" : 1,
+"T_eff" : 4000.0
+},
+
+"transport" : {
+"type" : "Tabone-Analytic",
+"gas" : true,
+"radial drift" : true,
+"diffusion" : true
+},
+
+"output" : {
+"directory" : "sachen_tests/Data/pebble_accretion_low_wind",
+"base" : "disc",
+"format" : "ascii",
+"arrange" : "explicit",
+"first" : 0,
+"last" : 3e6,
+"interval" : 1e5,
+"plot" : true,
+"plot_times" : [0, 1e5, 5e5, 1e6, 3e6],
+"save_times" : [0, 1e3, 1e4, 1e5, 2e5, 4e5, 6e5, 8e5, 1e6, 3e6],
+"plot_name" : "disc",
+"history" : false,
+"history_times": [0]
+},
+
+"planetesimal": {
+        "active": true,
+        "diameter": 10,
+        "St_min":0.01,
+        "St_max": 10,
+        "pla_eff": 0.1
+},
+
+"planets": {
+        "active": true,
+        "planet_model": "Bitsch2015Model",
+        "pebble_accretion" : true,
+        "planetesimal_accretion" : false,
+        "planets" : [
+            {"Mp" : 5e-2, "Rp" : 1, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 5e-2, "Rp" : 5, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 5e-2, "Rp" : 10, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 5e-2, "Rp" : 20, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 5e-2, "Rp" : 30, "t" : 0.0,"Menv" : 0.0}
+        ],
+        "migrate" : true
+},
+
+"fuv" : {
+"photoevaporation" : "None",
+"fuv_field" : 0
+},
+
+"dust" : {
+"radii_thresholds" : [0.68, 0.95],
+"ice_frag_v" : 1000,
+"dust_frag_v" : 1000,
+"p" : 3.5,
+"density" : 1.2,
+"f_grow" : 1.0
+},
+
+"x-ray" : {
+"model": "Picogna",
+"L_X" : 0
+},
+
+"euv" : {
+"Phi" : 0
+}
+
+}
