@@ -1,5 +1,6 @@
 from __future__ import print_function
 import numpy as np
+import warnings
 from scipy.interpolate import InterpolatedUnivariateSpline as ispline
 from scipy.interpolate import UnivariateSpline as spline
 from scipy.integrate import ode
@@ -248,7 +249,7 @@ class PebbleAccretion(object):
         h = self._disc.interp(R, self._disc.H) / R
         
         if not epsilon is None:
-            eta = 0.5 * h**2 * np.abs(epsilon)
+            eta = 0.5 * h**2 * epsilon
         else:
             # Use a safe, noise free approximation here
             eta = - 0.5 * h*h * (-2.75)
@@ -410,7 +411,7 @@ class PlanetesimalAccretion(object):
         """
         disc = self._disc
         eta = - np.interp(Rp, reduce(disc.R), np.diff(disc.P) / disc.grid.dRc / reduce(disc.midplane_gas_density)) / disc.star.Omega_k(Rp)
-        return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),(reduce(disc.v_drift[2]) - disc.gas.viscous_velocity(disc)))**2)
+        return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),(disc.gas.viscous_velocity(disc)))**2)
  
     def Reynolds(self, Rp, v = None):
         """Calculate the Reynolds number of planetesimals at given orbital radii"""
@@ -436,12 +437,16 @@ class PlanetesimalAccretion(object):
         vrel = self.relative_velocity(Rp)
         Ma = self.Mach(Rp,vrel)
         Re = self.Reynolds(Rp,vrel)
+        for number in Re:
+            if number < 1: 
+                warnings.warn(f"Reynolds number of {number:.2f} found, setting to 1 to avoid division by zero.")
+        Re = np.where(Re < 1, 1, Re)
      
         drag_coeff = np.zeros_like(Ma)
 
         # Calculate the drag coefficient for the different regimes
         # Apply conditions: Ma < 1 and Re < 10^3
-        condition = (Ma < 1) & (Re < 1e3) & (Re > 1)
+        condition = (Ma < 1) & (Re < 1e3) & (Re >= 1)
         drag_coeff[condition] = 6 / np.sqrt(Re[condition])
 
         # Apply conditions: Ma < 1 and 10^3 < Re < 10^5
@@ -815,21 +820,27 @@ def _G(p):
 
 
 class TypeIMigration(object):
-    """Type 1 Migration model of Paardekooper et al (2011)
+    """Type 1 Migration model of planets. If disk is viscously driven, use model by 
+    Paardekooper et al (2011). Otherwise, use Tanaka et al (2002) for wind-driven disks.
 
-    Only implemented for sofenting the default sofetning parameter b/h=0.4
+    Only implemented for sofenting the default softening parameter b/h=0.4
 
     args:
         disc  : accretion disc model
         gamma : ratio of specific heats, default=1.4
         M     : central mass, default = 1
     """
-    def __init__(self, disc, gamma=1.4):
+    def __init__(self, disc, gamma=1.4, winds=False):
         self._gamma = gamma
 
         #Tabulate gamma_eff to avoid underflow/overflow
         self._Q_tab = np.logspace(-2, 2, 100)
         self._gamma_eff_tab = self._gamma_eff(self._Q_tab)
+
+        if winds:
+            self._winds = True
+        else:
+            self._winds = False
 
         self.set_disc(disc)
 
@@ -919,25 +930,47 @@ class TypeIMigration(object):
                   _hs_entr(alpha, beta, g_eff) * Fnu * FXi * np.sqrt(Gnu*GXi) +
                   _cr_entr(alpha, beta, g_eff) * np.sqrt((1-Knu)*(1-KXi)))
 
-
         return norm*torque
 
     def migration_rate(self, Rp, Mp):
-        """Migration rate, dRdt, of the planet"""
+        """Migration rate, dRdt, of the planet according to Paardekooper et al (2011)"""
         J = Mp*Rp*self._disc.star.v_k(Rp)
         return 2 * (Rp/J) * self.compute_torque(Rp, Mp)
     
+    def migration_rate_winds(self, Rp, Mp):
+        """Migration rate, dRdt, of the planet according to Tanaka et. al (2002)"""
+        disc = self._disc
+        h = self._disc.interp(Rp, self._disc.H) / Rp
+
+        epsilon = np.abs((np.diff(np.log(disc.P))) / (np.diff(np.log(disc.grid.Rc))))
+        epsilon = np.insert(epsilon, 0, epsilon[0])  # Epsilon is approximately constant at small radii.
+        epsilon = disc.interp(Rp, epsilon)
+        beta = 0.5 * h**2 * epsilon
+
+        return -(2.72 + 1.08*beta) * (Mp/(disc.star.M*Msun/Mearth)**2) * (h)**(-2) * disc.interp(Rp, disc.Sigma) * Rp**3 * disc.star.Omega_k(Rp) * AU**2 / Mearth
+    
     def __call__(self, planets):
         """Migration rate, dRdt, of the planet"""
-        return self.migration_rate(planets.R, planets.M)
+        if self._winds:
+            return self.migration_rate_winds(planets.R, planets.M)
+        else:
+            return self.migration_rate(planets.R, planets.M)
     
 
     
 class TypeIIMigration(object):
-    """Giant planet migration. Uses relation of Baruteau et al (2014)
     """
-    def __init__(self, disc):
+    Giant planet migration. Uses relation of 
+    Baruteau et al (2014) for viscous disks
+    and Nekrasov et. al (2025) for wind-driven disks.
+    """
+    def __init__(self, disc, winds=False):
         self._disc = disc
+
+        if winds:
+            self._winds = True
+        else:
+            self._winds = False
 
     def ASCII_header(self):
         """Generate ASCII header string"""
@@ -952,7 +985,7 @@ class TypeIIMigration(object):
         self.update()
 
     def migration_rate(self, Rp, Mp):
-        """Migration rate, dR/dt, of the planet"""
+        """Migration rate, dR/dt, of the planet according to Baruteau et. al 2014"""
         disc = self._disc
         
         Sigma = disc.interp(Rp, disc.Sigma)
@@ -964,9 +997,20 @@ class TypeIIMigration(object):
 
         return - Rp / t_mig
         
+    def migration_rate_winds(self, Rp, Mp):
+        """Migration rate, dRdt, of the planet according to Nekrasov et. al 2025"""
+        disc = self._disc
+
+        vr = np.interp(Rp, disc._grid.Re[1:-1], disc._gas.viscous_velocity(disc, disc._Sigma))
+        Md = 2 * np.pi * Rp**2 * disc.interp(Rp, disc._Sigma) * AU**2 / Mearth
+        return vr * Md / (Md + Mp)
+
     def __call__(self, planets):
         """Migration rate, dRdt, of the planet"""
-        return self.migration_rate(planets.R, planets.M)
+        if self._winds:
+            return self.migration_rate_winds(planets.R, planets.M)
+        else:
+            return self.migration_rate(planets.R, planets.M)
 
     def update(self):
         """Update internal quantities after the disc has evolved"""
@@ -976,17 +1020,29 @@ class TypeIIMigration(object):
 # Combined models
 ################################################################################
     
-class CridaMigration(object):
+class PlanetMigration(object):
     """Migration by Type I and Type II with a switch based on the Crida &
-    Morbidelli (2007) gap depth criterion.
+    Morbidelli (2007) gap depth criterion for viscous disks and Baruteau 
+    et. al (2014) critical mass ratio for windy disks.
 
     args:
         disc  : accretion disc model
         gamma : ratio of specific heats, default=1.4
+        winds : Whether the disk includes disk winds, default=False
+    
+    Note:
+        Originally, this migration model was based of Bitsch et. al (2015).
+        Due to multiple parts of this model being incorrect for disks with disk winds,
+        a secondary model based on Nekrasov et. al (2025) was added. The user
+        can choose to use the Nekrasov et. al (2025) model by setting winds=True.
     """
-    def __init__(self, disc, gamma=1.4):
-        self._typeI  = TypeIMigration(disc, gamma=gamma)
-        self._typeII = TypeIIMigration(disc)
+    def __init__(self, disc, gamma=1.4, winds=False):
+        if winds:
+            self._winds=True
+        else:
+            self._winds=False
+        self._typeI  = TypeIMigration(disc, gamma=gamma, winds=self._winds)
+        self._typeII = TypeIIMigration(disc, winds=self._winds)
         self._disc = disc
 
     def ASCII_header(self):
@@ -1008,7 +1064,7 @@ class CridaMigration(object):
 
 
     def migration_rate(self, Rp, Mp):
-        """Compute migration rate"""
+        """Compute migration rate according to Bitsch et. al (2015)"""
         disc = self._disc
         star = disc.star
         
@@ -1029,10 +1085,30 @@ class CridaMigration(object):
 
         return fP*vr_I + (1-fP)*vr_II
 
+    def migration_rate_winds(self, Rp, Mp):
+        """Compute migration rate according to Nekrasov et. al 2025"""
+        
+        disc = self._disc
+        star = disc.star
+        
+        vr_I  = self._typeI.migration_rate_winds(Rp, Mp)
+        vr_II = self._typeII.migration_rate_winds(Rp, Mp)
+
+        nu = disc.interp(Rp, disc.nu)
+        h  = disc.interp(Rp, disc.H) / Rp
+        Re = Rp**2 * star.Omega_k(Rp) / nu
+        X = np.sqrt(1 + 3 * h**3 * Re / 800)
+        q = (Mp/star.M) * (Mearth/Msun)
+        q_crit = (100/Re) * ((X + 1)**(1/3) - (X - 1)**(1/3))**(-3)
+
+        return np.where(q < q_crit, vr_I, vr_II)
 
     def __call__(self, planets):
         """Compute migration rate"""
-        return self.migration_rate(planets.R, planets.M)
+        if self._winds:
+            return self.migration_rate_winds(planets.R, planets.M)
+        else:
+            return self.migration_rate(planets.R, planets.M)
 
     def update(self):
         """Update internal quantities after the disc has evolved"""
@@ -1076,7 +1152,7 @@ class Bitsch2015Model(object):
 
         self._migrate = None
         if migrate:
-            self._migrate = CridaMigration(disc)
+            self._migrate = PlanetMigration(disc)
 
     def ASCII_header(self):
         """header"""
@@ -1210,7 +1286,7 @@ class Bitsch2015Model(object):
         def f_integ(_, y):
             R_p    = y[   :  N]
             M_core = y[N  :2*N]
-            M_env  = y[2*N:3*N]
+            M_env  = np.where(y[2*N:3*N]<0, 0, y[2*N:3*N]) # Avoid negative envelope masses
 
             Rdot = dRdt(R_p, M_core, M_env)
 
@@ -1351,7 +1427,7 @@ if __name__ == "__main__":
     migI  = TypeIMigration(disc)
     migII = TypeIIMigration(disc)
 
-    migCrida = CridaMigration(disc)
+    migCrida = PlanetMigration(disc)
 
     Rp = [1,5,25,100]
     M_p = np.logspace(-3, 4.0, 100)

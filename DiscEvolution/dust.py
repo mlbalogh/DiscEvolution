@@ -409,8 +409,9 @@ class DustGrowthTwoPop(DustyDisc):
 
         return ad, af
 
-    def _t_grow(self, eps):
-        return self._fgrow / (self.Omega_k * eps)
+    def _t_grow(self, eps=None):
+        "Slightly more realistic growth time-scale from Drazkowska et. al (2021)."
+        return (self.Sigma_G/(self.Sigma_D[1]*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
 
     def do_grain_growth(self, dt):
         """Apply the grain growth"""
@@ -567,11 +568,11 @@ class PlanetesimalFormation(object):
         
         v_drift_0 = np.insert(v_drift[0], 0, 0)
         v_drift_1 = np.insert(v_drift[1], 0, 0)
-        v_drift_2 = np.insert(v_drift[2], 0, 0)
+        #v_drift_2 = np.insert(v_drift[2], 0, 0) # planetesimals don't move, not needed.
         
         v_drift_0[np.isnan(v_drift_0)] = 0
         v_drift_1[np.isnan(v_drift_1)] = 0
-        v_drift_2[np.isnan(v_drift_2)] = 0
+        #v_drift_2[np.isnan(v_drift_2)] = 0
         
         # Heaviside functions
         theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.)
@@ -588,7 +589,7 @@ class PlanetesimalFormation(object):
         disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1)
         disc._M_peb = np.array(disc._M_peb)
         
-        disc._v_drift = np.array([v_drift_0, v_drift_1, v_drift_2])
+        disc._v_drift = np.array([v_drift_0, v_drift_1])
 
     def is_flux_critical(self, disc):
         """
@@ -701,7 +702,7 @@ class SingleFluidDrift(object):
         dVtot = np.abs(dVout[:,1:]) + np.abs(dVout[:,:-1])  # Potentially a cell can lose dust in both directions, both should be included to ensure stability
         
         # Prevent empty cells limiting the time-step
-        dVtot[disc.dust_frac < 1e-20] *= 1e-3
+        dVtot[disc.dust_frac[:2] < 1e-20] *= 1e-3
         return Cou * (disc.grid.dRe / dVtot).min()
     
     def _donor_flux(self, Ree, deltaV_i, Sigma, eps_i):
@@ -826,7 +827,7 @@ class SingleFluidDrift(object):
                 eps_g  = np.maximum(rhoG_av / rho_av, 1e-300)
                 
         # Compute the Stokes number        
-        St_av = disc.Stokes(SigG_av, a_av+1e-300)
+        St_av = disc.Stokes(SigG_av, a_av+1e-300)[:2]
 
         # Compute the lambda factors
         # DON'T Use lambda * eps_g instead of lambda to avoid 0/0 in D_1 when eps_g -> 0.
@@ -901,8 +902,8 @@ class SingleFluidDrift(object):
         if dust_tracers is not None:
 
             if disc._planetesimal:
-                t_k = dust_tracers[..., None, :] * eps[:-1] / (eps[:-1].sum(0) + np.finfo(eps.dtype).tiny)
-                d_tr = dt * self._fluxes(disc, t_k, DeltaV[:-1], disc.Stokes()[:-1], dt).sum(1)
+                t_k = dust_tracers[..., None, :] * eps[:-1] / (eps[:2].sum(0) + np.finfo(eps.dtype).tiny)
+                d_tr = dt * self._fluxes(disc, t_k, DeltaV[:2], disc.Stokes()[:2], dt).sum(1)
             else:
                 t_k = dust_tracers[..., None, :] * eps / (eps.sum(0) + np.finfo(eps.dtype).tiny)
                 d_tr = dt * self._fluxes(disc, t_k, DeltaV, disc.Stokes(), dt).sum(1)
@@ -911,7 +912,7 @@ class SingleFluidDrift(object):
             dust_tracers[:] += d_tr
 
         # Compute the fluxes for dust fraction
-        fluxes = self._fluxes(disc, disc.dust_frac, DeltaV, disc.Stokes(), dt)
+        fluxes = self._fluxes(disc, disc.dust_frac[:2], DeltaV, disc.Stokes()[:2], dt)
         
         # Update the dust fraction with the sink term included
         if disc._planetesimal:
@@ -958,7 +959,7 @@ class SingleFluidDrift(object):
             disc._v_drift = np.array([v_drift_0, v_drift_1])
         
         # Update the dust fraction, but leave planetesimals unchanged
-        disc.dust_frac[:2] += dt * fluxes[:2]
+        disc.dust_frac[:2] += dt * fluxes
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
         """
