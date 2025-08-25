@@ -1129,11 +1129,16 @@ class Bitsch2015Model(object):
         pb_gas_f : fraction of pebble accretion rate that arrives as gas,
                    default=0.1
         migrate  : Whether to include migration, default=True
+        pebble_accretion : Whether to include pebble accretion, 
+                   default=True
+        gas_accretion : Whether to include gas accretion, 
+                   default=True
         planetesimal_accretion : Whether to include planetesimal accretion, 
                    default=False
+        winds    : Whether the disk includes disk winds, default=False
         **kwargs : arguments passed to GasAccretion object
     """
-    def __init__(self, disc, pb_gas_f=0.1, migrate=True, pebble_accretion=True, gas_accretion=True, planetesimal_accretion=False, **kwargs):
+    def __init__(self, disc, pb_gas_f=0.1, migrate=True, pebble_accretion=True, gas_accretion=True, planetesimal_accretion=False, winds=False, **kwargs):
 
         self._f_gas = pb_gas_f
         self._disc = disc
@@ -1152,7 +1157,7 @@ class Bitsch2015Model(object):
 
         self._migrate = None
         if migrate:
-            self._migrate = PlanetMigration(disc)
+            self._migrate = PlanetMigration(disc, winds=winds)
 
     def ASCII_header(self):
         """header"""
