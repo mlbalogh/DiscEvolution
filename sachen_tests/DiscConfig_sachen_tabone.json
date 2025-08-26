@@ -1,22 +1,23 @@
 {
 "grid" : {
-"N" : 500,
+"N" : 150,
 "R0" : 0.1,
 "R1" : 1000.0,
 "spacing" : "natural"
 },
 
 "disc" : {
-"psi" : 0.02,
+"psi" : 0,
 "alpha" : 1e-3, 
+"alpha_total" : 1e-3,
 "mass" : 0.05,
 "unit" : "jup",
 "Rc" : 35,
 "d2g" : 0.01,
 "Schmidt" : 1.0,
-"type" : "winds-mdot",
+"type" : "winds-alpha",
 "gamma" : 1,
-"Mdot" : 2.5e-9,
+"Mdot" : 2.5e-7,
 "amin" : 1e-5
 },
 
@@ -35,14 +36,14 @@
 },
 
 "transport" : {
-"type" : "Tabone-Analytic",
+"type" : "HybridWind",
 "gas" : true,
 "radial drift" : true,
 "diffusion" : true
 },
 
 "output" : {
-"directory" : "sachen_tests/Data/pebble_accretion_low_wind",
+"directory" : "sachen_tests/Data/Results_0819/junk",
 "base" : "disc",
 "format" : "ascii",
 "arrange" : "explicit",
@@ -66,16 +67,16 @@
 },
 
 "planets": {
-        "active": true,
+        "active": false,
         "planet_model": "Bitsch2015Model",
         "pebble_accretion" : true,
-        "planetesimal_accretion" : false,
+        "planetesimal_accretion" : true,
         "planets" : [
-            {"Mp" : 5e-2, "Rp" : 1, "t" : 0.0,"Menv" : 0.0},
-            {"Mp" : 5e-2, "Rp" : 5, "t" : 0.0,"Menv" : 0.0},
-            {"Mp" : 5e-2, "Rp" : 10, "t" : 0.0,"Menv" : 0.0},
-            {"Mp" : 5e-2, "Rp" : 20, "t" : 0.0,"Menv" : 0.0},
-            {"Mp" : 5e-2, "Rp" : 30, "t" : 0.0,"Menv" : 0.0}
+            {"Mp" : 1e-2, "Rp" : 1, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 1e-2, "Rp" : 5, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 1e-2, "Rp" : 10, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 1e-2, "Rp" : 20, "t" : 0.0,"Menv" : 0.0},
+            {"Mp" : 1e-2, "Rp" : 30, "t" : 0.0,"Menv" : 0.0}
         ],
         "migrate" : true
 },

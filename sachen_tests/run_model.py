@@ -53,7 +53,7 @@ import time
 # Global Constants
 ###############################################################################
 
-DefaultModel = "sachen_tests/DiscConfig_sachen_danti.json"
+DefaultModel = "sachen_tests/DiscConfig_sachen_tabone.json"
 
 ###############################################################################
 # Setup Functions
@@ -68,6 +68,11 @@ def setup_disc(model):
     p = model['star']
     star = SimpleStar(M=p['mass'], R=p['radius'], T_eff=p['T_eff'])
     
+    alpha = model['disc']['alpha']
+    if alpha == 'standard':
+        alpha = np.ones_like(grid.Rc)*1e-3
+        alpha[200:300] = 1e-3/100
+
     p = model['eos']
     if p['type'] == 'irradiated':
         if p['opacity'] == 'Tazzari2016':
@@ -77,13 +82,13 @@ def setup_disc(model):
         else:
             raise ValueError("Opacity not recognised")
         
-        eos = IrradiatedEOS(star, model['disc']['alpha'], kappa=kappa)
+        eos = IrradiatedEOS(star, alpha, kappa=kappa)
        
     elif p['type'] == 'iso':
         eos = LocallyIsothermalEOS(star, p['h0'], p['q'], 
-                                   model['disc']['alpha'])
+                                   alpha)
     elif p['type'] == 'simple':
-        eos =SimpleDiscEOS(star, model['disc']['alpha'])
+        eos =SimpleDiscEOS(star, alpha)
     else:
         raise ValueError("Error: eos::type not recognised")
     eos.set_grid(grid)
@@ -96,7 +101,6 @@ def setup_disc(model):
         
         Mdot=model['disc']['Mdot']* Msun/yr / AU**2
         Mdisk=model['disc']['mass']* Msun
-        alpha=model['disc']['alpha']
         Rd=model['disc']['Rc']
         R = grid.Rc
         # Initial guess for Rd and by extension Sigma:
@@ -114,7 +118,7 @@ def setup_disc(model):
             if pe['type'] == 'irradiated':
                 eos =IrradiatedEOS(star, alpha, kappa=kappa)
             elif pe['type'] == 'iso':
-                eos = LocallyIsothermalEOS(star, p['h0'], p['q'],alpha)
+                eos = LocallyIsothermalEOS(star, model['eos']['h0'], model['eos']['h0'],alpha)
             elif pe['type'] == 'simple':
                 eos =SimpleDiscEOS(star, alpha)
             eos.set_grid(grid)
@@ -126,7 +130,6 @@ def setup_disc(model):
         # Initial guess for Sigma:
         Mdot=model['disc']['Mdot']* Msun/yr / AU**2
         Mdisk=model['disc']['mass']* Msun
-        alpha=model['disc']['alpha']
         Rd=model['disc']['Rc']
 
         R = grid.Rc
@@ -153,7 +156,7 @@ def setup_disc(model):
         # Import variables
         Mdot=model['disc']['Mdot']
         Mdisk=model['disc']['mass']* Msun
-        alpha_t=model['disc']['alpha_t']
+        alpha_total=model['disc']['alpha_total']
         Psi = model['disc']['psi']
         Rd=model['disc']['Rc']
         R = grid.Rc
@@ -213,7 +216,7 @@ def setup_disc(model):
 
         print ('Rd: ',Rd)
         R = Rd
-        alpha_SS = alpha_t/(1+Psi)
+        alpha_SS = alpha_total/(1+Psi)
         alpha_DW = Psi*alpha_SS
         eos._alpha_DW = alpha_DW
     elif p['type'] == 'LBP':
@@ -223,7 +226,6 @@ def setup_disc(model):
         Rd=model['disc']['Rc']
         Mdot=model['disc']['Mdot']* Msun/yr 
         Mdisk=model['disc']['mass']* Msun
-        alpha=model['disc']['alpha']
         mu=model['eos']['mu']
         rin=R[0]
         xin=R[0]/Rd
@@ -268,7 +270,7 @@ def setup_disc(model):
         eos_type = model['eos']
 
         # Choose temporary alpha
-        alpha_t = model['disc']['alpha_t']
+        alpha_total = model['disc']['alpha_total']
 
         xi = 0.25*(1+Psi)*(np.sqrt(1+4*Psi/((Lambda - 1)*(Psi+1)**2))-1)
         # Find SigmaD from M, rc
@@ -278,7 +280,7 @@ def setup_disc(model):
 
         # Find eos with sigma, alpha (gives cs)
         eos.update(0,Sigma)
-        print(f"cs0: {eos.cs[0]}, alpha_t: {alpha_t}")
+        print(f"cs0: {eos.cs[0]}, alpha_total: {alpha_total}")
         # Iterate finding alpha from cs and cs from alpha
         for i in range(100):
               
@@ -290,31 +292,66 @@ def setup_disc(model):
             Mdot = disc.Mdot(vr)[0]
             
             # Scale alpha_SS by Mdot
-            alpha_t = alpha_t*Mdot_disc/Mdot
-            alpha_SS = alpha_t/(1+Psi)
+            alpha_total = alpha_total*Mdot_disc/Mdot
+            alpha_SS = alpha_total/(1+Psi)
             
             # Find new eos with new alpha and sigma
             if eos_type['type'] == 'irradiated':
-                eos = IrradiatedEOS(eos._star, alpha_SS, Psi*alpha_SS, kappa=eos._kappa)
+                eos = IrradiatedEOS(eos._star, alpha_SS, kappa=eos._kappa)
             elif eos_type['type'] == 'iso':
-                eos = LocallyIsothermalEOS(star, eos._h0, eos._q, alpha_SS, alpha_DW = Psi*alpha_SS)
+                eos = LocallyIsothermalEOS(star, eos._h0, eos._q, alpha_SS)
             eos.set_grid(grid)
             eos.update(0,Sigma)
 
-            print(f"Mtot: {disc.Mtot()/Msun}, cs0: {eos.cs[0]}, alpha_t: {alpha_t}, Mdot: {Mdot}")
+            print(f"Mtot: {disc.Mtot()/Msun}, cs0: {eos.cs[0]}, alpha_t: {alpha_total}, Mdot: {Mdot}")
         
         alpha_DW = Psi*alpha_SS
-    elif p['type'] == 'winds-mdot': # incomplete
+    elif p['type'] == 'winds-mdot-var-alpha': 
         # For fixed alpha, Rd, and Mdisk, solve for Mdot
-    
+
         # extract parameters
         R = grid.Rc
         Rd=p['Rc']
         Mdot=p['Mdot'] # initial guess
         Mdisk=p['mass']
-        alpha=p['alpha']
+        
+        alpha_SS = np.ones_like(R)*1e-3
+        alpha_SS[11:20] = 1e-5
+        alpha_DW = np.ones_like(R)*1e-3
+        Psi = alpha_DW/alpha_SS
+
+        # define Sigma profile, scale by Mdisk to get correct disk mass.
+        Sigma = (Rd/R) * np.exp(-R/Rd)
+        Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+
+        # Create the EOS
+        if model['eos']["type"] == "SimpleDiscEOS":
+            eos = SimpleDiscEOS(star, alpha_t=alpha_SS)
+        elif model['eos']["type"] == "iso":
+            eos = LocallyIsothermalEOS(star, model['eos']['h0'], model['eos']['q'], alpha_SS)
+        elif model['eos']["type"] == "irradiated":
+            eos = IrradiatedEOS(star, alpha_t=alpha_SS, kappa=kappa)
+        
+        # update the eos with relevant values
+        eos.set_grid(grid)
+        eos.update(0, Sigma)
+        disc = AccretionDisc(grid,star,eos,Sigma)
+        v_visc = HybridWindModel(Psi).viscous_velocity(disc)
+        print(f"alpha: {alpha}, Alpha_SS: {alpha_SS}, Mtot: {disc.Mtot()}, Mdot: {disc.Mdot(v_visc)[0]}, Rd: {disc.RC()}")
+    elif p['type'] == 'winds-mdot': 
+        # For fixed alpha, Rd, and Mdisk, solve for Mdot
+
+        # extract parameters
+        R = grid.Rc
+        Rd=p['Rc']
+        Mdot=p['Mdot'] # initial guess
+        Mdisk=p['mass']
         Psi = p['psi']
-        alpha_SS = alpha/(1+Psi)
+        if Psi == 'standard':
+            Psi = np.ones_like(R)
+            Psi[11:20] = 100
+        alpha_total = model['disc']['alpha_total']
+        alpha_SS = alpha_total/(1+Psi)
         alpha_DW = Psi * alpha_SS
 
         # define Sigma profile, scale by Mdisk to get correct disk mass.
@@ -333,6 +370,9 @@ def setup_disc(model):
         eos.set_grid(grid)
         eos.update(0, Sigma)
         disc = AccretionDisc(grid,star,eos,Sigma)
+        
+        #v_visc3 = ViscousEvolutionFV().viscous_velocity(disc)
+        #v_visc2 = HybridWindModel(Psi).viscous_velocity(disc)
         v_visc = TaboneSolution(disc.Mtot()/AU**2,disc.RC(),1,Psi,p['d2g']).viscous_velocity(disc)
         print(f"alpha: {alpha}, Alpha_SS: {alpha_SS}, Mtot: {disc.Mtot()}, Mdot: {disc.Mdot(v_visc)[0]}, Rd: {disc.RC()}")
     else:
@@ -383,8 +423,17 @@ def setup_model(model, disc, history, start_time=0, internal_photo_type="Primord
     if model['transport']['gas']:
         if model['transport']['type'] == "Tabone-Analytic":
             psi = model['disc']['psi']
+            if psi == 'standard':
+                psi = np.ones_like(disc.R)
+                psi[11:20] = 100
             gas = TaboneSolution(disc.Mtot()/AU**2, disc.RC(), np.interp(disc.RC(), disc.grid.Rc, disc._eos.nu),psi, d2g=model['disc']['d2g'])# Wrong? #(disc.Mdot(v_visc)/3)*(2*disc.RC()**2/disc.Mtot()),psi)
             t_acc = gas._tc
+        if model['transport']['type'] == "HybridWind":
+            psi = model['disc']['psi']
+            if psi == 'standard':
+                psi = np.ones_like(disc.R)
+                psi[11:20] = 100
+            gas = HybridWindModel(psi, boundary = 'Zero')# Wrong? #(disc.Mdot(v_visc)/3)*(2*disc.RC()**2/disc.Mtot()),psi)
         elif model['transport']['type'] == "ViscousEvolution":
             try:
                 gas = ViscousEvolution(boundary=model['grid']['outer_bound'], in_bound=model['grid']['inner_bound'])
@@ -720,16 +769,16 @@ def run(model, io, base_name, all_in, restart, verbose=True, n_print=1000, end_l
             elif model.num_steps == 1000:
                 delta = time.time() - realtime_i
                 print(f"0 to 1000 steps: {delta}") 
-            if model.num_steps < 100:
+            if model.num_steps < 100 and all_in['planets']['active']:
                 save_planets(model, f"{all_in['output']['directory']}_Planet_Data", model.planets, model.t/yr)
-            elif model.num_steps < 300:
+            elif model.num_steps < 300 and all_in['planets']['active']:
                 if model.num_steps % 10 == 0 and all_in['planets']['active'] == True:
                     save_planets(model, f"{all_in['output']['directory']}_Planet_Data", model.planets, model.t/yr)
-            else: 
+            elif all_in['planets']['active']: 
                 if model.num_steps % 100 == 0 and all_in['planets']['active'] == True:
                     save_planets(model, f"{all_in['output']['directory']}_Planet_Data", model.planets, model.t/yr)
     
-            if model.t/yr >= timestamp and model._planet_model._pl_acc is not None:
+            if False: #model.t/yr >= timestamp and model._planet_model._pl_acc is not None and False:
                 drazkowska_plot(model._planet_model._pl_acc,all_in['output']['directory'],model.t)
                 timestamp = next(iterartor)
             # External photoevaposration - Read mass loss rates
