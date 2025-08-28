@@ -540,7 +540,7 @@ class PlanetesimalFormation(object):
         disc._R_planetesimal = self._R_planetesimal
 
         self.ice_abund = None
-        if hasattr(disc, 'chem'):
+        if disc.chem:
             self.ice_abund = SimpleCOMolAbund(disc.Ncells)
     
     def _compute_planetesimal_mass(self, disc):
@@ -938,10 +938,10 @@ class SingleFluidDrift(object):
                 species_frac = dust_tracers/tracer_total
 
                 # Apply change in species dust fraction to dust tracers
-                dust_tracers[:] -= species_frac * (L0 + L1) * dt
+                dust_tracers[:] -= species_frac * (L0*dt + L1*dt)
 
                 # Add the lost mass to the chemical tracer for planetesimals
-                disc._planetesimal.ice_abund.data[:] += species_frac * (L0 + L1) * dt
+                disc._planetesimal.ice_abund.data[:] += species_frac * (L0*dt + L1*dt)
 
                 # fix planetesimal dust fraction to the ice abundance, as 
                 # done with grains and pebbles in disc.update_ices

@@ -147,20 +147,28 @@ class ViscousEvolution(object):
         # The following makes sure planetesimal 
         # surface density is not evolved with viscous evolution.
         if disc._planetesimal:
+
             # Update sigma
             Sigma_temp = disc.Sigma + dt * f
         
             Sigma_G_old = disc.Sigma_G
             # Find new dust sigmas
-            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:2]
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
+            Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
         
-            disc._eps = Dust_Frac_New
+            if disc.chem:
+                # update dust/gas fractions stored in chemisry accordingly
+                disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
+                disc.chem.gas.data[:] *= (1 - Dust_Frac_New.sum(0))/(1 - disc._eps.sum(0))
+                disc.chem.ice.data[:] *= Dust_Frac_New[:2].sum(0)/disc._eps[:2].sum(0)
 
+            disc._eps = np.where(Dust_Frac_New < 0, 1e-300, Dust_Frac_New)
         else:
             Sigma_new = disc.Sigma + dt * f
+            Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
 
         for t in (tracers+adv):
             if t is None: continue
@@ -309,14 +317,22 @@ class ViscousEvolutionFV(object):
         
             Sigma_G_old = disc.Sigma_G
             # Find new dust sigmas
-            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:2]
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
+            Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
         
-            disc._eps = Dust_Frac_New
+            if disc.chem:
+                # update dust/gas fractions stored in chemisry accordingly
+                disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
+                disc.chem.gas.data[:] *= (1 - Dust_Frac_New.sum(0))/(1 - disc._eps.sum(0))
+                disc.chem.ice.data[:] *= Dust_Frac_New[:2].sum(0)/disc._eps[:2].sum(0)
+
+            disc._eps = np.where(Dust_Frac_New < 0, 1e-300, Dust_Frac_New)
         else:
             Sigma_new = disc.Sigma + dt * f
+            Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
         
 
         for t in (tracers + adv):
@@ -495,12 +511,18 @@ class HybridWindModel(object):
         
             Sigma_G_old = disc.Sigma_G
             # Find new dust sigmas
-            Sigma_D_new = Sigma_temp*disc.dust_frac[:-1]
+            Sigma_D_new = Sigma_temp*disc.dust_frac[:2]
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
-            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[-1]
+            Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
             Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[-1] / Sigma_new]),axis=0)
+            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
         
+            if disc.chem:
+                # update dust/gas fractions stored in chemisry accordingly
+                disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
+                disc.chem.gas.data[:] *= (1 - Dust_Frac_New.sum(0))/(1 - disc._eps.sum(0))
+                disc.chem.ice.data[:] *= Dust_Frac_New[:2].sum(0)/disc._eps[:2].sum(0)
+
             disc._eps = np.where(Dust_Frac_New < 0, 1e-300, Dust_Frac_New)
         else:
             Sigma_new = disc.Sigma + dt * (f - self._s_wind)
