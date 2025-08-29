@@ -799,7 +799,7 @@ class SingleFluidDrift(object):
         # Average to cell edges:        
         Om_kav  = 0.5*(Om_k      [1:] + Om_k      [:-1])
         Sig_av  = 0.5*(Sigma     [1:] + Sigma     [:-1]) + 1e-300
-        SigD_av = 0.5*(SigmaD[...,1:] + SigmaD[...,:-1])
+        SigD_av = 0.5*(SigmaD[...,1:] + SigmaD[...,:-1])[:2]
         SigG_av = 0.5*(SigmaG[...,1:] + SigmaG[...,:-1])
         a_av    = 0.5*(a    [..., 1:] + a     [...,:-1])
 
@@ -902,7 +902,7 @@ class SingleFluidDrift(object):
         if dust_tracers is not None:
 
             if disc._planetesimal:
-                t_k = dust_tracers[..., None, :] * eps[:-1] / (eps[:2].sum(0) + np.finfo(eps.dtype).tiny)
+                t_k = dust_tracers[..., None, :] * eps[:2] / (eps[:2].sum(0) + np.finfo(eps.dtype).tiny)
                 d_tr = dt * self._fluxes(disc, t_k, DeltaV[:2], disc.Stokes()[:2], dt).sum(1)
             else:
                 t_k = dust_tracers[..., None, :] * eps / (eps.sum(0) + np.finfo(eps.dtype).tiny)
