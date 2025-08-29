@@ -391,19 +391,14 @@ class PlanetesimalAccretion(object):
         runaway_model: model to use for runaway growth
         gamma: turbulent stirring factor for planetesimal eccentricity
         rho_p: internal density of planetesimals
-
-
     """
-    def __init__(self, disc, oligarchic_model = None, runaway_model = None, gamma=None, rho_p=2, C_rg = None):
+    def __init__(self, disc, oligarchic_model = None, runaway_model = None, gamma=None, rho_p=2):
         if gamma is None:
             self._stirring = np.sqrt(disc.alpha)*disc.h
         else:
             self._stirring = gamma*np.ones_like(disc.R)
         self._rho_p = rho_p
-        if C_rg == None:
-            self.C_rg = 0.1
-        else:
-            self.C_rg = C_rg
+
         self.set_disc(disc)
         self.dRdt = None
         self._olig_model = oligarchic_model
@@ -414,7 +409,7 @@ class PlanetesimalAccretion(object):
 
     def _R_phys(self,Mp):
         """
-        Mp: Earth masses
+        Mp: Planet mass (Earth masses)
         
         return: R_planetesimal in AU"""
         return (3/(4*np.pi*self._rho_p/Msun*AU**3)*Mp*Mearth/Msun)**(1/3)
@@ -676,8 +671,10 @@ class PlanetesimalAccretion(object):
         rho_g = disc.interp(Rp,disc.midplane_density)
         rho_p = self._rho_p
         m_planetesimal = 4/3*np.pi*(disc.R_planetesimal*AU)**3*rho_p
-        e_eq = 5.6*(m_planetesimal/10**23*(rho_p/2)**2)**(1/15) * (b_tilde/10*D*rho_g/(2*10**-9)*Rp)**(-1/5)
-        return e_eq*(disc.star.r_Hill(Rp,Mp*Mearth/Msun)/Rp)
+
+        #calculate equilibirum eccentricity
+        e_eq_tilde = 5.6*(m_planetesimal/10**23*(rho_p/2)**2)**(1/15) * (b_tilde/10*D*rho_g/(2*10**-9)*Rp)**(-1/5)
+        return e_eq_tilde*(disc.star.r_Hill(Rp,Mp*Mearth/Msun)/Rp)
 
     def eq_eccentricity_ida2008(self, Rp, r_pltsml = None, eta_ice = 1, iceline = 4):
         """
@@ -703,6 +700,7 @@ class PlanetesimalAccretion(object):
         
         rho_p = self._rho_p
     
+        # Calculate equilibirum eccentricities of turbulent stirring vs tidal damping, drag, and collisional damping
         e_tidal = 24 * f_g**0.5 * gamma * ((r_pltsml*AU/1e5/10**3)**3*rho_p/3)**-0.5 * (Rp)**(3/4)
         e_drag = 0.23 * f_g**(1/3) * gamma**(2/3) * (r_pltsml/(10**5/AU)*rho_p/3)**(1/3) * Rp**(11/12)
         e_coll = 3.6 * f_g * (f_d * eta_ice_arr)**-0.5 * gamma * (r_pltsml/(10**5/AU))**0.5 * (rho_p/3)**(5/6) * Rp**(5/4)
@@ -715,10 +713,13 @@ class PlanetesimalAccretion(object):
         Compute the equilibrium eccentricity of planetesimals according to Ida and Makino (1993).
         In this model, turbulent stirring is neglected.
         
-        Rp: Protoplanet location (in AU)
-        Mp: Protoplanet mass (in Earth masses)
+        args:
+            Rp: Protoplanet location (in AU)
+            Mp: Protoplanet mass (in Earth masses)
          
-        return: equilibrium eccentricity """
+        return: 
+            array: equilibrium eccentricity from planetesimal-planetesimal or protoplanet-planetesimal interactions"""
+
         disc = self._disc
         m_planetesimal = 4/3*np.pi*(disc.R_planetesimal*AU)**3*disc._rho_s
         
@@ -740,74 +741,35 @@ class PlanetesimalAccretion(object):
         disc = self._disc
         r_H = disc.star.r_Hill(Rp,Mp*Mearth/Msun)
         eq_run = eq_oli = np.zeros_like(Rp)
+
+        # Find equilibrium eccentrities according to runaway growth model
         if self._run_model == 'ida2008':
             eq_run = self.eq_eccentricity_ida2008(Rp)
         elif self._run_model == 'makino1993':
             eq_run = self.eq_eccentricity_makino1993(Rp, Mp)
         
+        # Find equilibrium eccentricities according to oligarchic growth model
         if self._olig_model == 'kokubo2002':
             eq_oli = self.eq_eccentricity_kokubo(Rp, Mp)
         elif self._olig_model == 'makino1993':
             if self._run_model == 'makino1993':
-                pass
+                pass #save time if Makino is used for both
             else:
                 eq_run = self.eq_eccentricity_makino1993(Rp, Mp)
             
-     
+        # Combine oligarchic and runaway growth into one array and calculate dispersion velocity
         v_disp = np.max((eq_oli,eq_run),axis=0) * disc.star.v_k(Rp)
 
         return v_disp
 
-    def P_geo_col(self, Rp, Mp):
-        """
-        Geometric accretion rate from Ormel et al (2010). Coded for completion but it seems like the last approximation
-        listed in the appendix is sufficient. Not currently used.
-        """
-        disc = self._disc
-        r_H = disc.star.r_Hill(Rp,Mp*Mearth/Msun)
-        a_p = self._R_phys(Mp)/r_H
-        St = disc.interp(Rp,disc.Stokes(Sigma = disc.Sigma_D[2], size=disc.R_planetesimal*AU))
-
-        v_hw = - np.interp(Rp, reduce(disc.R), np.diff(disc.P) / disc.grid.dRc / reduce(disc.midplane_gas_density))/disc.star.Omega_k(Rp) * disc.star.v_k(Rp) ### eta * Omega_k
-        zeta = v_hw / (r_H*disc.star.Omega_k(Rp))
-        
-        P_geo = 4*a_p*zeta*St/(1 + St**2)*np.sqrt(1 + (3*a_p*(1+St**2)+4*zeta)**2/(8*St*zeta)**2)
-        P_geo_col = P_geo * r_H**2 * disc.star.Omega_k(Rp)
-        return P_geo_col
-    
-    def R_acc(self, Rp):
-        """
-        Compute the minimum physical radius of planetesimals 
-        that allows for accretion. Not tested or used currently.
-        """
-        return 5.2*10**2 * np.sqrt(self.f_g(Rp)) * (self._stirring**3/10) * (self._rho_p/3)**(-5/12) * Rp**(3/8) * 1e5/AU
-
     def planetesimal_iso_mass(self, Rp):
         """
-        Planetesimal isolation mass when neither planetesimals nor protoplanets are migrating
+        Planetesimal isolation mass for model in which neither planetesimals nor protoplanets are migrating
         
         Rp: Protoplanet location (AU)
 
         return: Planetesimal isolation mass (Earth masses)"""
         return 0.1*(self._disc.interp(Rp,self._disc.Sigma_D[2])/5)**1.5 * (Rp)**3 * (self._disc.star.M)**-0.5
-
-    def m_olig(self,Rp,Mp):
-        """
-        Transition mass from runaway to oligarchic growth as per Ormel at al (2010): a new criterion for oligarchic growth)
-        
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in Earth masses)
-        """
-        return 4/3*np.pi*self._rho_p/Mearth*AU**3*(580*(self.C_rg/0.1 * self._disc.R_planetesimal*AU/1e5/10)**(3/7)*(Rp/4)**(5/7)*self._disc.interp(Rp,self._disc.Sigma_D[2]/3)**(2/7)*1e5/AU)**3
-
-    def m_olig_addition(self,Rp_mesh,Mp_mesh):
-        """
-        Returns the point at which """
-        r_physical = self._R_phys(Mp_mesh)
-        v_rel = np.array([self.compute_v_ran(Rp_mesh[i],Mp_mesh[i]) for i in range(len(Rp_mesh))])
-        v_esc_sqrd = 2*Mp_mesh*Mearth/Msun/r_physical
-        transition = 1 > v_esc_sqrd/v_rel**2
-        return transition
 
     def computeMdotTwoPhase(self, Rp, Mp, dRdt=None):
         """
@@ -838,7 +800,7 @@ class PlanetesimalAccretion(object):
         Mdot = np.zeros_like(Rp,dtype=np.float64)
         
         # Compute Mdot from random velocity
-        Mdot[filter] = 2*(np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2*(0 + v_esc_sqrd/v_rel**2))*Msun/Mearth
+        Mdot[filter] = 2*(np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2*(v_esc_sqrd/v_rel**2))*Msun/Mearth
         
         return Mdot
 
@@ -1176,6 +1138,7 @@ class Bitsch2015Model(object):
                    default=False
         oligarchic_model: model to use for oligarchic growth
         runaway_model: model to use for runaway growth
+        gas_acc: model for gas accretion
         winds    : Whether the disk includes disk winds, default=False
         **kwargs : arguments passed to GasAccretion object
     """
