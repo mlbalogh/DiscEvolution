@@ -89,7 +89,8 @@ class PlanetDiscDriver(object):
             Dt = dM_gas[(dM_dot>0)] / dM_dot[(dM_dot>0)]
             Dt_min = np.min(Dt)
             dt = min(dt,Dt_min)
-        
+        if self._planets:
+            dt = min(dt,100*2*np.pi)
 		# Determine tracers for dust step
         gas_chem, ice_chem = None, None
         dust = None
@@ -144,7 +145,10 @@ class PlanetDiscDriver(object):
                 if ice_chem is not None:
                     ice_chem[:] += dt * self._diffusion(disc, ice_chem)
                 if dust is not None:
-                    dust[:] += dt * self._diffusion(disc, dust)
+                    if disc._planetesimal:
+                        dust[:2] += dt * self._diffusion(disc, dust[:2])
+                    else:
+                        dust[:] += dt * self._diffusion(disc, dust)
 
         # Do external photoevaporation
         if self._external_photo:
@@ -175,8 +179,12 @@ class PlanetDiscDriver(object):
         # Chemistry
         if self._chemistry:
             rho = disc.midplane_gas_density
-            eps = disc.dust_frac.sum(0)
-            grain_size = disc.grain_size[-1]
+
+            if disc._planetesimal:
+                eps = disc.dust_frac[:2].sum(0)
+            else:
+                eps = disc.dust_frac.sum(0)
+            grain_size = disc.grain_size[1]
             T = disc.T
 
             self._chemistry.update(dt, T, rho, eps, disc.chem, 

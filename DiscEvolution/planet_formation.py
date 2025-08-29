@@ -192,8 +192,11 @@ class GasAccretion(object):
         Mdot_Machida = f * Om_k * Sig * H*H
 
         Mdot = np.where(M_core > M_env, Mdot_PY, Mdot_Machida)
+        
+        disc = self._disc
+        Mdot_limit = 2*np.pi * Rp * Sig * np.abs(np.interp(Rp, disc._grid.Re[1:-1], disc._gas.viscous_velocity(disc)))
 
-        return np.minimum(Mdot, self._fmax * 3*np.pi*Sig*nu)
+        return np.minimum(Mdot, Mdot_limit)
 
     def __call__(self, planets):
         """Compute gas accretion onto planets
@@ -244,12 +247,12 @@ class PebbleAccretion(object):
             epsilon : approximate power law scaling of pressure with radius
 
         returns:
-            M_t : transition mass, Mearth
+            M_t (ndarray): transition mass, Mearth
         """
         h = self._disc.interp(R, self._disc.H) / R
         
         if not epsilon is None:
-            eta = 0.5 * h**2 * np.abs(epsilon)
+            eta = 0.5 * h**2 * epsilon
         else:
             # Use a safe, noise free approximation here
             eta = - 0.5 * h*h * (-2.75)
@@ -261,7 +264,16 @@ class PebbleAccretion(object):
         return M_t
     
     def Mdot_Hill(self, Rp, Mp):
-        """Compute the pebble accretion rate in the Hill regime, according to  Morbidelli+ (2015)"""
+        """
+        Compute the pebble accretion rate in the Hill regime, according to  Morbidelli+ (2015).
+        
+        args:
+            Rp : heliocentric radius of planet, AU
+            Mp : mass of planet, M_earth
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles in Hill regime for each planet.
+        """
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -287,7 +299,17 @@ class PebbleAccretion(object):
         return Mdot
     
     def Mdot_Bondi(self, Rp, Mp, epsilon):
-        """Compute the pebble accretion rate in the Bondi regime, according to Lambretchs and Johansen (2012)."""
+        """
+        Compute the pebble accretion rate in the Bondi regime, according to Lambretchs and Johansen (2012).
+        
+        args:
+            Rp : heliocentric radius of planet, AU
+            Mp : mass of planet, M_earth
+            epsilon : approximate power law scaling of pressure with radius
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles in Bondi regime for each planet.
+        """
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -324,9 +346,12 @@ class PebbleAccretion(object):
         '''
         Calculate the pebble accretion rate.
     
-        args :
+        args:
              Rp : radius of planet in AU
              Mp : mass of planet in M_earth
+
+        returns:
+            Mdot (ndarray): Mass accretion rate of pebbles for each planet.
         '''
         disc = self._disc
 
@@ -353,6 +378,7 @@ class PebbleAccretion(object):
         
         lgP = spline(np.log(self._disc.R), np.log(self._disc.P))
         self._dlgP = lgP.derivative(1)
+
 
 class PebbleAccretionHill(object):
     """Pebble accretion model of Bitsch+ (2015).
@@ -445,20 +471,30 @@ class PebbleAccretionHill(object):
 class PlanetesimalAccretion(object):
     """
     Planetesimal accretion model based on Danti et al (2023).
+
+    args:
+        disc: disc object
+        oligarchic_model: model to use for oligarchic growth
+        runaway_model: model to use for runaway growth
+        gamma: turbulent stirring factor for planetesimal eccentricity
+        rho_p: internal density of planetesimals
+
+
     """
-    def __init__(self, disc, gamma=None, rho_p=2, eta_ice=3, C_rg = None):
+    def __init__(self, disc, oligarchic_model = None, runaway_model = None, gamma=None, rho_p=2, C_rg = None):
         if gamma is None:
             self._stirring = np.sqrt(disc.alpha)*disc.h
         else:
             self._stirring = gamma*np.ones_like(disc.R)
         self._rho_p = rho_p
-        self._eta_ice = eta_ice
         if C_rg == None:
             self.C_rg = 0.1
         else:
             self.C_rg = C_rg
         self.set_disc(disc)
         self.dRdt = None
+        self._olig_model = oligarchic_model
+        self._run_model = runaway_model
 
     def set_disc(self, disc):
         self._disc = disc
@@ -477,7 +513,7 @@ class PlanetesimalAccretion(object):
         
         disc = self._disc
         eta = - np.interp(Rp, reduce(disc.R), np.diff(disc.P) / disc.grid.dRc / reduce(disc.midplane_gas_density)) / disc.star.Omega_k(Rp)
-        return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),(reduce(disc.v_drift[2]) - disc.gas.viscous_velocity(disc)))**2)
+        return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),disc.gas.viscous_velocity(disc))**2)
  
     def Reynolds(self, Rp, v = None):
         """Calculate the Reynolds number."""
@@ -729,15 +765,16 @@ class PlanetesimalAccretion(object):
         rho_p = self._rho_p
         m_planetesimal = 4/3*np.pi*(disc.R_planetesimal*AU)**3*rho_p
         e_eq = 5.6*(m_planetesimal/10**23*(rho_p/2)**2)**(1/15) * (b_tilde/10*D*rho_g/(2*10**-9)*Rp)**(-1/5)
-        return e_eq*disc.star.r_Hill(Rp,Mp*Mearth/Msun)
+        return e_eq*(disc.star.r_Hill(Rp,Mp*Mearth/Msun)/Rp)
 
-    def eq_eccentricity_ida2008(self, Rp, r_pltsml = None, iceline = 4):
+    def eq_eccentricity_ida2008(self, Rp, r_pltsml = None, eta_ice = 1, iceline = 4):
         """
         Calculate the equilibrium eccentricity of planetesimals based on ida et al (2008).
         This model only uses turbulent stirring
         
         Rp: Protoplanet location (in AU)
         r_pltsml: Planetesimal radius (AU)
+        eta_ice: factor for enhancement of solids past iceline in MMSN
         iceline: Ice line location (AU)
 
         return: equilibrium eccentricity from turbulent excitation"""
@@ -746,7 +783,7 @@ class PlanetesimalAccretion(object):
             r_pltsml = disc.R_planetesimal
     
         eta_ice_arr = np.ones_like(Rp)
-        eta_ice_arr[Rp < iceline] *= self._eta_ice # Where iceline is? Assuming 4 AU for now
+        eta_ice_arr[Rp < iceline] *= eta_ice
         Sigma_D_MMSN = 10*eta_ice_arr*Rp**(-3/2)
         f_d = disc.interp(Rp,disc.Sigma_D.sum(0))/Sigma_D_MMSN #planetesimals included?
         f_g = self.f_g(Rp)
@@ -765,8 +802,6 @@ class PlanetesimalAccretion(object):
         #    else:
         #        print("Collisional")
         min = np.min((e_tidal,e_drag,e_coll),axis=0)
-        if True in (min>1) and False:
-            print("pause")
         return min
     
     def eq_eccentricity_makino1993(self, Rp, Mp):
@@ -808,11 +843,22 @@ class PlanetesimalAccretion(object):
         return: Relative velocity"""
         disc = self._disc
         r_H = disc.star.r_Hill(Rp,Mp*Mearth/Msun)
-       
-        #e_eq = self.eq_eccentricity_kokubo(Rp,Mp)
-        e_eq = self.eq_eccentricity_ida2008(Rp)
-        e_eq_2 = self.eq_eccentricity_makino1993(Rp,Mp)
-        v_disp = np.max((e_eq,e_eq_2),axis=0) * disc.star.v_k(Rp)
+        eq_run = eq_oli = np.zeros_like(Rp)
+        if self._run_model == 'ida2008':
+            eq_run = self.eq_eccentricity_ida2008(Rp)
+        elif self._run_model == 'makino1993':
+            eq_run = self.eq_eccentricity_makino1993(Rp, Mp)
+        
+        if self._olig_model == 'kokubo2002':
+            eq_oli = self.eq_eccentricity_kokubo(Rp, Mp)
+        elif self._olig_model == 'makino1993':
+            if self._run_model == 'makino1993':
+                pass
+            else:
+                eq_run = self.eq_eccentricity_makino1993(Rp, Mp)
+            
+     
+        v_disp = np.max((eq_oli,eq_run),axis=0) * disc.star.v_k(Rp)
 
         return v_disp
 
@@ -894,46 +940,10 @@ class PlanetesimalAccretion(object):
 
         v_esc_sqrd = 2*Mp_grow*Mearth/Msun/r_physical
         Mdot = np.zeros_like(Rp,dtype=np.float64)
-        if True:
-            # Compute Mdot from random velocity
-            Mdot[filter] = (np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2*(0 + v_esc_sqrd/v_rel**2))*Msun/Mearth
-        else: # Calculates Mdot from timescales of Ormel et al (2010): a new criterion for the transition to oligarchic growth, not currently in use
-            filter_oli = self.m_olig(Rp,Mp) < Mp
-
-            # Runaway Mdot from formula
-            #Mdot_run = (2*np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical*Mp_grow*Mearth/Msun/(v_rel**2))*Msun/Mearth
-            #Mdot[filter*np.invert(filter_oli)] = Mdot_run[np.invert(filter_oli)[filter]]
-            
-            # runaway timescale from Ormel transition/drazkowska
-            tau_rg = 0.1*self._rho_p*disc.R_planetesimal*AU / (disc.star.Omega_k(Rp_grow) * disc.interp(Rp_grow,disc.Sigma_D[2]))
-            
-            # runaway timescale from Ormel gas paper (approx and exact)
-            #tau_rg = 4*np.pi/9*self._rho_p*r_physical*AU / (disc.star.Omega_k(Rp_grow) * disc.interp(Rp_grow,disc.Sigma_D[2]))
-            #tau_rg = Mp_grow/(self.P_geo_col(Rp_grow,Mp_grow)*Sigma_pla/Mearth*AU**2)
-           
-            # Runaway mdot from timescales
-            Mdot[filter*np.invert(filter_oli)] = Mp_grow[np.invert(filter_oli)[filter]]/tau_rg[np.invert(filter_oli)[filter]]
-
-            # Oligarchic Mdot from formula
-            #v_rel = self.eq_eccentricity_makino1993(Rp_grow,Mp_grow)*disc.star.v_k(Rp_grow)
-            #Mdot_oli = (np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2)*Msun/Mearth *v_esc_sqrd/v_rel**2
-            #Mdot[filter*filter_oli] = Mdot_oli[filter_oli[filter]]
-
-            # oligarchic timescale jiu and li
-            #tau_oli = self.eq_eccentricity_makino1993(Rp_grow,Mp_grow)**2*Rp_grow**2*disc.star.Omega_k(Rp_grow)/(2*np.pi*Sigma_pla*AU**2/Msun*r_physical)
-            #tau_oli = Mp_grow/(np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2*(1 + v_esc_sqrd/v_rel**2)*Msun/Mearth)
-
-            # oligarcic timescale ormel (gas)
-            #tau_oli = 4*np.pi/9*self._rho_p*r_physical*AU / (disc.star.Omega_k(Rp_grow) * disc.interp(Rp_grow,disc.Sigma_D[2]))
-           
-            # oligarchic timescale ormel (transition)
-            C = 3
-            v_H = disc.star.r_Hill(Rp_grow,Mp_grow*Mearth/Msun)*disc.star.Omega_k(Rp_grow)
-            tau_oli = 2/(9*C)*((self.eq_eccentricity_makino1993(Rp_grow, Mp_grow)*disc.star.v_k(Rp_grow))/v_H)**2*r_physical**2*self._rho_p*AU**3/Msun/(disc.star.r_Hill(Rp_grow,Mp_grow*Mearth/Msun)*Sigma_pla*AU**2/Msun*disc.star.Omega_k(Rp_grow))
-
-            # oligarchic Mdot from timescales
-            Mdot[filter*filter_oli] = Mp_grow[filter_oli[filter]]/tau_oli[filter_oli[filter]]
-            
+        
+        # Compute Mdot from random velocity
+        Mdot[filter] = 2*(np.pi*disc.star.Omega_k(Rp_grow)*Sigma_pla/Msun*AU**2*r_physical**2*(0 + v_esc_sqrd/v_rel**2))*Msun/Mearth
+        
         return Mdot
 
     def computeMdot(self, Rp, Mp, dRdt=None):
@@ -1078,7 +1088,7 @@ class TypeIMigration(object):
 
         h     = disc.interp(Rp, disc.H) / Rp
         Sigma = disc.interp(Rp, disc.Sigma)
-        nu    = disc.interp(Rp, disc.nu)
+        nu    = disc.interp(Rp, disc.nu)*(1+disc._gas._psi)
         Pr    = disc.interp(Rp, disc.Pr)
 
         Om_k = star.Omega_k(Rp)
@@ -1149,7 +1159,7 @@ class TypeIIMigration(object):
         disc = self._disc
         
         Sigma = disc.interp(Rp, disc.Sigma)
-        nu    = disc.interp(Rp, disc.nu)
+        nu    = disc.interp(Rp, disc.nu)*(1+disc._gas._psi)
 
         Sigma *= AU**2/Mearth
 
@@ -1211,7 +1221,7 @@ class CridaMigration(object):
         Me = Mp*Mearth/Msun
         q = Me / star.M
         rH = star.r_Hill(Rp, Mp)
-        nu = disc.interp(Rp, disc.nu)
+        nu = disc.interp(Rp, disc.nu)*(1+disc._gas._psi)
         H  = disc.interp(Rp, disc.H)
 
         Re = Rp * star.v_k(Rp) / nu
@@ -1246,11 +1256,14 @@ class Bitsch2015Model(object):
         pb_gas_f : fraction of pebble accretion rate that arrives as gas,
                    default=0.1
         migrate  : Whether to include migration, default=True
-        planetesimal_accretion : Whether to include planetesimal accretion, 
+        pebble_acc : Whether to include pebble accretion, default = True
+        planetesimal_acc : Whether to include planetesimal accretion, 
                    default=False
+        oligarchic_model: model to use for oligarchic growth
+        runaway_model: model to use for runaway growth
         **kwargs : arguments passed to GasAccretion object
     """
-    def __init__(self, disc, pb_gas_f=0.1, migrate=True, pebble_acc = True, planetesimal_acc = False, gas_acc = True, **kwargs):
+    def __init__(self, disc, pb_gas_f=0.1, migrate=True, pebble_acc = True, planetesimal_acc = False, oligarchic_model = None, runaway_model = None, gas_acc = True, **kwargs):
 
         self._f_gas = pb_gas_f
         self._disc = disc
@@ -1261,11 +1274,11 @@ class Bitsch2015Model(object):
 
         self._peb_acc = None
         if pebble_acc:
-            self._peb_acc = PebbleAccretion(disc)
+            self._peb_acc = PebbleAccretionHill(disc)
 
         self._pl_acc = None
         if disc._planetesimal and planetesimal_acc:
-            self._pl_acc = PlanetesimalAccretion(disc)
+            self._pl_acc = PlanetesimalAccretion(disc, oligarchic_model, runaway_model)
 
         self._migrate = None
         if migrate:
