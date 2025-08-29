@@ -89,8 +89,7 @@ class PlanetDiscDriver(object):
             Dt = dM_gas[(dM_dot>0)] / dM_dot[(dM_dot>0)]
             Dt_min = np.min(Dt)
             dt = min(dt,Dt_min)
-        if self._planets:
-            dt = min(dt,100*2*np.pi)
+
 		# Determine tracers for dust step
         gas_chem, ice_chem = None, None
         dust = None
