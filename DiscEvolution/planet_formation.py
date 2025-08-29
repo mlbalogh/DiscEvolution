@@ -599,7 +599,6 @@ class PlanetesimalAccretion(object):
 
         # Calculate edrag using equation 10
         i0 = 0.23 * ((fg) * (gamma**2) * (R_pla*AU/1e5/1.0) * (rho_p/(3.0)))**(1/3) * (Rp/1.0)**(11/12)
-        #i0 = 0.013*fg**(1/3) * (gamma/1e-4)**(2/3) * (Rp/(50e5/AU) * rho_p/(2*10**6))
     
         return i0
 
@@ -627,9 +626,6 @@ class PlanetesimalAccretion(object):
 
         alpha_pla = 2.5 * np.sqrt(R_captr / (1 + 0.37 * i0*i0 / R_captr))
         beta_pla = 0.79 * (1 + 10 * i0*i0)**(-0.17)
-
-        #tau_mig = R_p / np.abs(dRdt) * (rH*rH / T_k)
-        #tau_mig = tau_mig / rH # Normalize to Hill radius
 
         tau_mig = Rp/np.abs(dRdt) * (h_p**2/T_k)
 
@@ -663,7 +659,7 @@ class PlanetesimalAccretion(object):
 
     def eq_eccentricity_kokubo(self, Rp, Mp, b_tilde = 10):
         """
-        Calculate the equilibrium eccentricity of planetesimals based on kokubo et al (2002). Not currently used.
+        Calculate the equilibrium eccentricity of planetesimals based on kokubo et al (2002).
         
         args:
             Rp: Protoplanet location (in AU)
@@ -675,7 +671,6 @@ class PlanetesimalAccretion(object):
             ndarray: Equilibrium eccentricity of planetesimals
         """
 
-        #b_tilde = 1e-4/(self._disc._star.r_Hill(Rp,Mp)*2**(1/3))
         disc = self._disc
         D = self.drag_coeff(Rp)
         rho_g = disc.interp(Rp,disc.midplane_density)
@@ -711,13 +706,7 @@ class PlanetesimalAccretion(object):
         e_tidal = 24 * f_g**0.5 * gamma * ((r_pltsml*AU/1e5/10**3)**3*rho_p/3)**-0.5 * (Rp)**(3/4)
         e_drag = 0.23 * f_g**(1/3) * gamma**(2/3) * (r_pltsml/(10**5/AU)*rho_p/3)**(1/3) * Rp**(11/12)
         e_coll = 3.6 * f_g * (f_d * eta_ice_arr)**-0.5 * gamma * (r_pltsml/(10**5/AU))**0.5 * (rho_p/3)**(5/6) * Rp**(5/4)
-        #if False:
-        #    if e_tidal[0] < e_drag[0] and e_tidal[0] < e_coll[0]:
-        #        print("Tidal")
-        #    elif e_drag[0] < e_tidal[0] and e_drag[0] < e_coll[0]:
-        #        print("Drag")
-        #    else:
-        #        print("Collisional")
+       
         min = np.min((e_tidal,e_drag,e_coll),axis=0)
         return min
     
@@ -739,16 +728,6 @@ class PlanetesimalAccretion(object):
         # eccentricity excited by protoplanet-planetesimal interaction
         em_Mm = 6*(m_planetesimal/1e23)**(1/18)*(Rp)**(7/24)*((Mp*Mearth/Msun+m_planetesimal/Msun)/3*disc.star.M)**(1/3)
         return np.max((em_Mm,em_mm),axis=0)
-    
-    def eq_eccentricity_jiu2020(self,Rp,Mp):
-        """ Calculate equilibrium eccentrity from Jiu and Li (2020). Here a 
-        rather haphazard formula for surface density of large bodies is used.
-        Not currently used anywhere."""
-        disc = self._disc
-        Sigma_M = Mp/(4/3*np.pi*disc.star.r_Hill(Rp,Mp)**2)*Mearth/Msun
-        m_pltsml = 4/3*np.pi*disc._rho_s*AU**3/Msun*disc.R_planetesimal**3
-        e_m = (8*3*m_pltsml*Mp*Mearth/Msun*Sigma_M*Rp/(self.drag_coeff(Rp)*disc.interp(Rp,disc.midplane_density)*AU**3/Msun*disc.R_planetesimal**2*disc.star.M**2))**(1/5)
-        return e_m
     
     def compute_v_ran(self, Rp, Mp):
         """
