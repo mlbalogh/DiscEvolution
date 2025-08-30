@@ -1153,7 +1153,7 @@ class Bitsch2015Model(object):
 
         self._peb_acc = None
         if pebble_acc:
-            self._peb_acc = PebbleAccretionHill(disc)
+            self._peb_acc = PebbleAccretion(disc)
 
         self._pl_acc = None
         if disc._planetesimal and planetesimal_acc:
