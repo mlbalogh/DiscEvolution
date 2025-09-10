@@ -8,7 +8,7 @@
 ################################################################################
 from __future__ import print_function
 import numpy as np
-from .constants import yr
+from DiscEvolution.constants import yr
 
 class History(object):
 

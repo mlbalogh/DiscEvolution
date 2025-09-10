@@ -9,7 +9,8 @@
 from __future__ import print_function
 import numpy as np
 import os
-
+import sys
+import matplotlib.pyplot as plt
 
 from DiscEvolution.diffusion import TracerDiffusion
 from DiscEvolution.dust import SingleFluidDrift
@@ -457,7 +458,7 @@ if __name__ == "__main__":
             plt.subplot(322)
             l, = plt.loglog(grid.Rc, evo.disc.dust_frac.sum(0))
             plt.xlabel('$R$')
-            plt.ylabel('$\epsilon$')
+            plt.ylabel('$epsilon$')
             plt.subplot(323)
             l, = plt.loglog(grid.Rc, evo.disc.Stokes()[1])
             plt.xlabel('$R$')

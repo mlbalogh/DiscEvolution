@@ -1,8 +1,9 @@
 from __future__ import print_function
 import numpy as np
-from .brent import brentq
-from .constants import GasConst, sig_SB, AU, Omega0
-from . import opacity
+from DiscEvolution.brent import brentq
+from DiscEvolution import opacity
+from DiscEvolution.constants import *
+
 ################################################################################
 # Thermodynamics classes
 ################################################################################
@@ -38,6 +39,10 @@ class EOS_Table(object):
     @property
     def nu(self):
         return self._nu
+    
+    @property
+    def visc_mol(self):
+        return self._f_visc_mol()
 
     @property
     def alpha(self):
@@ -87,7 +92,7 @@ class LocallyIsothermalEOS(EOS_Table):
         self._H0 = h0
         self._T0 = (AU*Omega0)**2 * mu / GasConst
         self._mu = mu
-        
+
     def _f_cs(self, R):
         return self._cs0 * R**self._q
 
@@ -96,6 +101,12 @@ class LocallyIsothermalEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
+
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
@@ -144,7 +155,6 @@ class SimpleDiscEOS(EOS_Table):
     def __init__(self, star, alpha_t, mu=2.33, K0=0.01):
         super(SimpleDiscEOS, self).__init__()
         
-
         self._alpha_t = alpha_t
         self._mu = mu
         self._K0 = K0
@@ -153,18 +163,6 @@ class SimpleDiscEOS(EOS_Table):
         self._Tnu = np.sqrt(27/64*alpha_t*Omega0*GasConst*K0/(mu*sig_SB))
 
         self._set_constants()
-        
-    def _f_cs(self, R):
-        return self._cs0 * R**self._q
-
-    def _f_H(self, R):
-        return self._H0 * R**(1.5+self._q)
-    
-    def _f_nu(self, R):
-        return self._alpha_t * self._f_cs(R) * self._f_H(R)
-
-    def _f_alpha(self, R):
-        return self._alpha_t
 
     def _set_constants(self):
         star = self._star
@@ -175,6 +173,7 @@ class SimpleDiscEOS(EOS_Table):
 
         self._cs0 = (Omega0**-1/AU) * (GasConst / self._mu)**0.5
         self._H0  = (Omega0**-1/AU) * (GasConst / (self._mu*self._star.M))**0.5
+        self._nu0 = self._alpha_t * self._cs0**2 / Omega0
 
     def update(self, dt, Sigma, amax=1e-5, star=None):
         if star:
@@ -209,6 +208,9 @@ class SimpleDiscEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t
@@ -227,6 +229,10 @@ class SimpleDiscEOS(EOS_Table):
     @property
     def Pr(self):
         return self._Pr
+    
+    @property
+    def nu0(self):
+        return self._nu0
 
     def ASCII_header(self):
         """LocallyIsothermalEOS header string"""
@@ -331,6 +337,7 @@ class IrradiatedEOS(EOS_Table):
         self._T = None
 
         self._psi = psi
+
         self._e_rad = e_rad
 
         self._compute_constants()
@@ -347,7 +354,7 @@ class IrradiatedEOS(EOS_Table):
             self._compute_constants()
         star = self._star
             
-        # Temperature/gensity independent quantities:
+        # Temperature/density independent quantities:
         R = self._R
         Om_k = Omega0 * star.Omega_k(R)
 
@@ -437,6 +444,9 @@ class IrradiatedEOS(EOS_Table):
     
     def _f_nu(self, R):
         return self._alpha_t * self._f_cs(R) * self._f_H(R)
+    
+    def _f_visc_mol(self):
+        return 2/3 * np.sqrt(self.mu * m_H * GasConst * self.T/ np.pi ) / sig_H2
 
     def _f_alpha(self, R):
         return self._alpha_t

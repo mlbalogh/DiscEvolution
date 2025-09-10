@@ -11,7 +11,11 @@
 #       "KROME_PATH=/home/rab200/WorkingCopies/krome_ilee/build"
 #   should be set.
 ###############################################################################
-import os
+import os 
+import sys
+
+sys.path.append(os.path.abspath(os.path.join('..')) + '/DiscEvolution')
+
 import json
 import numpy as np
 import matplotlib.pyplot as plt
@@ -64,7 +68,7 @@ from DiscEvolution.internal_photo import ConstantInternalPhotoevap
 ###############################################################################
 # Global Constants
 ###############################################################################
-DefaultModel = "DiscConfig.json"
+DefaultModel = "example/DiscConfig.json"
 
 ###############################################################################
 # Global Functions
@@ -235,7 +239,7 @@ def setup_disc(model):
         age = p.get('age', 0)
         star = MesaStar(p['MESA_file'], p['mass'], age)
     else:
-        star = SimpleStar(M=p['mass'], R=p['radius'], T_eff=p['T_eff'])
+        star = SimpleStar()
     
     p = model['eos']
     if p['type'] == 'irradiated':

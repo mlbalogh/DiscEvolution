@@ -12,8 +12,10 @@ import numpy as np
 import re
 import os
 
-from . import constants
-from .chemistry import create_abundances, MolecularIceAbund
+import DiscEvolution.constants as constants
+from DiscEvolution.chemistry import create_abundances, MolecularIceAbund
+from DiscEvolution.viscous_evolution import TaboneSolution
+from DiscEvolution.constants import Msun
 
 __all__ = [ "Event_Controller", "dump_ASCII", "dump_hdf5", "DiscReader" ]
 ###############################################################################
@@ -115,7 +117,7 @@ class Event_Controller(object):
 ################################################################################
 # Write data to an ASCII file
 ################################################################################
-def dump_ASCII(filename, disc, time, header=None):
+def dump_ASCII(filename, disc, time, header=None,gas=None):
     """Write an ASCII dump of the disc data.
 
     args:
@@ -152,8 +154,20 @@ def dump_ASCII(filename, disc, time, header=None):
             Ndust = disc.dust_frac.shape[0]
         except AttributeError:
             pass
+        
+        try:
+            f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}, Psi: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],disc.RC(),disc.alpha,disc._eos._alpha_DW/disc.alpha))
+        except:
+            try:
+                f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],disc.RC(),disc.alpha))
+            except:
+                f.write('# Mtot: {}, Mdot0: {}, Rc: {}, alpha_SS: {}\n'.format(disc.Mtot()/Msun,disc.Mdot(gas.viscous_velocity(disc))[0],'error',disc.alpha))
+            
 
-        head = '# R Sigma T'
+        if disc.planetesimal:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL Sigma_P T Stokes_DS Stokes_DL'
+        else:
+            head = '# R Sigma Sigma_G Simga_DS Sigma_DL T'
         for i in range(Ndust):
             head += ' epsilon[{}]'.format(i)
         for i in range(Ndust):
@@ -168,12 +182,16 @@ def dump_ASCII(filename, disc, time, header=None):
                 head += ' s{}'.format(k)
         except AttributeError:
             pass
-
+        if gas:
+            head += ' Mdot MdotSS'
         f.write(head+'\n')
         
-        R, Sig, T = disc.R, disc.Sigma, disc.T
+        R, Sig, Sig_G, Sig_D, T, Stokes_DS, Stokes_DL = disc.R, disc.Sigma, disc.Sigma_G, disc.Sigma_D, disc.T, disc.Stokes()[0], disc.Stokes()[1]
         for i in range(Ncell):
-            f.write('{} {} {}'.format(R[i], Sig[i], T[i]))
+            if disc.planetesimal:
+                f.write('{} {} {} {} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], Sig_D[2,i], T[i], Stokes_DS[i], Stokes_DL[i]))
+            else:
+                f.write('{} {} {} {} {} {}'.format(R[i], Sig[i], Sig_G[i], Sig_D[0,i], Sig_D[1,i], T[i]))
             for j in range(Ndust):
                 f.write(' {}'.format(disc.dust_frac[j, i]))
             for j in range(Ndust):
@@ -183,6 +201,17 @@ def dump_ASCII(filename, disc, time, header=None):
                     f.write(' {}'.format(chem.gas[k][i]))
                 for k in chem.ice:
                     f.write(' {}'.format(chem.ice[k][i]))
+            if gas:
+                vr=gas.viscous_velocity(disc)
+                #Mdot_actual=disc.Mdot(vr)
+                Mdot_actual=-2.*np.pi*disc.R[:-1]*disc.Sigma[:-1]*vr/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                #Mdot_SS=(2./3.)*3.*np.pi*disc.alpha*disc.cs*disc.cs*disc.Sigma/disc.Omega_k/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                Mdot_SS=3.*np.pi*disc.nu*disc.Sigma/(constants.Msun/constants.yr)*constants.AU*constants.AU
+                if (i<Ncell-1):
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[i],Mdot_SS[i]))
+                else:
+                    f.write(' {:.5E} {:.5E}'.format(Mdot_actual[Ncell-2],Mdot_SS[Ncell-2]))
+
             f.write('\n')
 
 ################################################################################

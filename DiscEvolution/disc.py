@@ -10,7 +10,7 @@
 ################################################################################
 import numpy as np
 from scipy import optimize
-from .constants import AU, sig_H2, m_H, yr, Msun
+from DiscEvolution.constants import AU, sig_H2, m_H, yr, Msun
 
 def LBP_profile(R,R_C,Sigma_C):
     """Defined for profile fitting"""
@@ -141,6 +141,10 @@ class AccretionDisc(object):
     @property
     def nu(self):
         return self._eos.nu / self._gap_profile
+    
+    @property
+    def visc_mol(self):
+        return self._eos.visc_mol
     
     @property
     def Re(self):

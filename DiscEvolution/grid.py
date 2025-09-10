@@ -158,7 +158,6 @@ class Grid(object):
         """
         return np.interp(R, self.Re, data)
 
-
     @staticmethod
     def from_string(string):
         """Read a Grid from a string"""
@@ -180,7 +179,6 @@ class Grid(object):
                 raise AttributeError("Error: Attribute {} for Grid not "
                                      "known".format(key))
         return Grid(*args, **kwargs)
-
 
 class MultiResolutionGrid(Grid):
     """Grid-structure for multiple resolution grid.
@@ -289,3 +287,7 @@ def from_file(filename):
                 return Grid.from_string(line)
             else:
                 continue
+
+def reduce(arr):
+    """Reduce dimension of input array by one"""
+    return (arr[1:] + arr[:-1])/2

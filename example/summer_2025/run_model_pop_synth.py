@@ -1,0 +1,614 @@
+import os
+import json
+import sys
+# Add the path to the DiscEvolution directory
+sys.path.append(os.path.abspath(os.path.join('..')) + '/')
+sys.path.append('Insert/Path/to/DiscEvolution')
+
+import numpy as np
+import matplotlib.pyplot as plt
+
+from DiscEvolution.constants import *
+from DiscEvolution.grid import Grid
+from DiscEvolution.star import SimpleStar
+from DiscEvolution.eos import IrradiatedEOS, LocallyIsothermalEOS, SimpleDiscEOS
+from DiscEvolution.disc import *
+from DiscEvolution.viscous_evolution import ViscousEvolution, ViscousEvolutionFV, LBP_Solution, HybridWindModel, TaboneSolution
+from DiscEvolution.disc import AccretionDisc
+from DiscEvolution.dust import *
+from DiscEvolution.dust import PlanetesimalFormation
+from DiscEvolution.planet_formation import *
+from DiscEvolution.diffusion import TracerDiffusion
+from DiscEvolution.opacity import Tazzari2016
+from DiscEvolution.chemistry import *
+from copy import deepcopy
+
+import time
+start_time = time.time()
+plt.rcParams.update({'font.size': 16})
+
+def run_model(config):
+    """
+    Run the disk evolution model and plot the results.
+    
+    Parameters:
+    config (dict): Configuration dictionary containing all parameters.
+    """
+    # Extract parameters from config
+    grid_params = config['grid']
+    sim_params = config['simulation']
+    star_params = config['star']
+    disc_params = config['disc']
+    eos_params = config['eos']
+    transport_params = config['transport']
+    dust_growth_params = config['dust_growth']
+    planet_params = config['planets']
+    chemistry_params = config["chemistry"]
+    planetesimal_params = config['planetesimal']
+    wind_params = config["winds"]
+    
+    # Set up disc
+    # ========================
+
+    # Create the grid
+    grid = Grid(grid_params['rmin'], grid_params['rmax'], grid_params['nr'], spacing=grid_params['spacing'])
+    
+    # Create the star
+    star = SimpleStar(M=star_params["M"], R=star_params["R"], T_eff=star_params['T_eff'])
+
+    # Create time array
+    if sim_params['t_interval'] == "power":
+        # Determine the number of points needed
+        if sim_params['t_initial'] == 0:
+            num_points = int(np.log10(sim_params['t_final'])) + 1
+            times = np.logspace(0, np.log10(sim_params['t_final']), num=num_points) * 2 * np.pi
+        else:
+            num_points = int(np.log10(sim_params['t_final'] / sim_params['t_initial'])) + 1
+            times = np.logspace(np.log10(sim_params['t_initial']), np.log10(sim_params['t_final']), num=num_points) * 2 * np.pi
+    elif type(sim_params['t_interval']) == list:
+        times = np.array(sim_params['t_interval']) * 2 * np.pi * 1e6
+    else:
+        times = np.arange(sim_params['t_initial'], sim_params['t_final'], sim_params['t_interval']) * 2 * np.pi
+
+    # define opacity class used. If not Tazzari, defaults to Zhu in IrradiatedEOS.
+    if eos_params["opacity"] == "Tazzari":
+        kappa = Tazzari2016()
+    else:
+        kappa = None
+
+    if grid_params['type'] == 'Booth-alpha':
+        # For fixed Rd, Mdot and Mdisk, solve for alpha
+    
+        # extract params
+        Mdot=disc_params['Mdot']
+        Mdisk=disc_params['M']
+        alpha=disc_params['alpha']
+        Rd=disc_params['Rd']
+        R = grid.Rc
+
+        def Sigma_profile(R, Rd, Mdisk):
+            """Function that creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
+            Sigma = (Rd/R) * np.exp(-R/Rd)
+            Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+            return Sigma
+    
+        # define an initial guess for the Sigma profile
+        Sigma = Sigma_profile(R, Rd, Mdisk)
+    
+        # define a gas class, to be used later 
+        gas_temp = ViscousEvolutionFV()
+
+        # iterate to get alpha
+        for j in range(100):
+            # Create the EOS
+            if eos_params["type"] == "SimpleDiscEOS":
+                eos = SimpleDiscEOS(star, alpha_t=alpha)
+            elif eos_params["type"] == "LocallyIsothermalEOS":
+                eos = LocallyIsothermalEOS(star, eos_params['h0'], eos_params['q'], alpha)
+            elif eos_params["type"] == "IrradiatedEOS":
+                eos = IrradiatedEOS(star, alpha_t=alpha, kappa=kappa)
+        
+            # update eos with current sigma profile
+            eos.set_grid(grid)
+            eos.update(0, Sigma)
+
+            # define a disc given current eos and Sigma
+            disc = AccretionDisc(grid, star, eos, Sigma)
+
+            # find the current Mdot in the disc
+            Mdot_actual = disc.Mdot(gas_temp.viscous_velocity(disc, Sigma))
+
+            # scale Sigma by Mdot to get desired Mdot.
+            Sigma_new = Sigma*Mdot/Mdot_actual[0]
+            Sigma = 0.5 * (Sigma + Sigma_new) # average done to damp oscillations in numerical solution
+
+            # define new disc given new Sigma profile
+            disc = AccretionDisc(grid, star, eos, Sigma)
+
+            # scale alpha by Mdisk so that desired disk mass is achieved.
+            alpha= alpha*(disc.Mtot()/Msun)/Mdisk
+            
+            if grid_params["smart_binning"]:
+                # if using smart binning, re-create the grid and Sigma profile
+                cutoff = np.where(Sigma < 1e-7)[0]
+                
+                if cutoff.shape == (0,):
+                    continue
+
+                grid_params['rmax'] = grid.Rc[cutoff[0]]
+                grid_params['nr'] = cutoff[0]
+                grid = Grid(grid_params['rmin'], grid_params['rmax'], grid_params['nr'], spacing=grid_params['spacing'])
+                Sigma = np.split(Sigma, [cutoff[0]])[0]
+            
+        alpha_SS = alpha
+
+    elif grid_params['type'] == 'winds-alpha':
+        # For fixed Rd, Mdot and Mdisk, solve for alpha with disk winds
+        # assumes gamma = 1
+
+        # extract params
+        Mdot=disc_params['Mdot'] # solar masses per year
+        Mdisk=disc_params['M']* Msun
+        psi = wind_params['psi_DW']
+        #lambda_DW = wind_params['lambda_DW']
+        Rd=disc_params['Rd']
+        alpha = disc_params['alpha']
+        e_rad=wind_params["e_rad"]
+        Sc = disc_params["Sc"]
+        gamma = disc_params['gamma']
+        lambda_DW = 1/(2*(1 - e_rad)*(3/psi + 1)) + 1 
+        R = grid.Rc
+        alpha_SS = alpha/(1 + psi)
+
+        # initial guess for Sigma
+        Sigma_d = Mdisk/(2 * np.pi * (Rd*AU)**2)
+        #xi = 0.25 * (1 + psi) * (np.sqrt(1 + 4*psi/((lambda_DW - 1) * (psi + 1)**2)) - 1)
+        xi = 0
+        Sigma = Sigma_d * (R/Rd)**(xi - gamma) * np.exp(-(R/Rd)**(2 - gamma))
+
+        # define an initial disc and gas class to be used later
+        disc = AccretionDisc(grid, star, eos=None, Sigma=Sigma)
+        gas_temp = HybridWindModel(psi, lambda_DW)
+
+        # scale Sigma by current Mtot just in case Sigma is not quite at the correct value to have the desired Mdisk (which often happens)
+        Mtot = disc.Mtot()
+        Sigma[:] *= Mdisk / Mtot
+
+        for i in range(100):
+            # Create the EOS
+            if eos_params["type"] == "SimpleDiscEOS":
+                eos = SimpleDiscEOS(star, alpha_t=alpha_SS)
+            elif eos_params["type"] == "LocallyIsothermalEOS":
+                eos = LocallyIsothermalEOS(star, eos_params['h0'], eos_params['q'], alpha_SS)
+            elif eos_params["type"] == "IrradiatedEOS":
+                eos = IrradiatedEOS(star, alpha_t=alpha_SS, kappa=kappa, psi=psi, e_rad=e_rad)
+            
+            # update eos with grid and Sigma
+            eos.set_grid(grid)
+            eos.update(0, Sigma)
+
+            # define new disc 
+            disc = AccretionDisc(grid,star,eos,Sigma)
+
+            # find current Mdot in the disc given Sigma and current eos
+            vr = gas_temp.viscous_velocity(disc,Sigma)
+            Mdot_actual = disc.Mdot(vr)[0] # solar masses per year
+
+            # Scale alpha by Mdot
+            alpha_new = alpha*Mdot/Mdot_actual
+            alpha = 0.5 * (alpha + alpha_new) # average done to damp oscillations in numerical solution
+
+            # find a new alpha_SS given new alpha.
+            alpha_SS = alpha/(1 + psi)
+
+            if grid_params["smart_binning"]:
+                # if using smart binning, re-create the grid and Sigma profile
+                cutoff = np.where(Sigma < 1e-7)[0]
+                
+                if cutoff.shape == (0,):
+                    continue
+
+                grid_params['rmax'] = grid.Rc[cutoff[0]]
+                grid_params['nr'] = cutoff[0]
+                grid = Grid(grid_params['rmin'], grid_params['rmax'], grid_params['nr'], spacing=grid_params['spacing'])
+                Sigma = np.split(Sigma, [cutoff[0]])[0]
+
+    # Set up dynamics
+    # ========================
+    gas = None
+    if transport_params['gas_transport']:
+        if wind_params["on"]:
+            gas = HybridWindModel(wind_params['psi_DW'], lambda_DW)
+        else:
+            gas = ViscousEvolutionFV()
+    
+    diffuse = None
+    if transport_params['diffusion']:
+        diffuse = TracerDiffusion(Sc=disc_params["Sc"])
+
+    dust = None
+    if transport_params['radial_drift']:
+        dust = SingleFluidDrift(diffusion=diffuse, settling=dust_growth_params["settling"], van_leer=transport_params['van_leer'])
+        diffuse = None
+
+    # Set disc model
+    # ========================
+    try:
+        disc = DustGrowthTwoPop(grid, star, eos, disc_params['d2g'], 
+            Sigma=Sigma, feedback=dust_growth_params["feedback"], Sc=disc_params["Sc"],
+            f_ice=dust_growth_params['f_ice'], thresh=dust_growth_params['thresh'],
+            uf_0=dust_growth_params["uf_0"], uf_ice=dust_growth_params["uf_ice"], gas=gas
+        )
+    except Exception as e:
+        #disc = DustGrowthTwoPop(grid, star, eos, disc_params['d2g'], Sigma=Sigma, f_ice=dust_growth_params['f_ice'], thresh=dust_growth_params['thresh'])
+        raise e
+
+    # Set up Chemistry
+    # =======================
+    if chemistry_params["on"]:
+
+        # extract params
+        N_cell = grid_params["nr"]
+        T =  eos.T
+        n = Sigma / (2.4*m_H)
+
+        # choose chemical model
+        if chemistry_params["chem_model"] == "Simple":
+            chemistry = SimpleCOChemOberg()
+        elif chemistry_params["chem_model"] == "Equilibrium":
+            chemistry = EquilibriumCOChemOberg(fix_ratios=False, a=1e-5)
+        elif chemistry_params["chem_model"] == "TimeDep":
+            chemistry = TimeDepCOChemOberg(a=1e-5)
+        else:
+            raise Exception("Valid chemistry model not selected. Choose Simple, Equilibrium, or TimeDep")
+        
+        # Setup the dust-to-gas ratio from the chemistry
+        X_solar = SimpleCOAtomAbund(N_cell) # data array containing abundances of atoms
+        X_solar.set_solar_abundances() # redefines abundances by multiplying with specific constants
+
+        # Iterate ice fractions to get the dust-to-gas ratio:
+        for i in range(100):
+            if chemistry_params["assert_d2g"]:
+
+                # find the total gas and dust mass.
+                M_dust = np.trapezoid(disc.Sigma_D.sum(0), np.pi*grid.Rc**2)
+                M_gas = np.trapezoid(disc.Sigma_G, np.pi*grid.Rc**2)
+
+                # calculate a modification fraction by dividing the wanted dust fraction by the current dust fraction.
+                mod_frac = disc_params["d2g"]/(M_dust/M_gas)
+
+                # multiply modification fraction into dust fraction to assert wanted dust fraction.
+                disc.dust_frac[:] = disc.dust_frac*mod_frac
+
+            if disc._planetesimal:
+                dust_frac = disc.dust_frac[:-1].sum(0)  # exclude planetesimals
+            else:
+                dust_frac = disc.dust_frac.sum(0)
+            
+            # Returns MolecularIceAbund class containing SimpleCOMolAbund for gas and ice
+            chem = chemistry.equilibrium_chem(disc.T, 
+                                            disc.midplane_gas_density,
+                                            dust_frac,
+                                            X_solar)
+            disc.initialize_dust_density(chem.ice.total_abund)
+        disc.chem = chem
+
+        disc.update_ices(disc.chem.ice)
+
+    # Set up planetesimals
+    # ========================
+    disc._planetesimal = None
+    if planetesimal_params['active']:
+        disc._planetesimal = PlanetesimalFormation(
+            disc, 
+            d_planetesimal=planetesimal_params['diameter'], 
+            St_min=planetesimal_params['St_min'], 
+            St_max=planetesimal_params['St_max'], 
+            pla_eff=planetesimal_params['pla_eff']
+        )
+
+    # Set up planet(s)
+    # ========================
+    if planet_params['include_planets']:
+        
+        if chemistry_params["on"]:
+            Nchem=disc.chem.ice.data.shape[0]
+            planets = Planets(Nchem=Nchem)
+        else:
+            planets = Planets(Nchem=0)
+        
+        planet_model = Bitsch2015Model(
+            disc, pb_gas_f=planet_params["pb_gas_f"], 
+            migrate=planet_params["migrate"], 
+            pebble_acc=planet_params["pebble_accretion"],
+            gas_acc=planet_params["gas_accretion"],
+            planetesimal_acc=planet_params["planetesimal_accretion"],
+            winds = wind_params["on"]
+        )
+        planet_model.set_disc(disc)
+
+        Mp = planet_params['Mp']
+        Rp = planet_params['Rp']
+        for i in range(len(Mp)):
+            if chemistry_params["on"]:
+                # we assume planets start with no envelope
+                X_core = []
+
+                for d, ice_spec in enumerate(disc.chem.ice.data):
+                    X_core.append(disc.interp(Rp[i], ice_spec)/disc.interp(Rp[i], disc.dust_frac[:2].sum(0)))
+
+                X_core = np.array(X_core)
+                X_env = np.zeros(X_core.shape)
+
+                planets.add_planet(planet_params["implant_time"][i], Rp[i], Mp[i], 0, X_core, X_env)
+            else:
+                planets.add_planet(planet_params["implant_time"][i], Rp[i], Mp[i], 0)
+
+        time_keeper = []
+        Rs, Mcs, Mes, Mdot_tracker, X_cores, X_envs = [], [], [], [], [], []
+
+        for i, planet in enumerate(planets):
+            Rs.append([])
+            Mcs.append([])
+            Mes.append([])
+            Mdot_tracker.append([])
+
+            if chemistry_params["on"]:
+                X_cores.append([[] for num in range(0, Nchem, 1)]) 
+                X_envs.append([[] for num in range(0, Nchem, 1)])
+        
+        # first data point
+        for count, planet in enumerate(planets):
+            Rs[count].append(planet.R.copy())
+            Mcs[count].append(planet.M_core.copy())
+            Mes[count].append(planet.M_env.copy())
+            #Mdot_tracker[count].append(planet_model._peb_acc.computeMdot(planet.R, planet.M))
+            if chemistry_params["on"]:
+                for count2, chem in enumerate(planet.X_core):
+                    X_cores[count][count2].append(chem)
+                    X_envs[count][count2].append(planet.X_env[count2])
+        time_keeper.append(0)
+
+    # Run model
+    # ========================
+    t = 0
+    n = 0
+
+    for ti in times:
+
+        if alpha_SS > 5e-3:
+            break
+
+        while t < ti:
+            # find timestep given gas and dust maximum timesteps
+            dt = ti - t
+            if transport_params['gas_transport']:
+                dt = min(dt, gas.max_timestep(disc))
+            if transport_params['radial_drift']:
+                dt = min(dt, dust.max_timestep(disc))
+            
+            # Extract updated dust frac to update gas
+            dust_frac = None
+            try:
+                dust_frac = disc.dust_frac
+            except AttributeError:
+                pass
+
+            # Extract gas tracers
+            gas_chem, ice_chem = None, None
+            try:
+                gas_chem = disc.chem.gas.data
+                ice_chem = disc.chem.ice.data
+            except AttributeError:
+                pass
+
+            # Do gas evolution
+            if transport_params['gas_transport']:
+                
+                # to preserve planetesimal surface density so 
+                # that it doesn't move with a change in Sigma 
+                # as a whole, we do the following:
+                if disc._planetesimal:
+                    gas(dt, disc, [dust_frac[:-1], gas_chem, ice_chem])
+                else:
+                    gas(dt, disc, [dust_frac, gas_chem, ice_chem])
+
+            # Do dust evolution
+            if transport_params['radial_drift']:
+                if disc._planetesimal:
+                    dust(dt, disc, gas_tracers=gas_chem, dust_tracers=ice_chem)
+                else:
+                    dust(dt, disc, gas_tracers=gas_chem, dust_tracers=ice_chem)
+
+            if diffuse is not None:
+                if gas_chem is not None:
+                    gas_chem[:] += dt * diffuse(disc, gas_chem)
+                if ice_chem is not None:
+                    ice_chem[:] += dt * diffuse(disc, ice_chem) #### may use planetesimals to move, double check
+                if dust_frac is not None:
+                    if disc._planetesimal:
+                        # excluding planetesimals (assume they don't move)
+                        dust_frac[:-1] += dt * diffuse(disc, dust_frac[:-1]) 
+                    else: 
+                        dust_frac[:] += dt * diffuse(disc, dust_frac[:])
+
+            # Pin the values to >= 0 and <=1:
+            disc.Sigma[:] = np.maximum(disc.Sigma, 0)     
+            disc.dust_frac[:] = np.maximum(disc.dust_frac, 0)
+            disc.dust_frac[:] /= np.maximum(disc.dust_frac.sum(0), 1.0)
+            if chemistry_params["on"]:
+                disc.chem.gas.data[:] = np.maximum(disc.chem.gas.data, 0)
+                disc.chem.ice.data[:] = np.maximum(disc.chem.ice.data, 0)
+
+            if disc._planetesimal:
+                disc._planetesimal.update(dt, disc, dust)
+
+            if chemistry_params["on"]:
+                # exclude planetesimals from chemistry (assume they don't chemically interact with the disc)
+                if disc._planetesimal:
+                    chemistry.update(dt, disc.T, disc.midplane_gas_density, disc.dust_frac[:-1].sum(0), disc.chem)
+                else:
+                    chemistry.update(dt, disc.T, disc.midplane_gas_density, disc.dust_frac.sum(0), disc.chem)
+                
+                disc.update_ices(disc.chem.ice)
+
+            if planet_params['include_planets']:
+                # Update the planet masses and radii
+                planet_model.integrate(dt, planets) 
+
+            # update disc
+            disc.update(dt)
+            
+            # increase time and go forward a steo
+            t += dt
+            n += 1
+
+            if (n % 1000) == 0:
+                print('\rNstep: {}'.format(n), end="", flush="True")
+                print('\rTime: {} yr'.format(t / (2 * np.pi)), end="", flush="True")
+                print('\rdt: {} yr'.format(dt / (2 * np.pi)), end="", flush="True")
+            
+            if planet_params['include_planets']:
+
+                # Collect data for planet growth track and chemistry
+                if n % 1000 == 0:
+                    for count, planet in enumerate(planets):
+                        Rs[count].append(planet.R.copy())
+                        Mcs[count].append(planet.M_core.copy())
+                        Mes[count].append(planet.M_env.copy())
+                        #Mdot_tracker[count].append(planet_model._peb_acc.computeMdot(planet.R, planet.M))
+                        if chemistry_params["on"]:
+                            for count2, chem in enumerate(planet.X_core):
+                                X_cores[count][count2].append(chem)
+                                X_envs[count][count2].append(planet.X_env[count2])
+                    time_keeper.append(t/(2*np.pi))
+
+    if not alpha_SS > 5e-3:
+        for count, planet in enumerate(planets):
+            Rs[count].append(planet.R.copy())
+            Mcs[count].append(planet.M_core.copy())
+            Mes[count].append(planet.M_env.copy())
+            #Mdot_tracker[count].append(planet_model._peb_acc.computeMdot(planet.R, planet.M))
+            if chemistry_params["on"]:
+                for count2, chem in enumerate(planet.X_core):
+                    X_cores[count][count2].append(chem)
+                    X_envs[count][count2].append(planet.X_env[count2])
+        time_keeper.append(t/(2*np.pi))
+
+        data = {}
+        data["t"] = time_keeper
+        data["Mcs"] = Mcs
+        data["Mes"] = Mes
+        data["Rp"] = Rs
+        data["X_cores"] = X_cores
+        data["X_envs"] = X_envs
+        data["alpha_SS"] = alpha_SS
+
+        if not wind_params["on"]:
+            wind_params["psi_DW"] = 0
+
+        with open(f"data/winds_mig_psi{wind_params["psi_DW"]}_Mdot{disc_params["Mdot"]:.1e}_M{disc_params["M"]:.1e}_Rd{disc_params["Rd"]:.1e}.json", "w") as out:
+            out.write(json.dumps(data))
+
+if __name__ == "__main__":
+    config = {
+        "grid": {
+            "rmin": 1e-1,
+            "rmax": 1000,
+            "nr": 500,
+            "spacing": "natural",
+            "type": "winds-alpha", # "LBP", "Booth-alpha", "Booth-Rd", "winds-alpha", or "Booth-Mdot"
+            "smart_binning": True
+        },
+        "star": {
+            "M": 1.0, # Solar masses
+            "R": 2.5, # Solar radii
+            "T_eff": 4000 # Kelvin
+        },
+        "simulation": {
+            "t_initial": 0,
+            "t_final": 1e6,
+            "t_interval": [0, 0.1, 0.5, 1, 3], #[0, 1e-3, 1e-2, 1e-1, 1], Myr
+        },
+        "disc": {
+            "alpha": 1e-3, 
+            "M": [0.1, 0.05, 0.01], #[0.1, 0.05, 0.01], 
+            "d2g": 0.01, 
+            "Mdot": 1e-7, #[1e-8, 1e-9, 1e-7],
+            "Sc": 1.0, # schmidt number
+            "Rd": 100, #[10, 50, 100], 
+            'gamma': 1
+        },
+        "eos": {
+            "type": "IrradiatedEOS",
+            "opacity": "Tazzari",
+            "h0": 1/30,
+            "q": -0.25
+        },
+        "transport": {
+            "gas_transport": True,
+            "radial_drift": True,
+            "diffusion": True, 
+            "van_leer": False
+        },
+        "dust_growth": {
+            "feedback": True,
+            "settling": True,
+            "f_ice": 1, # Danti uses 0.4, Lenz uses 0.6, Booth has 0.8
+            "uf_0": 500,          # Fragmentation velocity for ice-free grains (cm/s)
+            "uf_ice": 500,       # Set same as uf_0 to ignore ice effects
+            "thresh": 0.5        # Set high threshold to prevent ice effects
+        },
+        "chemistry": {
+            "on"   : True, 
+            "fix_mu" : True,
+            "mu"     : 2.5,
+            "chem_model": "Equilibrium",
+            "assert_d2g": True
+        },
+        "planets": {
+            'include_planets': True,
+            "planet_model": "Bitsch2015Model",
+            "Rp": [], #[1, 5, 10, 20, 30], # initial position of embryo [AU]. Defined later.
+            "Mp": [], #[0.1, 0.1, 0.1, 0.1, 0.1], # initial mass of embryo [M_Earth]. Defined later.
+            "implant_time": [],
+            "pb_gas_f": 0.05, # Percent of accreted solids converted to gas
+            "migrate" : True,
+            "pebble_accretion": True,
+            "gas_accretion": True, 
+            "planetesimal_accretion": True
+        },
+        "planetesimal": {
+            "active": True,
+            "diameter": 200,
+            "St_min": 1e-2, # put limiters back
+            "St_max": 10,
+            "pla_eff": 0.05
+        },
+        "winds": {
+            "on": True,
+            "psi_DW": 1000, # [0.01, 1, 1000],
+            "e_rad": 0.9
+        }
+    }
+
+    for Rp in [1, 2, 3, 4, 5, 10, 15, 20, 25, 30]:
+        for Mp in [1e-3, 2e-3, 4e-3, 6e-3, 8e-3, 1e-2]:
+            config["planets"]["Rp"].append(Rp)
+            config["planets"]["Mp"].append(Mp)
+    config["planets"]["implant_time"] = [0 for item in config["planets"]["Rp"]]
+
+    for M in config["disc"]["M"]:
+        new_config = deepcopy(config)
+        new_config["disc"]["M"] = M
+        run_model(new_config)
+
+#   This is the population synthesis script, that you can run multiple times to run many disks in parallel.
+# Start by inputting the path to DiscEvolution at the top of this file. Then, run the command:
+# 
+# nohup python example/summer_2025/run_model_pop_synth.py &
+# 
+#   Running this script creates 3 disks spanning across the 3 mass options. So, this script needs to be run 
+# 27 times across all configurations of psi, Mdot, and Rd to complete the population synthesis. So, vary the
+# configs above to account for the parameter space and run for each set of parameters. Create a "data"
+# folder to store all the data.

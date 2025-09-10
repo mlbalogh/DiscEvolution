@@ -3,9 +3,8 @@
 .idea
 .pytest_cache
 __pycache__
-*.dat
 *.png
-*.json
 *.avi
 *.pdf
 *.eps
+*.out
