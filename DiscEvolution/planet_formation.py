@@ -781,9 +781,9 @@ class PlanetesimalAccretion(object):
         return: Planetesimal accretion rate (Earth masses/code time unit)
         """
         disc = self._disc
-        
-        disc._v_drift = np.concat((disc.v_drift,[np.zeros_like(disc.v_drift[1])]))
-        
+
+        disc._v_drift = np.concatenate((disc.v_drift,[np.zeros_like(disc.v_drift[1])]))
+
         # Reduce scope of calculation to planets below the isolation mass
         m_iso = self.planetesimal_iso_mass(Rp)
         filter = Mp < m_iso

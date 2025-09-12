@@ -73,7 +73,6 @@ def run_model(config):
         times = np.array(sim_params['t_interval']) * 2 * np.pi * 1e6
     else:
         times = np.arange(sim_params['t_initial'], sim_params['t_final'], sim_params['t_interval']) * 2 * np.pi
-
     # define opacity class used. If not Tazzari, defaults to Zhu in IrradiatedEOS.
     if eos_params["opacity"] == "Tazzari":
         kappa = Tazzari2016()
@@ -93,7 +92,7 @@ def run_model(config):
         def Sigma_profile(R, Rd, Mdisk):
             """Function that creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             Sigma = (Rd/R) * np.exp(-R/Rd)
-            Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+            Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
             return Sigma
     
         # define an initial guess for the Sigma profile
@@ -157,7 +156,7 @@ def run_model(config):
         def Sigma_profile(R, Rd, Mdisk):
             """Function that creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             Sigma = (Rd/R) * np.exp(-R/Rd)
-            Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+            Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
             return Sigma
     
         # create an initial Sigma profile, scale by Mdisk
@@ -263,7 +262,7 @@ def run_model(config):
 
         # define Sigma profile, scale by Mdisk to get correct disk mass.
         Sigma = (Rd/R) * np.exp(-R/Rd)
-        Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+        Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
 
         # Create the EOS
         if eos_params["type"] == "SimpleDiscEOS":
@@ -369,7 +368,7 @@ def run_model(config):
             """Creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             chi = 0.25 * (1 + psi) * (np.sqrt(1 + 4*psi/((lambda_DW - 1) * (psi + 1)**2)) - 1)
             Sigma = (R/Rd)**(chi - gamma) * np.exp(-(R/Rd)**(2 - gamma))
-            Sigma *= Mdisk / np.trapezoid(Sigma, np.pi * (R * AU)**2)
+            Sigma *= Mdisk / np.trapz(Sigma, np.pi * (R * AU)**2)
             return Sigma
     
         # create an initial Sigma profile, scale by Mdisk
@@ -431,7 +430,7 @@ def run_model(config):
         # define Sigma profile, scale by Mdisk to get correct disk mass.
         chi = 0.25 * (1 + psi) * (np.sqrt(1 + 4*psi/((lambda_DW - 1) * (psi + 1)**2)) - 1)
         Sigma = (R/Rd)**(chi - gamma) * np.exp(-(R/Rd)**(2 - gamma))
-        Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
+        Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
 
         # Create the EOS
         if eos_params["type"] == "SimpleDiscEOS":
@@ -502,8 +501,8 @@ def run_model(config):
             if chemistry_params["assert_d2g"]:
 
                 # find the total gas and dust mass.
-                M_dust = np.trapezoid(disc.Sigma_D.sum(0), np.pi*grid.Rc**2)
-                M_gas = np.trapezoid(disc.Sigma_G, np.pi*grid.Rc**2)
+                M_dust = np.trapz(disc.Sigma_D.sum(0), np.pi*grid.Rc**2)
+                M_gas = np.trapz(disc.Sigma_G, np.pi*grid.Rc**2)
 
                 # calculate a modification fraction by dividing the wanted dust fraction by the current dust fraction.
                 mod_frac = disc_params["d2g"]/(M_dust/M_gas)
@@ -614,16 +613,23 @@ def run_model(config):
     cm = plt.get_cmap("viridis")
 
     # gradient colors also present to give options
-    color1=iter(plt.cm.Blues(np.linspace(0.4, 1, 5)[::-1]))
-    color2=iter(plt.cm.Greys(np.linspace(0.4, 1, 5)[::-1]))
-    color3=iter(plt.cm.Greens(np.linspace(0.4, 1, 5)[::-1]))
-    color4=iter(plt.cm.Reds(np.linspace(0.4, 1, 5)[::-1]))
+    color1=iter(plt.cm.Blues(np.linspace(0.4, 1, 10)[::-1]))
+    color2=iter(plt.cm.Greys(np.linspace(0.4, 1, 10)[::-1]))
+    color3=iter(plt.cm.Greens(np.linspace(0.4, 1, 10)[::-1]))
+    color4=iter(plt.cm.Reds(np.linspace(0.4, 1, 10)[::-1]))
 
     # Run model
     # ========================
     t = 0
     n = 0
-
+    data = {}
+    data["R"] = []
+    data["Sigma_G"] = []
+    data["Sigma_dust"] = []
+    data["Sigma_pebbles"] = []
+    data["Sigma_planetesimals"] = []
+    data["T"] = []
+    print ("Running model.  Alpha, Rd, Mdisk=",eos.alpha, Rd, disc.Mtot()/Msun)
     for ti in times:
         while t < ti:
             # find timestep given gas and dust maximum timesteps
@@ -707,9 +713,9 @@ def run_model(config):
             n += 1
 
             if (n % 1000) == 0:
-                print('\rNstep: {}'.format(n), end="", flush="True")
-                print('\rTime: {} yr'.format(t / (2 * np.pi)), end="", flush="True")
-                print('\rdt: {} yr'.format(dt / (2 * np.pi)), end="", flush="True")
+                #print('\rNstep: {}'.format(n), end="", flush="True")
+                print('\rTime: {} Myr'.format(t / (1.e6* 2 * np.pi)), end="", flush="True")
+                #print('\rdt: {} yr'.format(dt / (2 * np.pi)), end="", flush="True")
             
             if planet_params['include_planets']:
 
@@ -725,7 +731,13 @@ def run_model(config):
                                 X_cores[count][count2].append(chem)
                                 X_envs[count][count2].append(planet.X_env[count2])
                     time_keeper.append(t/(2*np.pi))
-
+        data["R"].append(grid.Rc.copy().tolist())
+        data["Sigma_G"].append(disc.Sigma_G.copy().tolist())
+        data["Sigma_dust"].append(disc.Sigma_D[0].copy().tolist())
+        data["Sigma_pebbles"].append(disc.Sigma_D[1].copy().tolist())
+        if (config["planetesimal"]["active"]):
+            data["Sigma_planetesimals"].append(disc.Sigma_D[2].copy().tolist())
+        data["T"].append(disc.T.copy().tolist())
         # iterate colors
         c1 = next(color1)
         c2 = next(color2)
@@ -822,6 +834,27 @@ def run_model(config):
     fig.colorbar(sm, cax=cax)
 
     fig.savefig('test.png', bbox_inches='tight')
+    data["t"] = time_keeper
+    data["Mcs"] = Mcs
+    data["Mes"] = Mes
+    data["Rp"] = Rs
+    data["X_cores"] = X_cores
+    data["X_envs"] = X_envs
+    data["alpha_SS"] = alpha_SS
+    # data["R"] = grid.Rc.tolist()
+    # data["Sigma_G"] = disc.Sigma_G.tolist()
+    # data["Sigma_dust"] = disc.Sigma_D[0].tolist()
+    # data["Sigma_pebbles"] = disc.Sigma_D[1].tolist()
+    # data["Sigma_planetesimals"] = disc.Sigma_D[2].tolist()
+    # data["T"] = disc.T.tolist()
+
+
+
+    if not wind_params["on"]:
+        wind_params["psi_DW"] = 0
+
+    with open(f"/Users/mbalogh/projects/PlanetFormation/python/output/data/Balogh/PAonly/winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.json", "w") as out:
+        out.write(json.dumps(data))
 
 if __name__ == "__main__":
     config = {
@@ -840,16 +873,16 @@ if __name__ == "__main__":
         },
         "simulation": {
             "t_initial": 0,
-            "t_final": 1e6,
-            "t_interval": [0], #[0, 1e-3, 1e-2, 1e-1, 1], Myr
+            "t_final": 3.e6,
+            "t_interval": [0, 1e-3, 1e-2, 1e-1, 2e-1,5e-1, 1, 3], #Myr
         },
         "disc": {
             "alpha": 1e-3,
-            "M": 0.05,
+            "M": 0.128,
             "d2g": 0.01,
-            "Mdot": 1e-8,
+            "Mdot": 8.85e-9,
             "Sc": 1.0, # schmidt number
-            "Rd": 30,
+            "Rd": 137,
             'gamma': 1
         },
         "eos": {
@@ -882,7 +915,7 @@ if __name__ == "__main__":
         "planets": {
             'include_planets': True,
             "planet_model": "Bitsch2015Model",
-            "Rp": [1, 5, 10, 20, 30,], #[1, 5, 10, 20, 30], # initial position of embryo [AU]
+            "Rp": [1, 3, 5, 10, 20,], #[1, 5, 10, 20, 30], # initial position of embryo [AU]
             "Mp": [1e-2, 1e-2, 1e-2, 1e-2, 1e-2], #[0.1, 0.1, 0.1, 0.1, 0.1], # initial mass of embryo [M_Earth]
             "implant_time": [0, 0, 0, 0, 0],
             "pb_gas_f": 0.05, # Percent of accreted solids converted to gas
@@ -892,7 +925,7 @@ if __name__ == "__main__":
             "planetesimal_accretion": True
         },
         "planetesimal": {
-            "active": True,
+            "active": False,
             "diameter": 200,
             "St_min": 1e-2,
             "St_max": 10,
@@ -900,7 +933,7 @@ if __name__ == "__main__":
         },
         "winds": {
             "on": True,
-            "psi_DW": 1,
+            "psi_DW": 0.01,
             "e_rad": 0.9
         }
     }
