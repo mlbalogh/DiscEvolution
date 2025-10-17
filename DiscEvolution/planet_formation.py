@@ -125,7 +125,7 @@ class GasAccretion(object):
                  f_py=0.2, kappa_env=0.05, rho_core=5.5):
 
         # General properties
-        self._fmax = f_max # depreciated with the addition of winds
+        self._fmax = f_max # depreciated with the addition of winds.  MLB - restored.
         self._disc = disc
 
         # Piso & Youdin parameters
@@ -171,6 +171,8 @@ class GasAccretion(object):
         
         # Piso & Youdin (2014) accretion rate:
         T81 = self._disc.interp(Rp, disc.T)/81
+        # MLB fudge to stop failure when M_env = 0
+        M_env = np.where(M_env == 0, 1.e-4*M_core, M_env)
         Mdot_PY = self._fPiso * T81**-0.5 * M_core**(11/3.) / M_env
         
         # Machida+ (2010) accretion rate
@@ -179,6 +181,7 @@ class GasAccretion(object):
 
         Sig = disc.interp(Rp, disc.Sigma_G)
         H   = disc.interp(Rp, disc.H)
+        nu   = disc.interp(Rp, disc.nu)
 
         Om_k = star.Omega_k(Rp)
         
@@ -195,9 +198,12 @@ class GasAccretion(object):
         
         disc = self._disc
 
-        # generalized limit for winds and viscous case (added by Yuvan S., 2025)
-        Mdot_limit = 2*np.pi * Rp * Sig * np.abs(np.interp(Rp, disc._grid.Re[1:-1], disc._gas.viscous_velocity(disc)))
-
+        # generalized limit for winds and viscous case (added by Yuvan S., 2025.)
+        #Mdot_limit = 2*np.pi * Rp * Sig * np.abs(np.interp(Rp, disc._grid.Re[1:-1], disc._gas.viscous_velocity(disc)))
+        #  This is not correct - limit is supposed to be fmax of the accretion rate 
+        Mdot_limit = self._fmax * 2*np.pi * Rp * Sig * np.abs(np.interp(Rp, disc._grid.Re[1:-1], disc._gas.viscous_velocity(disc)))
+        # Original:
+        #Mdot_limit = self._fmax * 3*np.pi*Sig*nu
         return np.minimum(Mdot, Mdot_limit)
 
     def __call__(self, planets):
@@ -1100,6 +1106,9 @@ class PlanetMigration(object):
         q = Me / star.M
         rH = star.r_Hill(Rp, Mp)
         nu = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
+    # For testing
+        #nu = disc.interp(Rp, disc.nu)
+
         H  = disc.interp(Rp, disc.H)
 
         Re = Rp * star.v_k(Rp) / nu
@@ -1109,6 +1118,8 @@ class PlanetMigration(object):
         fP = np.where(P < 2.4646, 0.25*(P-0.541), 1 - np.exp(-P**0.75/3))
 
         return fP*vr_I + (1-fP)*vr_II
+        # For testing:
+        #return fP*vr_I*0 + (1-fP)*vr_II
 
     def __call__(self, planets):
         """Compute migration rate"""

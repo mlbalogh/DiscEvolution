@@ -411,7 +411,9 @@ class DustGrowthTwoPop(DustyDisc):
 
     def _t_grow(self, eps=None):
         "Slightly more realistic growth time-scale from Drazkowska et. al (2021)."
-        return (self.Sigma_G/(self.Sigma_D[1]*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
+        Sigma_dust=self.Sigma_D[0]+self.Sigma_D[1]
+        #return (self.Sigma_G/(self.Sigma_D[1]*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
+        return (self.Sigma_G/(Sigma_dust*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
 
     def do_grain_growth(self, dt):
         """Apply the grain growth"""
