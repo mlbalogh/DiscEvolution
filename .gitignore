@@ -1,6 +1,7 @@
 *~
 *pyc
 .idea
+.vscode
 .pytest_cache
 __pycache__
 *.png
@@ -8,3 +9,7 @@ __pycache__
 *.pdf
 *.eps
 *.out
+output/
+logs/
+data/
+.DS_Store

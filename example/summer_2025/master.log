@@ -1,0 +1,481 @@
+nohup: ignoring input
+psi0.01_Mdot1e-10_M0.01_Rd10	Skipping: 0.01_1e-10_0.01_10
+psi0.01_Mdot1e-10_M0.01_Rd20	Skipping: 0.01_1e-10_0.01_20
+psi0.01_Mdot1e-10_M0.01_Rd50	Skipping: 0.01_1e-10_0.01_50
+psi0.01_Mdot1e-10_M0.01_Rd150	Skipping: 0.01_1e-10_0.01_150
+psi0.01_Mdot1e-10_M0.01_Rd200	Skipping: 0.01_1e-10_0.01_200
+psi0.01_Mdot1e-10_M0.05_Rd20	Skipping: 0.01_1e-10_0.05_20
+psi0.01_Mdot1e-10_M0.05_Rd50	Skipping: 0.01_1e-10_0.05_50
+psi0.01_Mdot1e-10_M0.05_Rd150	Skipping: 0.01_1e-10_0.05_150
+psi0.01_Mdot1e-10_M0.05_Rd200	Skipping: 0.01_1e-10_0.05_200
+psi0.01_Mdot1e-10_M0.1_Rd10	Skipping: 0.01_1e-10_0.1_10
+psi0.01_Mdot1e-10_M0.1_Rd20	Skipping: 0.01_1e-10_0.1_20
+psi0.01_Mdot1e-10_M0.1_Rd50	Skipping: 0.01_1e-10_0.1_50
+psi0.01_Mdot1e-10_M0.1_Rd150	Skipping: 0.01_1e-10_0.1_150
+psi0.01_Mdot1e-10_M0.1_Rd200	Skipping: 0.01_1e-10_0.1_200
+psi0.01_Mdot1e-10_M0.125_Rd10	Skipping: 0.01_1e-10_0.125_10
+psi0.01_Mdot1e-10_M0.125_Rd20	Skipping: 0.01_1e-10_0.125_20
+psi0.01_Mdot1e-10_M0.125_Rd50	Skipping: 0.01_1e-10_0.125_50
+psi0.01_Mdot1e-10_M0.125_Rd150	Skipping: 0.01_1e-10_0.125_150
+psi0.01_Mdot1e-10_M0.125_Rd200	Skipping: 0.01_1e-10_0.125_200
+psi0.01_Mdot1e-10_M0.05_Rd100	[2025-10-02 20:22:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-10_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-10_M0.125_Rd100	[2025-10-02 20:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-10_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-10_M0.05_Rd10	[2025-10-02 20:22:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-10_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot1e-10_M0.1_Rd100	[2025-10-02 20:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-10_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-10_M0.01_Rd100	[2025-10-02 20:22:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-10_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-10_M0.15_Rd10	Skipping: 0.01_1e-10_0.15_10
+psi0.01_Mdot1e-10_M0.15_Rd50	Skipping: 0.01_1e-10_0.15_50
+psi0.01_Mdot1e-10_M0.15_Rd100	Skipping: 0.01_1e-10_0.15_100
+psi0.01_Mdot1e-10_M0.15_Rd20	Skipping: 0.01_1e-10_0.15_20
+psi0.01_Mdot1e-10_M0.15_Rd150	Skipping: 0.01_1e-10_0.15_150
+psi0.01_Mdot1e-10_M0.15_Rd200	Skipping: 0.01_1e-10_0.15_200
+psi0.01_Mdot3e-10_M0.01_Rd10	Skipping: 0.01_3e-10_0.01_10
+psi0.01_Mdot3e-10_M0.01_Rd20	Skipping: 0.01_3e-10_0.01_20
+psi0.01_Mdot3e-10_M0.01_Rd50	Skipping: 0.01_3e-10_0.01_50
+psi0.01_Mdot3e-10_M0.01_Rd150	Skipping: 0.01_3e-10_0.01_150
+psi0.01_Mdot3e-10_M0.01_Rd200	Skipping: 0.01_3e-10_0.01_200
+psi0.01_Mdot3e-10_M0.01_Rd100	[2025-10-02 20:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-10_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-10_M0.05_Rd20	Skipping: 0.01_3e-10_0.05_20
+psi0.01_Mdot3e-10_M0.05_Rd10	Skipping: 0.01_3e-10_0.05_10
+psi0.01_Mdot3e-10_M0.05_Rd50	Skipping: 0.01_3e-10_0.05_50
+psi0.01_Mdot3e-10_M0.05_Rd100	Skipping: 0.01_3e-10_0.05_100
+psi0.01_Mdot3e-10_M0.05_Rd150	Skipping: 0.01_3e-10_0.05_150
+psi0.01_Mdot3e-10_M0.05_Rd200	Skipping: 0.01_3e-10_0.05_200
+psi0.01_Mdot3e-10_M0.1_Rd10	Skipping: 0.01_3e-10_0.1_10
+psi0.01_Mdot3e-10_M0.1_Rd20	Skipping: 0.01_3e-10_0.1_20
+psi0.01_Mdot3e-10_M0.1_Rd50	Skipping: 0.01_3e-10_0.1_50
+psi0.01_Mdot3e-10_M0.1_Rd150	Skipping: 0.01_3e-10_0.1_150
+psi0.01_Mdot3e-10_M0.1_Rd100	[2025-10-02 20:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-10_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-10_M0.1_Rd200	Skipping: 0.01_3e-10_0.1_200
+psi0.01_Mdot3e-10_M0.125_Rd10	Skipping: 0.01_3e-10_0.125_10
+psi0.01_Mdot3e-10_M0.125_Rd20	Skipping: 0.01_3e-10_0.125_20
+psi0.01_Mdot3e-10_M0.125_Rd50	Skipping: 0.01_3e-10_0.125_50
+psi0.01_Mdot3e-10_M0.125_Rd100	[2025-10-02 20:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-10_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-10_M0.125_Rd150	Skipping: 0.01_3e-10_0.125_150
+psi0.01_Mdot3e-10_M0.125_Rd200	Skipping: 0.01_3e-10_0.125_200
+psi0.01_Mdot3e-10_M0.15_Rd10	[2025-10-02 20:43:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-10_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-10_M0.15_Rd20	Skipping: 0.01_3e-10_0.15_20
+psi0.01_Mdot3e-10_M0.15_Rd50	Skipping: 0.01_3e-10_0.15_50
+psi0.01_Mdot3e-10_M0.15_Rd100	[2025-10-02 20:46:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-10_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-10_M0.15_Rd150	Skipping: 0.01_3e-10_0.15_150
+psi0.01_Mdot3e-10_M0.15_Rd200	Skipping: 0.01_3e-10_0.15_200
+psi0.01_Mdot1e-9_M0.01_Rd10	Skipping: 0.01_1e-09_0.01_10
+psi0.01_Mdot1e-9_M0.01_Rd20	Skipping: 0.01_1e-09_0.01_20
+psi0.01_Mdot1e-9_M0.01_Rd50	Skipping: 0.01_1e-09_0.01_50
+psi0.01_Mdot1e-9_M0.01_Rd100	[2025-10-02 23:38:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-09_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-9_M0.01_Rd150	Skipping: 0.01_1e-09_0.01_150
+psi0.01_Mdot1e-9_M0.01_Rd200	Skipping: 0.01_1e-09_0.01_200
+psi0.01_Mdot1e-9_M0.05_Rd10	Skipping: 0.01_1e-09_0.05_10
+psi0.01_Mdot1e-9_M0.05_Rd20	Skipping: 0.01_1e-09_0.05_20
+psi0.01_Mdot1e-9_M0.05_Rd50	Skipping: 0.01_1e-09_0.05_50
+psi0.01_Mdot1e-9_M0.05_Rd100	[2025-10-02 23:46:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-9_M0.05_Rd150	Skipping: 0.01_1e-09_0.05_150
+psi0.01_Mdot1e-9_M0.05_Rd200	Skipping: 0.01_1e-09_0.05_200
+psi0.01_Mdot1e-9_M0.1_Rd10	Skipping: 0.01_1e-09_0.1_10
+psi0.01_Mdot1e-9_M0.1_Rd20	Skipping: 0.01_1e-09_0.1_20
+psi0.01_Mdot1e-9_M0.1_Rd50	Skipping: 0.01_1e-09_0.1_50
+psi0.01_Mdot1e-9_M0.1_Rd100	Skipping: 0.01_1e-09_0.1_100
+psi0.01_Mdot1e-9_M0.1_Rd150	Skipping: 0.01_1e-09_0.1_150
+psi0.01_Mdot1e-9_M0.1_Rd200	Skipping: 0.01_1e-09_0.1_200
+psi0.01_Mdot1e-9_M0.125_Rd10	[2025-10-02 23:51:19] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-09_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-9_M0.125_Rd20	Skipping: 0.01_1e-09_0.125_20
+psi0.01_Mdot1e-9_M0.125_Rd50	Skipping: 0.01_1e-09_0.125_50
+psi0.01_Mdot1e-9_M0.125_Rd100	Skipping: 0.01_1e-09_0.125_100
+psi0.01_Mdot1e-9_M0.125_Rd150	Skipping: 0.01_1e-09_0.125_150
+psi0.01_Mdot1e-9_M0.125_Rd200	Skipping: 0.01_1e-09_0.125_200
+psi0.01_Mdot1e-9_M0.15_Rd10	Skipping: 0.01_1e-09_0.15_10
+psi0.01_Mdot1e-9_M0.15_Rd20	Skipping: 0.01_1e-09_0.15_20
+psi0.01_Mdot1e-9_M0.15_Rd50	Skipping: 0.01_1e-09_0.15_50
+psi0.01_Mdot1e-9_M0.15_Rd100	Skipping: 0.01_1e-09_0.15_100
+psi0.01_Mdot1e-9_M0.15_Rd150	Skipping: 0.01_1e-09_0.15_150
+psi0.01_Mdot1e-9_M0.15_Rd200	Skipping: 0.01_1e-09_0.15_200
+psi0.01_Mdot3e-9_M0.01_Rd10	Skipping: 0.01_3e-09_0.01_10
+psi0.01_Mdot3e-9_M0.01_Rd20	Skipping: 0.01_3e-09_0.01_20
+psi0.01_Mdot3e-9_M0.01_Rd50	Skipping: 0.01_3e-09_0.01_50
+psi0.01_Mdot3e-9_M0.01_Rd100	[2025-10-03 00:04:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.01_Rd150	[2025-10-03 01:06:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.01_Rd200	[2025-10-03 01:22:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd10	[2025-10-03 01:22:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot3e-9_M0.05_Rd20	[2025-10-03 01:35:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.05_Rd50	[2025-10-03 01:48:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.05_Rd100	[2025-10-03 04:33:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd150	[2025-10-03 05:43:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd200	[2025-10-03 07:05:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd10	[2025-10-03 07:22:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-9_M0.1_Rd20	[2025-10-03 07:42:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.1_Rd50	[2025-10-03 07:51:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.1_Rd100	[2025-10-03 08:14:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd150	[2025-10-03 09:06:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd200	[2025-10-03 09:15:35] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd10	[2025-10-03 09:41:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-9_M0.125_Rd20	[2025-10-03 09:58:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.125_Rd50	[2025-10-03 10:21:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.125_Rd100	[2025-10-03 11:28:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd150	[2025-10-03 11:49:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd200	[2025-10-03 12:31:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd10	[2025-10-03 12:34:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-9_M0.15_Rd20	[2025-10-03 13:27:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.15_Rd50	[2025-10-03 14:49:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.15_Rd100	[2025-10-03 16:19:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd150	[2025-10-03 17:31:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd200	[2025-10-03 17:34:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.01_Rd10	[2025-10-03 18:11:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot1e-8_M0.01_Rd20	[2025-10-03 18:20:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.01_Rd50	[2025-10-03 18:21:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.01_Rd100	[2025-10-03 18:21:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.01_Rd150	[2025-10-03 18:21:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.01_Rd200	[2025-10-03 18:21:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd10	[2025-10-03 18:21:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot1e-8_M0.05_Rd20	[2025-10-03 18:40:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.05_Rd50	[2025-10-03 20:59:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.05_Rd100	[2025-10-03 22:04:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd150	[2025-10-03 22:21:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd200	[2025-10-03 23:37:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd10	[2025-10-03 23:51:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-8_M0.1_Rd20	[2025-10-04 00:53:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.1_Rd50	[2025-10-04 01:03:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.1_Rd100	[2025-10-04 01:56:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd150	[2025-10-04 02:05:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd200	[2025-10-04 03:40:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd10	[2025-10-04 04:15:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-8_M0.125_Rd20	[2025-10-04 04:35:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.125_Rd50	[2025-10-04 05:51:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.125_Rd100	[2025-10-04 07:15:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd150	[2025-10-04 07:15:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd200	[2025-10-04 07:55:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd10	[2025-10-04 08:57:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-8_M0.15_Rd20	[2025-10-04 09:28:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.15_Rd50	[2025-10-04 10:09:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.15_Rd100	[2025-10-04 10:26:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd150	[2025-10-04 11:53:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd200	[2025-10-04 12:15:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.01_Rd10	[2025-10-04 12:20:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot3e-8_M0.01_Rd20	[2025-10-04 12:53:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.01_Rd50	[2025-10-04 12:53:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.01_Rd100	[2025-10-04 12:53:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.01_Rd150	[2025-10-04 12:53:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.01_Rd200	[2025-10-04 12:53:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd10	[2025-10-04 12:53:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot3e-8_M0.05_Rd20	[2025-10-04 14:33:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.05_Rd50	[2025-10-04 14:45:28] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.05_Rd100	[2025-10-04 15:42:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd150	[2025-10-04 15:42:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd200	[2025-10-04 15:42:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd10	[2025-10-04 15:42:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-8_M0.1_Rd20	[2025-10-04 16:52:49] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.1_Rd50	[2025-10-04 17:33:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.1_Rd100	[2025-10-04 17:54:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd150	[2025-10-04 19:46:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd200	[2025-10-04 20:43:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd10	[2025-10-04 20:44:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-8_M0.125_Rd20	[2025-10-04 20:44:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.125_Rd50	[2025-10-04 21:24:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.125_Rd100	[2025-10-04 22:02:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd150	[2025-10-04 23:59:15] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd200	[2025-10-05 00:40:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd10	[2025-10-05 01:22:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-8_M0.15_Rd20	[2025-10-05 01:56:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.15_Rd50	[2025-10-05 04:10:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.15_Rd100	[2025-10-05 04:11:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd150	[2025-10-05 06:07:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd200	[2025-10-05 06:47:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.01_Rd10	[2025-10-05 07:36:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot1e-7_M0.01_Rd20	[2025-10-05 07:36:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.01_Rd50	[2025-10-05 07:36:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.01_Rd100	[2025-10-05 07:36:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.01_Rd150	[2025-10-05 07:36:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.01_Rd200	[2025-10-05 07:36:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd10	[2025-10-05 07:36:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot1e-7_M0.05_Rd20	[2025-10-05 08:55:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.05_Rd50	[2025-10-05 09:27:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.05_Rd100	[2025-10-05 09:27:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd150	[2025-10-05 09:28:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd200	[2025-10-05 09:28:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd10	[2025-10-05 09:28:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-7_M0.1_Rd20	[2025-10-05 09:33:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.1_Rd50	[2025-10-05 10:57:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.1_Rd100	[2025-10-05 10:57:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd150	[2025-10-05 10:57:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd200	[2025-10-05 10:57:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd10	[2025-10-05 10:57:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-7_M0.125_Rd20	[2025-10-05 12:22:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.125_Rd50	[2025-10-05 13:43:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.125_Rd100	[2025-10-05 13:53:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd150	[2025-10-05 13:53:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd200	[2025-10-05 13:53:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd10	[2025-10-05 13:53:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot1e-7_M0.15_Rd20	[2025-10-05 15:17:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.15_Rd50	[2025-10-05 16:42:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.15_Rd100	[2025-10-05 16:45:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd150	[2025-10-05 16:45:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd200	[2025-10-05 16:45:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-7_M0.01_Rd10	[2025-10-05 16:45:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot3e-7_M0.01_Rd20	[2025-10-05 16:45:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-7_M0.01_Rd50	[2025-10-05 16:45:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-7_M0.01_Rd100	[2025-10-05 16:45:19] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-7_M0.01_Rd150	[2025-10-05 16:45:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-7_M0.01_Rd200	[2025-10-05 16:45:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-7_M0.05_Rd10	[2025-10-05 16:45:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd1.0e+01.h5
+psi0.01_Mdot3e-7_M0.05_Rd20	[2025-10-05 16:45:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-7_M0.05_Rd50	[2025-10-05 16:45:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-7_M0.05_Rd100	[2025-10-05 16:45:35] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-7_M0.05_Rd150	[2025-10-05 16:45:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-7_M0.05_Rd200	[2025-10-05 16:45:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-7_M0.1_Rd10	[2025-10-05 16:45:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-7_M0.1_Rd20	[2025-10-05 17:40:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-7_M0.1_Rd50	[2025-10-05 17:40:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-7_M0.1_Rd100	[2025-10-05 17:40:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-7_M0.1_Rd150	[2025-10-05 17:40:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-7_M0.1_Rd200	[2025-10-05 17:40:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-7_M0.125_Rd10	[2025-10-05 17:41:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-7_M0.125_Rd20	[2025-10-05 18:14:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-7_M0.125_Rd50	[2025-10-05 18:14:35] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-7_M0.125_Rd100	[2025-10-05 18:14:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-7_M0.125_Rd150	[2025-10-05 18:14:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-7_M0.125_Rd200	[2025-10-05 18:14:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-7_M0.15_Rd10	[2025-10-05 18:14:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd1.0e+01.h5
+psi0.01_Mdot3e-7_M0.15_Rd20	[2025-10-05 18:36:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-7_M0.15_Rd50	[2025-10-05 21:36:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-7_M0.15_Rd100	[2025-10-05 21:36:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-7_M0.15_Rd150	[2025-10-05 21:36:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-7_M0.15_Rd200	[2025-10-05 21:36:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi0.01_Mdot3.0e-07_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot1e-10_M0.01_Rd10	[2025-10-05 21:36:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-10_M0.01_Rd20	Skipping: 100_1e-10_0.01_20
+psi100_Mdot1e-10_M0.01_Rd50	Skipping: 100_1e-10_0.01_50
+psi100_Mdot1e-10_M0.01_Rd100	[2025-10-05 21:53:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-10_M0.01_Rd150	Skipping: 100_1e-10_0.01_150
+psi100_Mdot1e-10_M0.01_Rd200	Skipping: 100_1e-10_0.01_200
+psi100_Mdot1e-10_M0.05_Rd10	[2025-10-05 23:57:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-10_M0.05_Rd20	Skipping: 100_1e-10_0.05_20
+psi100_Mdot1e-10_M0.05_Rd50	Skipping: 100_1e-10_0.05_50
+psi100_Mdot1e-10_M0.05_Rd100	[2025-10-06 00:11:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-10_M0.05_Rd150	Skipping: 100_1e-10_0.05_150
+psi100_Mdot1e-10_M0.05_Rd200	Skipping: 100_1e-10_0.05_200
+psi100_Mdot1e-10_M0.1_Rd10	[2025-10-06 00:22:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot1e-10_M0.1_Rd20	Skipping: 100_1e-10_0.1_20
+psi100_Mdot1e-10_M0.1_Rd50	Skipping: 100_1e-10_0.1_50
+psi100_Mdot1e-10_M0.1_Rd100	[2025-10-06 00:30:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot1e-10_M0.1_Rd150	Skipping: 100_1e-10_0.1_150
+psi100_Mdot1e-10_M0.1_Rd200	Skipping: 100_1e-10_0.1_200
+psi100_Mdot1e-10_M0.125_Rd10	[2025-10-06 00:41:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot1e-10_M0.125_Rd20	Skipping: 100_1e-10_0.125_20
+psi100_Mdot1e-10_M0.125_Rd50	[2025-10-06 02:02:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot1e-10_M0.125_Rd100	Skipping: 100_1e-10_0.125_100
+psi100_Mdot1e-10_M0.125_Rd150	Skipping: 100_1e-10_0.125_150
+psi100_Mdot1e-10_M0.125_Rd200	Skipping: 100_1e-10_0.125_200
+psi100_Mdot1e-10_M0.15_Rd10	[2025-10-06 02:43:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot1e-10_M0.15_Rd20	[2025-10-06 03:20:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot1e-10_M0.15_Rd50	[2025-10-06 05:51:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot1e-10_M0.15_Rd100	[2025-10-06 08:11:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot1e-10_M0.15_Rd150	Skipping: 100_1e-10_0.15_150
+psi100_Mdot1e-10_M0.15_Rd200	[2025-10-06 08:49:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-10_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot3e-10_M0.01_Rd10	[2025-10-06 10:15:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-10_M0.01_Rd20	[2025-10-06 11:49:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-10_M0.01_Rd50	[2025-10-06 12:26:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-10_M0.01_Rd100	[2025-10-06 13:16:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-10_M0.01_Rd150	[2025-10-06 18:16:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-10_M0.01_Rd200	[2025-10-06 19:01:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-10_M0.05_Rd10	[2025-10-06 19:58:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-10_M0.05_Rd20	[2025-10-06 21:32:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-10_M0.05_Rd50	[2025-10-06 23:14:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-10_M0.05_Rd100	[2025-10-07 00:11:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-10_M0.05_Rd150	[2025-10-07 01:17:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-10_M0.05_Rd200	[2025-10-07 02:26:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-10_M0.1_Rd10	[2025-10-07 02:51:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot3e-10_M0.1_Rd20	[2025-10-07 02:53:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot3e-10_M0.1_Rd50	[2025-10-07 06:00:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot3e-10_M0.1_Rd100	[2025-10-07 06:14:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot3e-10_M0.1_Rd150	[2025-10-07 06:19:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot3e-10_M0.1_Rd200	[2025-10-07 07:21:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot3e-10_M0.125_Rd10	[2025-10-07 08:17:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot3e-10_M0.125_Rd20	[2025-10-07 08:47:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot3e-10_M0.125_Rd50	[2025-10-07 10:31:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot3e-10_M0.125_Rd100	[2025-10-07 11:07:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot3e-10_M0.125_Rd150	[2025-10-07 11:38:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot3e-10_M0.125_Rd200	[2025-10-07 12:01:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot3e-10_M0.15_Rd10	[2025-10-07 12:08:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot3e-10_M0.15_Rd20	[2025-10-07 14:07:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot3e-10_M0.15_Rd50	[2025-10-07 15:13:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot3e-10_M0.15_Rd100	[2025-10-07 15:17:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot3e-10_M0.15_Rd150	[2025-10-07 16:12:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot3e-10_M0.15_Rd200	[2025-10-07 16:26:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-10_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot1e-9_M0.01_Rd10	[2025-10-07 18:00:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-9_M0.01_Rd20	[2025-10-07 18:44:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot1e-9_M0.01_Rd50	[2025-10-07 19:57:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot1e-9_M0.01_Rd100	[2025-10-07 20:23:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-9_M0.01_Rd150	[2025-10-07 20:40:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-9_M0.01_Rd200	[2025-10-07 20:48:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot1e-9_M0.05_Rd10	[2025-10-07 23:21:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-9_M0.05_Rd20	Skipping: 100_1e-09_0.05_20
+psi100_Mdot1e-9_M0.05_Rd50	Skipping: 100_1e-09_0.05_50
+psi100_Mdot1e-9_M0.05_Rd100	[2025-10-08 02:04:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-9_M0.05_Rd150	[2025-10-08 02:07:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-9_M0.05_Rd200	Skipping: 100_1e-09_0.05_200
+psi100_Mdot1e-9_M0.1_Rd10	[2025-10-08 02:49:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot1e-9_M0.1_Rd20	Skipping: 100_1e-09_0.1_20
+psi100_Mdot1e-9_M0.1_Rd50	[2025-10-08 03:00:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot1e-9_M0.1_Rd100	[2025-10-08 03:01:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot1e-9_M0.1_Rd150	[2025-10-08 03:16:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot1e-9_M0.1_Rd200	[2025-10-08 03:19:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot1e-9_M0.125_Rd10	[2025-10-08 07:23:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot1e-9_M0.125_Rd20	[2025-10-08 08:16:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot1e-9_M0.125_Rd50	[2025-10-08 09:37:35] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot1e-9_M0.125_Rd100	[2025-10-08 10:01:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot1e-9_M0.125_Rd150	[2025-10-08 10:37:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot1e-9_M0.125_Rd200	[2025-10-08 10:59:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot1e-9_M0.15_Rd10	[2025-10-08 11:26:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot1e-9_M0.15_Rd20	[2025-10-08 14:15:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot1e-9_M0.15_Rd50	[2025-10-08 14:28:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot1e-9_M0.15_Rd100	[2025-10-08 15:47:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot1e-9_M0.15_Rd150	[2025-10-08 17:21:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot1e-9_M0.15_Rd200	[2025-10-08 18:03:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-09_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot3e-9_M0.01_Rd10	[2025-10-08 18:55:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-9_M0.01_Rd20	[2025-10-08 19:01:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-9_M0.01_Rd50	[2025-10-08 20:14:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-9_M0.01_Rd100	[2025-10-08 21:14:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-9_M0.01_Rd150	[2025-10-08 22:51:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-9_M0.01_Rd200	[2025-10-08 23:23:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-9_M0.05_Rd10	[2025-10-09 00:57:19] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-9_M0.05_Rd20	[2025-10-09 01:37:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-9_M0.05_Rd50	[2025-10-09 01:37:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-9_M0.05_Rd100	[2025-10-09 01:44:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-9_M0.05_Rd150	[2025-10-09 01:46:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-9_M0.05_Rd200	[2025-10-09 02:31:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-9_M0.1_Rd10	[2025-10-09 03:16:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot3e-9_M0.1_Rd20	[2025-10-09 05:14:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot3e-9_M0.1_Rd50	[2025-10-09 10:21:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot3e-9_M0.1_Rd100	[2025-10-09 10:29:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot3e-9_M0.1_Rd150	[2025-10-09 10:43:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot3e-9_M0.1_Rd200	[2025-10-09 10:51:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot3e-9_M0.125_Rd10	[2025-10-09 10:55:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot3e-9_M0.125_Rd20	[2025-10-09 11:09:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot3e-9_M0.125_Rd50	[2025-10-09 14:57:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot3e-9_M0.125_Rd100	[2025-10-09 15:35:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot3e-9_M0.125_Rd150	[2025-10-09 20:55:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot3e-9_M0.125_Rd200	[2025-10-09 21:12:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot3e-9_M0.15_Rd10	[2025-10-09 21:27:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot3e-9_M0.15_Rd20	[2025-10-09 21:42:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot3e-9_M0.15_Rd50	[2025-10-09 21:56:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot3e-9_M0.15_Rd100	[2025-10-09 22:41:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot3e-9_M0.15_Rd150	[2025-10-10 02:16:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot3e-9_M0.15_Rd200	[2025-10-10 03:01:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-09_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot1e-8_M0.01_Rd10	[2025-10-10 07:42:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-8_M0.01_Rd20	[2025-10-10 08:01:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot1e-8_M0.01_Rd50	[2025-10-10 08:05:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot1e-8_M0.01_Rd100	[2025-10-10 09:11:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-8_M0.01_Rd150	[2025-10-10 10:01:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-8_M0.01_Rd200	[2025-10-10 11:46:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot1e-8_M0.05_Rd10	[2025-10-10 11:53:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-8_M0.05_Rd20	[2025-10-10 13:13:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot1e-8_M0.05_Rd50	[2025-10-10 13:46:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot1e-8_M0.05_Rd100	[2025-10-10 13:47:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-8_M0.05_Rd150	[2025-10-10 13:48:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-8_M0.05_Rd200	[2025-10-10 14:01:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot1e-8_M0.1_Rd10	[2025-10-10 15:29:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot1e-8_M0.1_Rd20	[2025-10-10 17:32:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot1e-8_M0.1_Rd50	[2025-10-10 18:09:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot1e-8_M0.1_Rd100	[2025-10-10 20:53:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot1e-8_M0.1_Rd150	[2025-10-10 22:33:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot1e-8_M0.1_Rd200	[2025-10-10 23:03:49] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot1e-8_M0.125_Rd10	[2025-10-11 00:04:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot1e-8_M0.125_Rd20	[2025-10-11 00:22:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot1e-8_M0.125_Rd50	[2025-10-11 02:52:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot1e-8_M0.125_Rd100	[2025-10-11 02:58:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot1e-8_M0.125_Rd150	[2025-10-11 07:23:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot1e-8_M0.125_Rd200	[2025-10-11 10:30:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot1e-8_M0.15_Rd10	[2025-10-11 11:24:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot1e-8_M0.15_Rd20	[2025-10-11 11:35:31] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot1e-8_M0.15_Rd50	[2025-10-11 12:06:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot1e-8_M0.15_Rd100	[2025-10-11 12:25:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot1e-8_M0.15_Rd150	[2025-10-11 13:41:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot1e-8_M0.15_Rd200	[2025-10-11 21:13:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot3e-8_M0.01_Rd10	[2025-10-11 21:22:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-8_M0.01_Rd20	[2025-10-11 21:55:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-8_M0.01_Rd50	[2025-10-11 22:08:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-8_M0.01_Rd100	[2025-10-12 00:58:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-8_M0.01_Rd150	[2025-10-12 02:59:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-8_M0.01_Rd200	[2025-10-12 03:15:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-8_M0.05_Rd10	[2025-10-12 04:14:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-8_M0.05_Rd20	[2025-10-12 04:29:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-8_M0.05_Rd50	[2025-10-12 06:02:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-8_M0.05_Rd100	[2025-10-12 06:28:28] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-8_M0.05_Rd150	[2025-10-12 07:58:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-8_M0.05_Rd200	[2025-10-12 09:00:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-8_M0.1_Rd10	[2025-10-12 09:09:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot3e-8_M0.1_Rd20	[2025-10-12 09:52:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot3e-8_M0.1_Rd50	[2025-10-12 11:17:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot3e-8_M0.1_Rd100	[2025-10-12 12:24:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot3e-8_M0.1_Rd150	[2025-10-12 12:55:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot3e-8_M0.1_Rd200	[2025-10-12 13:06:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot3e-8_M0.125_Rd10	[2025-10-12 13:55:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot3e-8_M0.125_Rd20	[2025-10-12 15:09:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot3e-8_M0.125_Rd50	[2025-10-12 16:24:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot3e-8_M0.125_Rd100	[2025-10-12 17:28:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot3e-8_M0.125_Rd150	[2025-10-12 20:00:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot3e-8_M0.125_Rd200	[2025-10-12 20:40:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot3e-8_M0.15_Rd10	[2025-10-12 20:45:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot3e-8_M0.15_Rd20	[2025-10-13 00:17:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot3e-8_M0.15_Rd50	[2025-10-13 00:57:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot3e-8_M0.15_Rd100	[2025-10-13 01:00:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot3e-8_M0.15_Rd150	[2025-10-13 01:28:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot3e-8_M0.15_Rd200	[2025-10-13 01:53:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot1e-7_M0.01_Rd10	[2025-10-13 06:46:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-7_M0.01_Rd20	[2025-10-13 07:11:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot1e-7_M0.01_Rd50	[2025-10-13 07:49:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot1e-7_M0.01_Rd100	[2025-10-13 07:51:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-7_M0.01_Rd150	[2025-10-13 09:20:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-7_M0.01_Rd200	[2025-10-13 10:14:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot1e-7_M0.05_Rd10	[2025-10-13 11:48:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot1e-7_M0.05_Rd20	[2025-10-13 13:01:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot1e-7_M0.05_Rd50	[2025-10-13 15:46:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot1e-7_M0.05_Rd100	[2025-10-13 15:52:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot1e-7_M0.05_Rd150	[2025-10-13 22:08:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot1e-7_M0.05_Rd200	[2025-10-13 22:09:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot1e-7_M0.1_Rd10	[2025-10-14 01:09:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot1e-7_M0.1_Rd20	[2025-10-14 02:33:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot1e-7_M0.1_Rd50	[2025-10-14 02:36:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot1e-7_M0.1_Rd100	[2025-10-14 03:33:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot1e-7_M0.1_Rd150	[2025-10-14 06:14:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot1e-7_M0.1_Rd200	[2025-10-14 06:52:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot1e-7_M0.125_Rd10	[2025-10-14 09:08:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot1e-7_M0.125_Rd20	[2025-10-14 10:38:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot1e-7_M0.125_Rd50	[2025-10-14 11:26:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot1e-7_M0.125_Rd100	[2025-10-14 12:57:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot1e-7_M0.125_Rd150	[2025-10-14 15:35:28] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot1e-7_M0.125_Rd200	[2025-10-14 19:02:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot1e-7_M0.15_Rd10	[2025-10-14 20:55:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot1e-7_M0.15_Rd20	[2025-10-14 23:35:15] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot1e-7_M0.15_Rd50	[2025-10-15 00:33:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot1e-7_M0.15_Rd100	[2025-10-15 03:05:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot1e-7_M0.15_Rd150	[2025-10-15 03:46:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot1e-7_M0.15_Rd200	[2025-10-15 06:16:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot1.0e-07_M1.5e-01_Rd2.0e+02.h5
+psi100_Mdot3e-7_M0.01_Rd10	[2025-10-15 07:31:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-7_M0.01_Rd20	[2025-10-15 08:38:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-7_M0.01_Rd50	[2025-10-15 09:17:03] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-7_M0.01_Rd100	[2025-10-15 09:26:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-7_M0.01_Rd150	[2025-10-15 09:26:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-7_M0.01_Rd200	[2025-10-15 09:26:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-7_M0.05_Rd10	[2025-10-15 09:26:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd1.0e+01.h5
+psi100_Mdot3e-7_M0.05_Rd20	[2025-10-15 10:55:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi100_Mdot3e-7_M0.05_Rd50	[2025-10-15 11:33:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi100_Mdot3e-7_M0.05_Rd100	[2025-10-15 11:34:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi100_Mdot3e-7_M0.05_Rd150	[2025-10-15 11:34:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi100_Mdot3e-7_M0.05_Rd200	[2025-10-15 13:00:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi100_Mdot3e-7_M0.1_Rd10	[2025-10-15 15:37:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd1.0e+01.h5
+psi100_Mdot3e-7_M0.1_Rd20	[2025-10-15 16:13:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi100_Mdot3e-7_M0.1_Rd50	[2025-10-15 16:50:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi100_Mdot3e-7_M0.1_Rd100	[2025-10-15 17:56:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi100_Mdot3e-7_M0.1_Rd150	[2025-10-15 18:03:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi100_Mdot3e-7_M0.1_Rd200	[2025-10-15 18:23:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi100_Mdot3e-7_M0.125_Rd10	[2025-10-15 21:47:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd1.0e+01.h5
+psi100_Mdot3e-7_M0.125_Rd20	[2025-10-15 22:32:19] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi100_Mdot3e-7_M0.125_Rd50	[2025-10-15 23:23:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi100_Mdot3e-7_M0.125_Rd100	[2025-10-16 01:14:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi100_Mdot3e-7_M0.125_Rd150	[2025-10-16 03:06:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi100_Mdot3e-7_M0.125_Rd200	[2025-10-16 04:56:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi100_Mdot3e-7_M0.15_Rd10	[2025-10-16 05:05:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd1.0e+01.h5
+psi100_Mdot3e-7_M0.15_Rd20	[2025-10-16 06:06:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi100_Mdot3e-7_M0.15_Rd50	[2025-10-16 06:28:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi100_Mdot3e-7_M0.15_Rd100	[2025-10-16 08:00:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi100_Mdot3e-7_M0.15_Rd150	[2025-10-16 08:20:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi100_Mdot3e-7_M0.15_Rd200	[2025-10-16 10:32:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/winds_mig_psi100.0_Mdot3.0e-07_M1.5e-01_Rd2.0e+02.h5

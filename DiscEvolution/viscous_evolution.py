@@ -157,8 +157,8 @@ class ViscousEvolution(object):
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
             Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
             Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
-        
+            Dust_Frac_New = np.concatenate((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
+
             if disc.chem:
                 # update dust/gas fractions stored in chemisry accordingly
                 disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
@@ -321,8 +321,8 @@ class ViscousEvolutionFV(object):
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
             Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
             Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
-        
+            Dust_Frac_New = np.concatenate((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
+
             if disc.chem:
                 # update dust/gas fractions stored in chemisry accordingly
                 disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
@@ -515,8 +515,8 @@ class HybridWindModel(object):
             Sigma_G_new = Sigma_G_old*Sigma_temp/disc.Sigma
             Sigma_new = Sigma_G_new + Sigma_D_new.sum(0) + disc.Sigma_D[2]
             Sigma_new = np.where(Sigma_new < 0, 1e-300, Sigma_new)
-            Dust_Frac_New = np.concat((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
-        
+            Dust_Frac_New = np.concatenate((Sigma_D_new / Sigma_new, [disc.Sigma_D[2] / Sigma_new]),axis=0)
+
             if disc.chem:
                 # update dust/gas fractions stored in chemisry accordingly
                 disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
