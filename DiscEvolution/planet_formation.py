@@ -179,6 +179,7 @@ class GasAccretion(object):
 
         Sig = disc.interp(Rp, disc.Sigma_G)
         H   = disc.interp(Rp, disc.H)
+        nu  = self._disc.interp(Rp, self._disc.nu)
 
         Om_k = star.Omega_k(Rp)
         
