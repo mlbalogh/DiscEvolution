@@ -12,9 +12,9 @@ RD_VALUES="10 20 50 100 150 200"
 NPROC=8
 DRYRUN=0
 
-COMPLETED_FILE="completed.txt"
+COMPLETED_FILE="completed_disks.txt"
 LOGDIR="logs"
-OUTDIR="/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper"
+OUTDIR="/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Disks"
 
 export DRYRUN LOGDIR OUTDIR COMPLETED_FILE
 # Read completed.txt into a Bash associative array
@@ -49,8 +49,8 @@ parallel -j "$JOBS" --lb --tagstring 'psi{1}_Mdot{2}_M{3}_Rd{4}' '
     else
       echo "[`date +%F" "%T`] Launching: $OUTFILE"
       python3 run_model_stream.py --psi_DW "$psi" --Mdot "$mdot" --M "$M" --Rd "$Rd" \
-        > "$LOGDIR/psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
-        2> "$LOGDIR/psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"
+        > "$LOGDIR/disk_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
+        2> "$LOGDIR/disk_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"
     fi
   fi
 ' ::: $PSI_VALUES ::: $MDOT_VALUES ::: $M_VALUES ::: $RD_VALUES
