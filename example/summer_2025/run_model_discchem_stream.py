@@ -2,8 +2,8 @@ import os
 import json
 import sys
 # Add the path to the DiscEvolution directory
-sys.path.append(os.path.abspath(os.path.join('..')) + '/')
-sys.path.append('Insert/Path/to/DiscEvolution')
+#sys.path.append(os.path.abspath(os.path.join('..')) + '/')
+#sys.path.append('Insert/Path/to/DiscEvolution')
 
 import numpy as np
 import matplotlib.pyplot as plt
@@ -32,125 +32,6 @@ plt.rcParams.update({'font.size': 16})
 
 #### specify separate temperature 
 ### initial accreation rate: 2pi r sigma radial velocity at bin 0.
-
-def load_visc_data(fname):
-    """
-    Load viscous disc evolution output file.
-    Supports JSON, old HDF5 (single dump / ragged), and new HDF5 (streaming).
-    Returns dict in JSON-equivalent format with consistent shapes.
-    """
-
-    # ---------------- JSON ----------------
-    if fname.endswith(".json"):
-        with open(fname, "r") as f:
-            data = json.load(f)
-    else:
-        # ---------------- HDF5 ----------------
-        with h5py.File(fname, "r") as f:
-            data = {}
-
-            # Scalars
-            for key in ["t", "disk_Mdot_star", "disk_Mass", "Tc", "Sigc"]:
-                if key in f:
-                    data[key] = f[key][()].tolist()
-            data["alpha_SS"] = f.attrs.get("alpha_SS", None)
-
-            # Helper for ragged vs extendable vs single-dump
-            def read_array(obj):
-                if isinstance(obj, h5py.Dataset):       # dataset directly
-                    arr = obj[()]
-                    if np.ndim(arr) == 0:   # scalar
-                        return [float(arr)]
-                    return np.array(arr).tolist()
-                elif isinstance(obj, h5py.Group):       # ragged group
-                    vals = [obj[k][()] for k in sorted(obj.keys(), key=int)]
-                    return [float(v) for v in vals]
-                else:
-                    raise TypeError(f"Unexpected type {type(obj)}")
-
-            # ---------------- Per-planet arrays ----------------
-            data["Mcs"], data["Mes"], data["Rp"], data["disk_Mdot_p"] = [], [], [], []
-
-            if isinstance(f.get("Mcs"), h5py.Dataset):
-                # Single dataset case
-                arr = np.array(f["Mcs"])
-                data["Mcs"] = [row.tolist() if arr.ndim > 1 else [float(x)] for row in np.atleast_2d(arr)]
-            else:
-                for ip in sorted(f["Mcs"].keys(), key=int):
-                    data["Mcs"].append(read_array(f["Mcs"][ip]))
-
-            if isinstance(f.get("Mes"), h5py.Dataset):
-                arr = np.array(f["Mes"])
-                data["Mes"] = [row.tolist() if arr.ndim > 1 else [float(x)] for row in np.atleast_2d(arr)]
-            else:
-                for ip in sorted(f["Mes"].keys(), key=int):
-                    data["Mes"].append(read_array(f["Mes"][ip]))
-
-            if isinstance(f.get("Rp"), h5py.Dataset):
-                arr = np.array(f["Rp"])
-                data["Rp"] = [row.tolist() if arr.ndim > 1 else [float(x)] for row in np.atleast_2d(arr)]
-            else:
-                for ip in sorted(f["Rp"].keys(), key=int):
-                    data["Rp"].append(read_array(f["Rp"][ip]))
-
-            if isinstance(f.get("disk_Mdot_p"), h5py.Dataset):
-                arr = np.array(f["disk_Mdot_p"])
-                data["disk_Mdot_p"] = [row.tolist() if arr.ndim > 1 else [float(x)] for row in np.atleast_2d(arr)]
-            else:
-                for ip in sorted(f["disk_Mdot_p"].keys(), key=int):
-                    data["disk_Mdot_p"].append(read_array(f["disk_Mdot_p"][ip]))
-
-            # ---------------- Chemistry ----------------
-            data["X_cores"], data["X_envs"] = [], []
-            if "X_cores" in f:
-                if isinstance(f["X_cores"], h5py.Dataset):
-                    # Single dataset case — probably shaped (nplanets, nspecies, nsteps?)
-                    arr_core = np.array(f["X_cores"])
-                    arr_env  = np.array(f["X_envs"])
-                    nplanets = arr_core.shape[0]
-                    for ip in range(nplanets):
-                        core_species = [arr_core[ip, js, :].tolist() for js in range(arr_core.shape[1])]
-                        env_species  = [arr_env[ip, js, :].tolist()  for js in range(arr_env.shape[1])]
-                        data["X_cores"].append(core_species)
-                        data["X_envs"].append(env_species)
-                else:
-                    # Group → streaming or ragged format
-                    for ip in sorted(f["X_cores"].keys(), key=int):
-                        core_species = []
-                        env_species  = []
-                        for js in sorted(f["X_cores"][ip].keys(), key=int):
-                            core_species.append(read_array(f["X_cores"][ip][js]))
-                        for js in sorted(f["X_envs"][ip].keys(), key=int):
-                            env_species.append(read_array(f["X_envs"][ip][js]))
-                        data["X_cores"].append(core_species)
-                        data["X_envs"].append(env_species)
-
-
-            # ---------------- Disk profiles ----------------
-            if "R" in f:
-                data["R"] = f["R"][:].tolist()
-            else:
-                nR = f["Sigma_G"].shape[1]
-                data["R"] = list(range(nR))  # placeholder if R not saved
-
-            for key in ["Sigma_G", "Sigma_dust", "Sigma_pebbles", "T"]:
-                if key in f:
-                    data[key] = f[key][:].tolist()
-            if "Sigma_planetesimals" in f:
-                data["Sigma_planetesimals"] = f["Sigma_planetesimals"][:].tolist()
-
-    # ---------------- Normalize shapes ----------------
-    data["R"] = np.array(data["R"], dtype=float).squeeze()  # always (nR,)
-
-    for key in ["Sigma_G", "Sigma_dust", "Sigma_pebbles", "Sigma_planetesimals", "T"]:
-        if key in data:
-            arr = np.array(data[key], dtype=float)
-            arr = np.atleast_2d(arr)          # (nsnapshots, nR)
-            if arr.ndim == 3 and arr.shape[1] == 1:
-                arr = arr[:, 0, :]           # squeeze accidental middle dim
-            data[key] = arr
-
-    return data
 
 
 def run_model(config):
@@ -767,7 +648,7 @@ def run_model(config):
         print("Running model.  Alpha, Rd, Mdisk=", eos.alpha, Rd, disc.Mtot()/Msun)
 
         # Output filename (HDF5)
-        outfile = f"/Users/mbalogh/projects/PlanetFormation/python/output/HJpaper/Disks/" \
+        outfile = f"/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Disks/" \
                 f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
 
         with h5py.File(outfile, "w") as h5f:
@@ -1023,63 +904,7 @@ def run_model(config):
             h5f.attrs["complete"] = True
 
     
-    # ---- Plotting identical to your original code ----
-    # if not alpha_SS > 5e-3:
-    #     # -------- Figure generation (reuse universal loader) --------
-    #     visc_data = load_visc_data(outfile)
-
-    #     # unpack like your notebook expects
-    #     time_keeper      = np.array(visc_data["t"])              # years
-    #     disk_Mdot_star   = visc_data["disk_Mdot_star"]
-    #     disk_Mass        = visc_data["disk_Mass"]
-    #     Tc               = visc_data["Tc"]
-    #     Sigc             = visc_data["Sigc"]
-    #     Mcs              = visc_data["Mcs"]
-    #     Mes              = visc_data["Mes"]
-    #     Rs               = visc_data["Rp"]
-    #     disk_Mdot_p      = visc_data["disk_Mdot_p"]
-    #     X_cores          = visc_data["X_cores"]
-    #     X_envs           = visc_data["X_envs"]
-    #     alpha_SS         = visc_data["alpha_SS"]
     
-    #     max_CO = 0
-    #     for planet_count, planet_ice_chem in enumerate(X_cores):
-    #         planetary_mol_abund = SimpleCOMolAbund(len(X_cores[0][0]))
-    #         planetary_mol_abund.data[:] = (np.array(planet_ice_chem)*np.array(Mcs[planet_count]) +
-    #                                        np.array(X_envs[planet_count])*np.array(Mes[planet_count]))/planets.M[planet_count]
-    #         planetary_atom_abund = planetary_mol_abund.atomic_abundance()
-    #         planetary_CO = planetary_atom_abund.number_abund("C")/planetary_atom_abund.number_abund("O")
-    #         planetary_CO = np.nan_to_num(planetary_CO)
-
-    #         if max_CO < planetary_CO.max():
-    #             max_CO = planetary_CO.max()
-    #         C_O_solar = disc.interp(planets[planet_count].R, X_solar.number_abund("C"))/disc.interp(planets[planet_count].R, X_solar.number_abund("O"))
-    #         axes[0].semilogx(time_keeper, planetary_CO, color=colors[planet_count], label=f"{Rs[planet_count][0]:.0f} AU")
-
-    #         axes[2].set_prop_cycle(cycler(color=[cm2(planetary_CO[i]/max_CO) for i in range(len(planetary_CO)-1)]))
-    #         for i in range(len(planetary_CO)-1):
-    #             axes[2].loglog(Rs[planet_count][i:i+2],
-    #                            np.array(Mcs[planet_count][i:i+2])+np.array(Mes[planet_count][i:i+2]))
-
-    #     axes[0].set_xlabel("Time (yr)")
-    #     axes[0].legend(loc="lower right")
-    #     axes[0].set_ylabel("[C/O]")
-    #     axes[0].set_title("C/O of planets over time")
-
-    #     axes[2].set_xlabel("Radius [AU]")
-    #     axes[2].set_ylabel("Earth Masses")
-    #     axes[2].set_title("Planet Growth Tracks")
-    #     axes[2].set_xlim(1e-1, 500)
-
-    #     plt.tight_layout()
-
-    #     sm = plt.cm.ScalarMappable(cmap=cm2, norm=plt.Normalize(vmin=0, vmax=max_CO))
-    #     cax = fig.add_axes([-0.1, 0, 0.05, 1])
-    #     fig.colorbar(sm, cax=cax)
-
-    #     fig.savefig(f"Figs/winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.png",
-    #                 bbox_inches='tight')
-    #     plt.close(fig)
 
 if __name__ == "__main__":
     import argparse

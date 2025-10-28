@@ -3,10 +3,11 @@
 set -euo pipefail
 
 
-PSI_VALUES="0.01 100"
+PSI_VALUES="0.01"
 MDOT_VALUES="1e-10 3e-10 1e-9 3e-9 1e-8 3e-8 1e-7 3e-7"
-M_VALUES="0.01 0.05 0.1 0.125 0.15"
+M_VALUES="0.05 0.1 0.125 0.15"
 RD_VALUES="10 20 50 100 150 200"
+
 
 
 NPROC=8
@@ -23,7 +24,7 @@ while IFS=$'\t' read -r psi mdot M Rd rest; do
     [[ "$psi" == "psi" ]] && continue  # skip header
     key="$(printf "%.6g_%.6g_%.6g_%.6g" "$psi" "$mdot" "$M" "$Rd")"
     DONE["$key"]=1
-done < completed.txt
+done < completed_disk.txt
 
 # Export the associative array so subshells see it
 export LOGDIR OUTDIR DRYRUN
@@ -48,7 +49,7 @@ parallel -j "$JOBS" --lb --tagstring 'psi{1}_Mdot{2}_M{3}_Rd{4}' '
       echo "[`date +%F" "%T`] Would launch: $OUTFILE"
     else
       echo "[`date +%F" "%T`] Launching: $OUTFILE"
-      python3 run_model_stream.py --psi_DW "$psi" --Mdot "$mdot" --M "$M" --Rd "$Rd" \
+      python3 run_model_discchem_stream.py --psi_DW "$psi" --Mdot "$mdot" --M "$M" --Rd "$Rd" \
         > "$LOGDIR/disk_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
         2> "$LOGDIR/disk_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"
     fi
