@@ -363,7 +363,9 @@ class DustGrowthTwoPop(DustyDisc):
         
     def _frag_limit(self):
         """Maximum particle size before fragmentation kicks in"""
-        alpha = self.alpha/self.Sc
+        #alpha = self.alpha/self.Sc
+        # MLB Oct 30, 2025:  Corrected to self._eos._alpha_t from self.alpha
+        alpha=self._eos._alpha_t/self.Sc
         af = (self.Sigma_G/(self._rho_s*alpha)) * (self._uf/self.cs)**2
         return self._ffrag * af
 
@@ -373,7 +375,9 @@ class DustGrowthTwoPop(DustyDisc):
         if eps_tot is None:
             eps_tot = self.dust_frac.sum(0)
 
-        alpha = self.alpha/self.Sc
+        # MLB Oct 30, 2025:  Corrected to self._eos._alpha_t from self.alpha
+        #alpha = self.alpha/self.Sc
+        alpha=self._eos._alpha_t/self.Sc
 
         a0  = 8 * self.Sigma / (np.pi * self._rho_s) * self.Re**-0.25
         a0 *= np.sqrt(self.mu*m_H/(self._rho_s*alpha)) / (2*np.pi)
@@ -400,7 +404,9 @@ class DustGrowthTwoPop(DustyDisc):
             
         # Radial drift time-scale limit
         h = self.H / self.R
-        ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
+        #ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
+        # MLB Oct 31: correction to be consistent with Drazkowska growth rate.
+        ad = ad * (self._eos._alpha_t/self.R)**(1./3.)
 
         # Radial drift-driven fragmentation:
         cs = self.cs
