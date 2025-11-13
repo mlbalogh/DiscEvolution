@@ -168,7 +168,7 @@ class DustyDisc(AccretionDisc):
         try:
             return self._v_drift
         except:
-            return np.zeros((3, len(self.Sigma)))
+            return np.zeros((2, len(self.Sigma)))
     
     @property
     def M_cr(self):
@@ -363,7 +363,9 @@ class DustGrowthTwoPop(DustyDisc):
         
     def _frag_limit(self):
         """Maximum particle size before fragmentation kicks in"""
-        alpha = self.alpha/self.Sc
+        #alpha = self.alpha/self.Sc
+        # MLB Oct 30, 2025:  Corrected to self._eos._alpha_t from self.alpha
+        alpha=self._eos._alpha_t/self.Sc
         af = (self.Sigma_G/(self._rho_s*alpha)) * (self._uf/self.cs)**2
         return self._ffrag * af
 
@@ -373,7 +375,9 @@ class DustGrowthTwoPop(DustyDisc):
         if eps_tot is None:
             eps_tot = self.dust_frac.sum(0)
 
-        alpha = self.alpha/self.Sc
+        # MLB Oct 30, 2025:  Corrected to self._eos._alpha_t from self.alpha
+        # alpha = self.alpha/self.Sc
+        alpha=self._eos._alpha_t/self.Sc
 
         a0  = 8 * self.Sigma / (np.pi * self._rho_s) * self.Re**-0.25
         a0 *= np.sqrt(self.mu*m_H/(self._rho_s*alpha)) / (2*np.pi)
@@ -390,7 +394,15 @@ class DustGrowthTwoPop(DustyDisc):
         gamma *= R/(P+1e-300)
 
         return gamma
-        
+    # MLB proposed replacement for _gammaP.  Oct 30, 2025
+    # def _gammaP(self):
+    #     """Dimensionless pressure gradient (smoothed with np.gradient)"""
+    #     P = self.P
+    #     R = self.R
+    #     dP_dR = np.gradient(P, R)     # central difference inside, one-sided at edges
+    #     gamma = np.abs(dP_dR) * R / (P + 1e-300)
+    #     return gamma
+
     def _drift_limit(self, eps_tot):
         """Maximum size due to drift limit or drift driven fragmentation"""
         gamma = self._gammaP()
@@ -401,6 +413,8 @@ class DustGrowthTwoPop(DustyDisc):
         # Radial drift time-scale limit
         h = self.H / self.R
         ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
+        # MLB Oct 31: correction to be consistent with Drazkowska growth rate.
+        ad = ad * (self._eos._alpha_t/self.R)**(1./3.)
 
         # Radial drift-driven fragmentation:
         cs = self.cs
@@ -410,9 +424,10 @@ class DustGrowthTwoPop(DustyDisc):
         return ad, af
 
     def _t_grow(self, eps=None):
+        # Booth:
+        #return 1 / (self.Omega_k * eps)
         "Slightly more realistic growth time-scale from Drazkowska et. al (2021)."
         Sigma_dust=self.Sigma_D[0]+self.Sigma_D[1]
-        #return (self.Sigma_G/(self.Sigma_D[1]*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
         return (self.Sigma_G/(Sigma_dust*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
 
     def do_grain_growth(self, dt):
@@ -428,6 +443,8 @@ class DustGrowthTwoPop(DustyDisc):
         
         afrag = np.minimum(afrag_t, afrag_d)
         a0    = np.minimum(afrag, adrift)       # a0 is the lower of the maximum sizes
+        # MLB testing
+        #a0=adrift
 
         # Update the particle distribution
         #   Maximum size due to growth:
@@ -548,7 +565,55 @@ class PlanetesimalFormation(object):
     def _compute_planetesimal_mass(self, disc):
         """Compute the mass of a planetesimal."""
         disc._M_planetesimal = 4/3 * np.pi * (self._R_planetesimal ** 3) * self._rhos
+
     
+
+    def smooth_v(self, v, R, s_factor=1e-2):
+        from scipy.interpolate import UnivariateSpline
+
+        """
+        Smooth v(R) using a cubic smoothing spline.
+        The smoothing parameter s controls how much noise is removed.
+
+        Parameters
+        ----------
+        v : ndarray
+            Quantity to smooth.
+        R : ndarray
+            Radial grid (monotonic, can be nonuniform).
+        s_factor : float
+            Fraction of total variance to use as smoothing strength.
+            Increase for stronger smoothing (e.g. 1e-1); decrease for finer detail.
+
+        Returns
+        -------
+        v_smooth : ndarray
+            Smoothed version of v.
+        """
+        # Scale s by total number of points and variance for consistent behaviour
+        s = s_factor * len(R) * np.var(v)
+        spline = UnivariateSpline(R, v, s=s)
+        return spline(R)
+
+    def g_smooth_v(self, v, R, N=3, logspace=False):
+        from scipy.ndimage import gaussian_filter1d
+        """
+        Fast Gaussian smoothing of v over ~N grid cells.
+        Works best if R is monotonic and spacing is nearly uniform.
+        """
+        if logspace:
+            x = np.log(R)
+        else:
+            x = R
+
+        # Estimate pixel spacing for normalization
+        dx = np.median(np.diff(x))
+        sigma = N * dx / dx   # just N, kept explicit for clarity
+
+        # Use reflect mode to avoid edge artifacts
+        return gaussian_filter1d(v, sigma=N, mode='reflect')
+
+
     def compute_M_peb(self, v_drift, disc):
         """
         Compute the mass flux of pebbles.
@@ -568,12 +633,16 @@ class PlanetesimalFormation(object):
         St_0 = St[0]    # grains
         St_1 = St[1]    # pebbles
         
+        # Test if smoothing helps
         v_drift_0 = np.insert(v_drift[0], 0, 0)
         v_drift_1 = np.insert(v_drift[1], 0, 0)
         #v_drift_2 = np.insert(v_drift[2], 0, 0) # planetesimals don't move, not needed.
         
         v_drift_0[np.isnan(v_drift_0)] = 0
         v_drift_1[np.isnan(v_drift_1)] = 0
+
+        v_drift_0_smooth = self.g_smooth_v(v_drift_0, disc.R,N=10)
+        v_drift_1_smooth = self.g_smooth_v(v_drift_1, disc.R,N=10)
         #v_drift_2[np.isnan(v_drift_2)] = 0
         
         # Heaviside functions
@@ -586,11 +655,11 @@ class PlanetesimalFormation(object):
         else:
             theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
             theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
+        f1=2 * np.pi * disc.R * np.abs(v_drift_0) * Sigma_d[0] * theta_St_max_0 * theta_St_min_0
+        f2=2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1
+        disc._M_peb.append(f1)
+        disc._M_peb.append(f2)
 
-        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_0) * Sigma_d[0] * theta_St_max_0 * theta_St_min_0)
-        disc._M_peb.append(2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1)
-        disc._M_peb = np.array(disc._M_peb)
-        
         disc._v_drift = np.array([v_drift_0, v_drift_1])
 
     def is_flux_critical(self, disc):
@@ -876,7 +945,7 @@ class SingleFluidDrift(object):
         Parameters:
             disc: The disc object containing relevant properties.
             pla_eff: The planetesimal efficiency.
-            d: The particle size.
+            d: The distance between vortices.
             M_peb: The pebble mass flux.
         
         Returns:

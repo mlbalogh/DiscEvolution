@@ -183,8 +183,7 @@ if __name__ == "__main__":
 
     plt.subplot(121)
     plt.title("Zhu2012")
-    plt.pcolormesh(rho, T, Zhu2012(rho, T), norm=LogNorm(),
-                   vmax=vmax, vmin=vmin)
+    plt.pcolormesh(rho, T, Zhu2012(rho, T), norm=LogNorm(vmax=vmax, vmin=vmin))
     plt.colorbar(label='opacity [cm$^2$ g$^{-1}$]')
     plt.xlabel(r'density')
     plt.ylabel('T')
@@ -194,8 +193,7 @@ if __name__ == "__main__":
 
     plt.subplot(122)
     plt.title("Tazzari2016")   
-    plt.pcolormesh(amax, T, Tazzari2016()(1., T, amax), norm=LogNorm(),
-                   vmax=vmax, vmin=vmin)
+    plt.pcolormesh(amax, T, Tazzari2016()(1., T, amax), norm=LogNorm(vmax=vmax, vmin=vmin))
     plt.colorbar(label='opacity [cm$^2$ g$^{-1}$]')
     plt.xlabel('amax')
     plt.ylabel('T')
@@ -214,6 +212,12 @@ if __name__ == "__main__":
 
     plt.loglog(T, Zhu2012(rho, T, amax), 'k', label='Zhu2012')
     plt.loglog(T, Tazzari2016()(rho, T, amax), 'k--', label='Tazzari2016')
+    # a = np.logspace(-2,1,1000)
+    # plt.loglog(a, Tazzari2016()(rho, 10., a), 'k--', label='Tazzari2016')
+    # plt.loglog(a, Tazzari2016()(rho, 100., a), 'k--')
+    # plt.loglog(a, Tazzari2016()(rho, 300., a), 'k--')
+    # plt.loglog(a, Tazzari2016()(rho, 500., a), 'k--')
+    # plt.loglog(a, Tazzari2016()(rho, 1000., a), 'k--')
 
     plt.legend()
     plt.xlabel(r'$T$ [K]')

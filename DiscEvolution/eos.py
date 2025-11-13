@@ -393,7 +393,7 @@ class IrradiatedEOS(EOS_Table):
             # If psi > 0, includes heating from disk winds based off and 
             # derived from the model proposed by Suzuki et. al (2018, 
             #  doi:10.1051/0004-6361/201628955).
-            visc_heat = self._e_rad*1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)
+            visc_heat = self._e_rad*1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)         
             dEdt += visc_heat*(0.375*tau*Sigma + 1./kappa)
             
             # Prevent heating above the temperature cap:

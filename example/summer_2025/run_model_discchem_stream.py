@@ -22,7 +22,7 @@ from DiscEvolution.dust import *
 from DiscEvolution.dust import PlanetesimalFormation
 from DiscEvolution.planet_formation import *
 from DiscEvolution.diffusion import TracerDiffusion
-from DiscEvolution.opacity import Tazzari2016
+from DiscEvolution.opacity import Tazzari2016, Zhu2012
 from DiscEvolution.chemistry import *
 from copy import deepcopy
 
@@ -648,8 +648,8 @@ def run_model(config):
         print("Running model.  Alpha, Rd, Mdisk=", eos.alpha, Rd, disc.Mtot()/Msun)
 
         # Output filename (HDF5)
-        outfile = f"/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Disks/" \
-                f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
+        outfile = f"/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/" \
+                f"noplan_winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
 
         with h5py.File(outfile, "w") as h5f:
 
@@ -694,6 +694,8 @@ def run_model(config):
             h5f.create_dataset("Sigma_G", shape=(0, nR), maxshape=(None, nR), dtype="f8")
             h5f.create_dataset("Sigma_dust", shape=(0, nR), maxshape=(None, nR), dtype="f8")
             h5f.create_dataset("Sigma_pebbles", shape=(0, nR), maxshape=(None, nR), dtype="f8")
+            h5f.create_dataset("Vdrift", shape=(0, 2, nR), maxshape=(None, 2, nR), dtype="f8")
+            h5f.create_dataset("Sigma_pebble_size", shape=(0, nR), maxshape=(None, nR), dtype="f8")
             h5f.create_dataset("disk_atom_gas_abund", shape=(0, Natom, nR), maxshape=(None, Natom, nR), dtype="f8")
             h5f.create_dataset("disk_mol_gas_abund", shape=(0, Nmol, nR), maxshape=(None, Nmol, nR), dtype="f8")
             h5f.create_dataset("disk_atom_ice_abund", shape=(0, Natom, nR), maxshape=(None, Natom, nR), dtype="f8")
@@ -743,21 +745,30 @@ def run_model(config):
                                 d.resize(1, axis=0)
                                 d[0] = env
                 # Disk profiles
+
                 for name, arr in [
                     ("Sigma_G", disc.Sigma_G),
                     ("Sigma_dust", disc.Sigma_D[0]),
                     ("Sigma_pebbles", disc.Sigma_D[1]),
+                    ("Sigma_pebble_size", disc.grain_size[1]),
                     ("T", disc.T),
+                    ("Vdrift", disc.v_drift),
                     ("disk_atom_gas_abund", disc.chem.gas.atomic_abundance().data if chemistry_params["on"] else np.zeros((Natom, nR))),
                     ("disk_mol_gas_abund", disc.chem.gas.data if chemistry_params["on"] else np.zeros((Nmol, nR))),
                     ("disk_atom_ice_abund", disc.chem.ice.atomic_abundance().data if chemistry_params["on"] else np.zeros((Natom, nR))),
                     ("disk_mol_ice_abund", disc.chem.ice.data if chemistry_params["on"] else np.zeros((Nmol, nR))),
-                    ("disk_planetesimal_atom_abund", disc._planetesimal.ice_abund.atomic_abundance().data if chemistry_params["on"] else np.zeros((Natom, nR))),
-                    ("disk_planetesimal_mol_abund", disc._planetesimal.ice_abund.data if chemistry_params["on"] else np.zeros((Nmol, nR))),
-                ]:
+                                    ]:
                     d = h5f[name]
                     d.resize(1, axis=0)
                     d[0, :] = arr
+                if config["planetesimal"]["active"]:
+                    for name, arr in [
+                        ("disk_planetesimal_atom_abund", disc._planetesimal.ice_abund.atomic_abundance().data if chemistry_params["on"] else np.zeros((Natom, nR))),
+                        ("disk_planetesimal_mol_abund", disc._planetesimal.ice_abund.data if chemistry_params["on"] else np.zeros((Nmol, nR))),
+                        ]:
+                        d = h5f[name]
+                        d.resize(1, axis=0)
+                        d[0, :] = arr
                 if config["planetesimal"]["active"]:
                     d = h5f["Sigma_planetesimals"]
                     d.resize(1, axis=0)
@@ -828,10 +839,12 @@ def run_model(config):
                         disc.update_ices(disc.chem.ice)
                         atom_abund_ice = disc.chem.ice.atomic_abundance()
                         atom_abund_gas = disc.chem.gas.atomic_abundance()
-                        atom_abund_planetesimal = disc._planetesimal.ice_abund.atomic_abundance() 
+                        
                         mol_abund_ice = disc.chem.ice
                         mol_abund_gas = disc.chem.gas
-                        mol_abund_planetesimal = disc._planetesimal.ice_abund 
+                        if disc._planetesimal and chemistry_params["on"]:
+                            atom_abund_planetesimal = disc._planetesimal.ice_abund.atomic_abundance() 
+                            mol_abund_planetesimal = disc._planetesimal.ice_abund 
 
                     if planet_params['include_planets']:
                         planet_model.integrate(dt, planets)
@@ -881,22 +894,26 @@ def run_model(config):
                                     d[-1] = env
 
                 # --- after while loop, once per ti: snapshot disk profiles ---
+
                 s = h5f["Sigma_G"].shape[0]
                 h5f["time_snap"].resize(s + 1, axis=0);             h5f["time_snap"][s]      = t / (2*np.pi*1e6)  # Myr
                 h5f["Sigma_G"].resize(s + 1, axis=0);               h5f["Sigma_G"][s, :]     = disc.Sigma_G
                 h5f["Sigma_dust"].resize(s + 1, axis=0);            h5f["Sigma_dust"][s, :]  = disc.Sigma_D[0]
                 h5f["Sigma_pebbles"].resize(s + 1, axis=0);         h5f["Sigma_pebbles"][s,:]= disc.Sigma_D[1]
+                h5f["Sigma_pebble_size"].resize(s + 1, axis=0);     h5f["Sigma_pebble_size"][s,:] = disc.grain_size[1]
                 if chemistry_params["on"]:
                     h5f["disk_atom_gas_abund"].resize(s + 1, axis=0);  h5f["disk_atom_gas_abund"][s, :, :] = disc.chem.gas.atomic_abundance().data
                     h5f["disk_mol_gas_abund"].resize(s + 1, axis=0);   h5f["disk_mol_gas_abund"][s, :, :]  = disc.chem.gas.data
                     h5f["disk_atom_ice_abund"].resize(s + 1, axis=0);  h5f["disk_atom_ice_abund"][s, :, :] = disc.chem.ice.atomic_abundance().data
                     h5f["disk_mol_ice_abund"].resize(s + 1, axis=0);   h5f["disk_mol_ice_abund"][s, :, :]  = disc.chem.ice.data
-                    h5f["disk_planetesimal_atom_abund"].resize(s + 1, axis=0); h5f["disk_planetesimal_atom_abund"][s, :, :] = disc._planetesimal.ice_abund.atomic_abundance().data
-                    h5f["disk_planetesimal_mol_abund"].resize(s + 1, axis=0);  h5f["disk_planetesimal_mol_abund"][s, :, :]  = disc._planetesimal.ice_abund.data
+                    if config["planetesimal"]["active"]:
+                        h5f["disk_planetesimal_atom_abund"].resize(s + 1, axis=0); h5f["disk_planetesimal_atom_abund"][s, :, :] = disc._planetesimal.ice_abund.atomic_abundance().data
+                        h5f["disk_planetesimal_mol_abund"].resize(s + 1, axis=0);  h5f["disk_planetesimal_mol_abund"][s, :, :]  = disc._planetesimal.ice_abund.data
                 if config["planetesimal"]["active"]:
                     h5f["Sigma_planetesimals"].resize(s + 1, axis=0)
                     h5f["Sigma_planetesimals"][s, :] = disc.Sigma_D[2]
                 h5f["T"].resize(s + 1, axis=0);                     h5f["T"][s, :]           = disc.T
+                h5f["Vdrift"].resize(s + 1, axis=0);                h5f["Vdrift"][s, :, :]    = disc.v_drift
 
                 h5f.flush()
 
@@ -948,6 +965,7 @@ if __name__ == "__main__":
         "eos": {
             "type": "IrradiatedEOS", # "SimpleDiscEOS", "LocallyIsothermalEOS", or "IrradiatedEOS"
             "opacity": "Tazzari",
+            #"opacity": "Zhu",
             "h0": 0.025,
             "q": -0.2,
             "Tmax": 1500.
@@ -974,7 +992,7 @@ if __name__ == "__main__":
             "assert_d2g": True
         },
         "planets": {
-            'include_planets': False,
+            'include_planets': True,
             "planet_model": "Bitsch2015Model",
             "Rp": [1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30], #[1, 5, 10, 20, 30], # initial position of embryo [AU]
             "Mp": [1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2], #[0.1, 0.1, 0.1, 0.1, 0.1], # initial mass of embryo [M_Earth]
@@ -986,7 +1004,7 @@ if __name__ == "__main__":
             "planetesimal_accretion": True
         },
         "planetesimal": {
-            "active": True,
+            "active": False,
             "diameter": 200,
             "St_min": 1e-2,
             "St_max": 10,
