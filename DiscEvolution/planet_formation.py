@@ -762,7 +762,7 @@ class PlanetesimalAccretion(object):
             if self._run_model == 'makino1993':
                 pass #save time if Makino is used for both
             else:
-                eq_run = self.eq_eccentricity_makino1993(Rp, Mp)
+                eq_oli = self.eq_eccentricity_makino1993(Rp, Mp)
             
         # Combine oligarchic and runaway growth into one array and calculate dispersion velocity
         v_disp = np.max((eq_oli,eq_run),axis=0) * disc.star.v_k(Rp)
