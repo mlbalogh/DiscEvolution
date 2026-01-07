@@ -404,7 +404,7 @@ class DustGrowthTwoPop(DustyDisc):
             
         # Radial drift time-scale limit
         h = self.H / self.R
-        #ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
+        ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
         # MLB Oct 31: correction to be consistent with Drazkowska growth rate.
         ad = ad * (self._eos._alpha_t/self.R)**(1./3.)
 
