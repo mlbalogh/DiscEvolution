@@ -634,7 +634,8 @@ class PlanetesimalAccretion(object):
         b_p = 1 / tau_mig # migration speed
 
         # Calculate the accretion efficiency
-        acc_eff = alpha_pla * b_p ** (beta_pla - 1)
+        # Do not allow accretion efficiency to exceed 1.
+        acc_eff = np.minimum(1., alpha_pla * b_p ** (beta_pla - 1))
         
         return acc_eff, R_captr
 
