@@ -93,9 +93,18 @@ def brentq(f, xa, xb, xtol=1e-7, rtol=1e-7, max_iter=100,
         bisect = (np.abs(spre) <= tol) | (np.abs(fcur) >= np.abs(fpre))
 
         # Extrapolate / interpolate:
-        with np.errstate(invalid='ignore'):
+        # MLB/Copilot added Jan 2026: When fpre, fcur, and fblk are numerically equal (to machine precision),
+        # the function is flat in this region and derivative estimates become unreliable.
+        # Detect this case and fall back to bisection (safer than extrapolation).
+        with np.errstate(invalid='ignore', divide='ignore'):
             dpre = (fpre - fcur + 1e-300)/(xpre - xcur + 1e-300)
             dblk = (fblk - fcur + 1e-300)/(xblk - xcur + 1e-300)
+            
+            # Check if function is numerically flat (all values essentially equal)
+            # This indicates convergence or a region where precision limits prevent further refinement
+            flat = (np.abs(fpre - fcur) < 1e-14) & (np.abs(fblk - fcur) < 1e-14)
+            
+            # Compute extrapolation/interpolation, but won't use it if flat
             stry = np.where(xpre == xblk, 
                             -fcur/dpre,                        # Interpolate
                             -fcur*(fblk*dblk - fpre*dpre) /    # Extrapolate
@@ -103,8 +112,10 @@ def brentq(f, xa, xb, xtol=1e-7, rtol=1e-7, max_iter=100,
 
             args = 2*np.abs(stry) >= np.minimum(np.abs(spre),
                                                 3*np.abs(sbis) - tol)
-        spre = np.where(args | bisect, sbis, scur)
-        scur = np.where(args | bisect, sbis, stry)
+        
+        # Use bisection if the function is flat or if the extrapolation step is too large
+        spre = np.where(args | bisect | flat, sbis, scur)
+        scur = np.where(args | bisect | flat, sbis, stry)
 
         xpre = xcur ; fpre = fcur
 

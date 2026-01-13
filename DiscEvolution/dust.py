@@ -296,11 +296,13 @@ class DustGrowthTwoPop(DustyDisc):
         start_small:Whether to start at monomer size (True, default) or equilibrium (False)
         distribution_slope:
                     The slope d ln n(a) / d ln a of the number distribution with size (3.5 for MRN)
+        transition_factor:
+                    Factor controlling width of smooth transition between frag/drift regimes (default=2)
     """
     def __init__(self, grid, star, eos, eps, Sigma=None,
                  rho_s=1., Sc=1., uf_0=100., uf_ice=1e3, f_ice=1, thresh=0.1,
                  f_grow=1.0, a0=1e-5, amin=1e-5, f_drift=0.55, f_frag=0.37, feedback=True,
-                 start_small=True, distribution_slope=3.5, gas = None):
+                 start_small=True, distribution_slope=3.5, gas = None, transition_factor=2.0):
         super(DustGrowthTwoPop, self).__init__(grid, star, eos, Sigma, rho_s, Sc, feedback)
         
         self._uf_0   = uf_0 / (AU * Omega0)
@@ -311,6 +313,7 @@ class DustGrowthTwoPop(DustyDisc):
         self._ffrag  = f_frag * (2/(3*np.pi)) 
         self._fdrift = f_drift * (2/np.pi) / f_grow 
         self._fmass  = np.array([0.97, 0.75])
+        self._transition_factor = transition_factor
 
         # Initialize the dust distribution
         Ncells = self.Ncells
@@ -383,6 +386,7 @@ class DustGrowthTwoPop(DustyDisc):
         a0 *= np.sqrt(self.mu*m_H/(self._rho_s*alpha)) / (2*np.pi)
         return a0**0.4
         
+    # Original _gammaP implementation (finite differences - can be noisy)
     def _gammaP(self):
         """Dimensionless pressure gradient"""
         P = self.P
@@ -392,20 +396,31 @@ class DustGrowthTwoPop(DustyDisc):
         gamma[ 0]   = abs((P[ 1] - P[  0])/(R[ 1] - R[ 0]))
         gamma[-1]   = abs((P[-1] - P[ -2])/(R[-1] - R[-2]))
         gamma *= R/(P+1e-300)
-
         return gamma
-    # MLB proposed replacement for _gammaP.  Oct 30, 2025
-    # def _gammaP(self):
-    #     """Dimensionless pressure gradient (smoothed with np.gradient)"""
-    #     P = self.P
-    #     R = self.R
-    #     dP_dR = np.gradient(P, R)     # central difference inside, one-sided at edges
-    #     gamma = np.abs(dP_dR) * R / (P + 1e-300)
-    #     return gamma
+    
+    
+    def _gammaP_smooth(self):
+        """Dimensionless pressure gradient using Savitzky-Golay filtering.
+        
+        Applies polynomial smoothing to the pressure profile before computing
+        the derivative. This preserves broad features while filtering noise.
+        
+        MLB implementation: Jan 12, 2026
+        """
+        from scipy.signal import savgol_filter
+        
+        P = self.P
+        R = self.R
+        # Smooth P before differentiation (window=11, polynomial order=3)
+        # Adjust window_length if needed - must be odd and > polyorder
+        P_smooth = savgol_filter(P, window_length=11, polyorder=3, mode='nearest')
+        dP_dR = np.gradient(P_smooth, R)
+        gamma = np.abs(dP_dR) * R / (P + 1e-300)
+        return gamma
 
     def _drift_limit(self, eps_tot):
         """Maximum size due to drift limit or drift driven fragmentation"""
-        gamma = self._gammaP()
+        gamma = self._gammaP_smooth()
         
         Sigma_D = self.Sigma * eps_tot
         Sigma_G = self.Sigma_G
@@ -413,8 +428,9 @@ class DustGrowthTwoPop(DustyDisc):
         # Radial drift time-scale limit
         h = self.H / self.R
         ad = self._fdrift * (Sigma_D/self._rho_s) / (gamma * h**2+1e-300)
-        # MLB Oct 31: correction to be consistent with Drazkowska growth rate.
-        ad = ad * (self._eos._alpha_t/self.R)**(1./3.)
+        # MLB Oct 31, 2025: correction to be consistent with Drazkowska growth rate.
+        # Bugfix Jan 9 as I'd forgotten the factor 1e-4 in the growth time-scale.
+        ad = ad * ((self._eos._alpha_t/1.e-4)/self.R)**(1./3.)
 
         # Radial drift-driven fragmentation:
         cs = self.cs
@@ -428,7 +444,7 @@ class DustGrowthTwoPop(DustyDisc):
         #return 1 / (self.Omega_k * eps)
         "Slightly more realistic growth time-scale from Drazkowska et. al (2021)."
         Sigma_dust=self.Sigma_D[0]+self.Sigma_D[1]
-        return (self.Sigma_G/(Sigma_dust*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
+        return (self.Sigma_G/((Sigma_dust+1.e-300)*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
 
     def do_grain_growth(self, dt):
         """Apply the grain growth"""
@@ -443,13 +459,15 @@ class DustGrowthTwoPop(DustyDisc):
         
         afrag = np.minimum(afrag_t, afrag_d)
         a0    = np.minimum(afrag, adrift)       # a0 is the lower of the maximum sizes
-        # MLB testing
-        #a0=adrift
+   
 
         # Update the particle distribution
         #   Maximum size due to growth:
         if self._start_small:
-            amax = np.minimum(a0, a*np.exp(dt/t_grow))  # If dust grains start small (default) first have to grow)
+            # Suppress overflow warnings - when dt/t_grow is large, exp overflows to inf,
+            # and np.minimum(a0, inf) correctly gives a0 (the equilibrium size)
+            with np.errstate(over='ignore'):
+                amax = np.minimum(a0, a*np.exp(dt/t_grow))  # If dust grains start small (default) first have to grow)
         else:
             amax = a0                                   # Ignore possibility of being in growth phase
         #   Reduce size due to erosion / fragmentation if grains have grown
@@ -458,14 +476,21 @@ class DustGrowthTwoPop(DustyDisc):
         # ignore empty cells:
         ids = eps_tot > 0
         self._a[1, ids] = np.maximum(amax[ids], self._amin)
-        
-        # Update the mass-fractions in each population
-        fm   = self._fmass[1*(afrag < adrift)]
+                
+        #fm   = self._fmass[1*(afrag < adrift)]
+
+        # Update the mass-fractions in each population with smooth transition
+        # Use tanh-based smooth interpolation between frag (0.75) and drift (0.97) regimes
+        # Transition centered at afrag = adrift, spanning self._transition_factor in ratio
+        log_ratio = np.log(afrag / (adrift + 1e-300))
+        transition_width = np.log(self._transition_factor)
+        smooth = 0.5 * (1 + np.tanh(log_ratio / transition_width))
+        fm = self._fmass[1] + (self._fmass[0] - self._fmass[1]) * smooth
         self._fm[ids] = fm[ids]
         
         self._eps[0][ids] = ((1-fm)*eps_tot)[ids]
         self._eps[1][ids] = (   fm *eps_tot)[ids]
-
+ 
         # Set the average area:
         #self._area = np.pi * self.a_BT(eps_tot)**2
 

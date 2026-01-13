@@ -3,10 +3,14 @@
 set -euo pipefail
 
 
+# PSI_VALUES="0.01"
+# MDOT_VALUES="1e-10 3e-10 1e-9 3e-9 1e-8 3e-8 1e-7 3e-7"
+# M_VALUES="0.05 0.1 0.125 0.15"
+# RD_VALUES="10 20 50 100 150 200"
 PSI_VALUES="0.01"
-MDOT_VALUES="1e-10 3e-10 1e-9 3e-9 1e-8 3e-8 1e-7 3e-7"
-M_VALUES="0.05 0.1 0.125 0.15"
-RD_VALUES="10 20 50 100 150 200"
+MDOT_VALUES="3e-9""
+M_VALUES="0.1"
+RD_VALUES="50"
 
 
 
@@ -15,7 +19,7 @@ DRYRUN=0
 
 COMPLETED_FILE="completed_disks.txt"
 LOGDIR="logs"
-OUTDIR="/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Disks"
+OUTDIR="/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Test"
 
 export DRYRUN LOGDIR OUTDIR COMPLETED_FILE
 # Read completed.txt into a Bash associative array

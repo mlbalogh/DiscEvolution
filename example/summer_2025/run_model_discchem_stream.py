@@ -30,9 +30,8 @@ import time
 start_time = time.time()
 plt.rcParams.update({'font.size': 16})
 
-#### specify separate temperature 
-### initial accreation rate: 2pi r sigma radial velocity at bin 0.
 
+gas_solver=ViscousEvolutionFV
 
 def run_model(config):
     """
@@ -102,7 +101,7 @@ def run_model(config):
         Sigma = Sigma_profile(R, Rd, Mdisk)
     
         # define a gas class, to be used later 
-        gas_temp = ViscousEvolutionFV()
+        gas_temp = gas_solver()
 
         # iterate to get alpha
         for j in range(100):
@@ -134,7 +133,7 @@ def run_model(config):
             # scale alpha by Mdisk so that desired disk mass is achieved.
             alpha= alpha*(disc.Mtot()/Msun)/Mdisk
 
-            if grid_params["smart_bining"]:
+            if grid_params["smart_binning"]:
                 # if using smart binning, re-create the grid and Sigma profile
                 cutoff = np.where(Sigma < 1e-7)[0]
                 
@@ -178,7 +177,7 @@ def run_model(config):
         eos.update(0, Sigma)
     
         # define gas classe to be used in first iteration
-        gas_temp = ViscousEvolutionFV()
+        gas_temp = gas_solver()
 
         # iterate to get Rd
         for j in range(100):
@@ -205,7 +204,7 @@ def run_model(config):
 
     elif grid_params['type'] == "LBP":
         # define viscous evolution to calculate drift velocity later
-        gas = ViscousEvolutionFV()
+        gas = gas_solver()
 
         # extract parameters
         gamma=disc_params['gamma']
@@ -338,7 +337,7 @@ def run_model(config):
             # find a new alpha_SS given new alpha.
             alpha_SS = alpha/(1 + psi)
 
-            if grid_params["smart_bining"]:
+            if grid_params["smart_binning"]:
                 # if using smart binning, re-create the grid and Sigma profile
                 cutoff = np.where(Sigma < 1e-7)[0]
                 
@@ -454,7 +453,7 @@ def run_model(config):
         if wind_params["on"]:
             gas = HybridWindModel(wind_params['psi_DW'], lambda_DW)
         else:
-            gas = ViscousEvolutionFV()
+            gas = gas_solver()
     
     diffuse = None
     if transport_params['diffusion']:
@@ -476,7 +475,8 @@ def run_model(config):
     except Exception as e:
         #disc = DustGrowthTwoPop(grid, star, eos, disc_params['d2g'], Sigma=Sigma, f_ice=dust_growth_params['f_ice'], thresh=dust_growth_params['thresh'])
         raise e
-
+    
+    
     # Set up Chemistry
     # =======================
     disc.chem = None
@@ -526,8 +526,12 @@ def run_model(config):
         disc.update_ices(disc.chem.ice)
         Natom=disc.chem.ice.atomic_abundance().data.shape[0] 
         Nmol=disc.chem.gas.data.shape[0]
+    else:
+        # Set dummy dimensions when chemistry is off
+        Natom = 1
+        Nmol = 1
 
-
+    
     # Set up planetesimals
     # ========================
     disc._planetesimal = None
@@ -613,43 +617,30 @@ def run_model(config):
 
         time_keeper.append(0)
 
-    # Prepare plots
-    # fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-    # axes = axes.flatten()
     
     # find Mdot to display below
     vr = disc._gas.viscous_velocity(disc, Sigma)
     Mdot = disc.Mdot(vr[0])
         
-    # display disk characteristics
-    # plt.figtext(0.5, 0, f"Mdot={Mdot:.3e}, alpha={disc._eos._alpha_t:.3e}, Mtot={disc.Mtot()/Msun:.3e}, Rd={disc.RC():.3e}", ha="center")
-
     # this is to synchronize colors
     d = 0 
-#    colors = ["black", "red", "green", "blue", "cyan"]
     nplanets = len(config["planets"]["Mp"])
-    # colors = [cm.viridis(i / nplanets) for i in range(nplanets)]
 
-    # cm2 = plt.get_cmap("viridis")
-    # # gradient colors also present to give options
-    # color1=iter(plt.cm.Blues(np.linspace(0.4, 1, 10)[::-1]))
-    # color2=iter(plt.cm.Greys(np.linspace(0.4, 1, 10)[::-1]))
-    # color3=iter(plt.cm.Greens(np.linspace(0.4, 1, 10)[::-1]))
-    # color4=iter(plt.cm.Reds(np.linspace(0.4, 1, 10)[::-1]))
+
 
     # ========================
-    # Run model (Option A: JSON-like HDF5 streaming)
+    # Run model (HDF5 streaming)
     # ========================
     t = 0
     n = 0
-    if alpha_SS > 5e-3:
-        print("Not Running model - alpha too high.  Alpha, Rd, Mdisk=", eos.alpha, Rd, disc.Mtot()/Msun)
+    if (alpha_SS > 0.1) or (alpha_SS<1.e-5):
+        print("Not Running model - alphaSS out of range.  Alpha, Rd, Mdisk=", eos._alpha_t, Rd, disc.Mtot()/Msun)
     else:
         print("Running model.  Alpha, Rd, Mdisk=", eos.alpha, Rd, disc.Mtot()/Msun)
 
         # Output filename (HDF5)
-        outfile = f"/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/" \
-                f"noplan_winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
+        outfile = f"/Users/mbalogh/projects/PlanetFormation/python/output/HJpaper/V2/" \
+                f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
 
         with h5py.File(outfile, "w") as h5f:
 
@@ -780,8 +771,120 @@ def run_model(config):
                 h5f.flush()
 
 
+            # Live diagnostic plot (updates in-place each iteration)
+            live_plot_enabled = False
+            live_update_every = 10  # refresh plot every N timesteps
+            fig_live = ax_live1 = ax_live1_r = ax_live2 = None
+            gas_line = dust_line = peb_line = plan_line = temp_line = opacity_line = None
+            time_label = None
+
+            def update_live_plot():
+                if not live_plot_enabled:
+                    return
+                # Update line data
+                gas_line.set_data(disc.R, disc.Sigma_G)
+                dust_line.set_data(disc.R, disc.Sigma_D[0])
+                peb_line.set_data(disc.R, disc.Sigma_D[1])
+                if plan_line is not None and len(disc.Sigma_D) > 2:
+                    plan_line.set_data(disc.R, disc.Sigma_D[2])
+                temp_line.set_data(disc.R, disc.T)
+
+                # Compute and update opacity (kappa as function of column density, T, and grain size)
+                if opacity_line is not None and kappa is not None:
+                    H = disc.H  # scale height
+                    Sigma_dust = disc.Sigma_D[0]  # dust surface density
+                    rho_mid = Sigma_dust / (np.sqrt(2*np.pi) * H)  # midplane dust density
+                    grain_size = disc.grain_size[1]  # pebble grain size
+                    kappa_vals = kappa(rho_mid, disc.T, grain_size)
+                    opacity_line.set_data(disc.R, kappa_vals)
+                    
+                    # Update right-hand axis limits for opacity
+                    kappa_finite = kappa_vals[np.isfinite(kappa_vals) & (kappa_vals > 0)]
+                    if kappa_finite.size:
+                        ax_live1_r.set_ylim(kappa_finite.min()*0.5, kappa_finite.max()*2.0)
+
+                # Update time label (years)
+                time_label.set_text(f"t = {t/(2*np.pi):.2e} yr")
+
+                # Keep log scales and sensible limits (ignore non-positive values)
+                def _finite_pos(arr):
+                    arr = np.asarray(arr)
+                    arr = arr[np.isfinite(arr) & (arr > 0)]
+                    return arr if arr.size else np.array([1e-30])
+
+                yvals = np.concatenate([
+                    _finite_pos(disc.Sigma_G),
+                    _finite_pos(disc.Sigma_D[0]),
+                    _finite_pos(disc.Sigma_D[1]),
+                    _finite_pos(disc.Sigma_D[2]) if (plan_line is not None and len(disc.Sigma_D) > 2) else np.array([])
+                ])
+                if yvals.size:
+                    ymin = max(1e-6, yvals.min()*0.5)
+                    ymax = yvals.max()*2.0
+                    ax_live1.set_ylim(ymin, ymax)
+                ax_live1.set_xlim(disc.R.min(), disc.R.max())
+
+                tvals = _finite_pos(disc.T)
+                if tvals.size:
+                    ax_live2.set_ylim(tvals.min()*0.9, tvals.max()*1.1)
+                ax_live2.set_xlim(disc.R.min(), disc.R.max())
+
+                fig_live.canvas.draw()
+                fig_live.canvas.flush_events()
+                plt.pause(0.001)
+
+            if live_plot_enabled:
+                plt.ion()
+                fig_live, (ax_live1, ax_live2) = plt.subplots(1, 2, figsize=(14, 5))
+
+                gas_line, = ax_live1.loglog(disc.R, disc.Sigma_G, 'k-', linewidth=2, label='Gas')
+                dust_line, = ax_live1.loglog(disc.R, disc.Sigma_D[0], 'b--', linewidth=2, label='Dust (grains)')
+                peb_line, = ax_live1.loglog(disc.R, disc.Sigma_D[1], 'r:', linewidth=2, label='Pebbles')
+                if config["planetesimal"]["active"] and len(disc.Sigma_D) > 2:
+                    plan_line, = ax_live1.loglog(disc.R, disc.Sigma_D[2], 'g-.', linewidth=2, label='Planetesimals')
+
+                ax_live1.set_xlabel('R [AU]', fontsize=12)
+                ax_live1.set_ylabel('Σ [g/cm²]', fontsize=12)
+                ax_live1.set_ylim(1e-3, 5e4)
+                ax_live1.set_title('Surface Density (live)', fontsize=13)
+                ax_live1.legend(loc='best', fontsize=10)
+                ax_live1.grid(True, alpha=0.3)
+                time_label = ax_live1.text(0.02, 0.95, '', transform=ax_live1.transAxes,
+                                           ha='left', va='top')
+
+                # Add secondary y-axis for opacity on left panel
+                ax_live1_r = ax_live1.twinx()
+                if kappa is not None:
+                    H = disc.H
+                    Sigma_dust = disc.Sigma_D[0]
+                    rho_mid = Sigma_dust / (np.sqrt(2*np.pi) * H)
+                    grain_size = disc.grain_size[1]
+                    kappa_vals = kappa(rho_mid, disc.T, grain_size)
+                    opacity_line, = ax_live1_r.loglog(disc.R, kappa_vals, 'm-', linewidth=2, label='κ (opacity)')
+                    ax_live1_r.set_ylabel('κ [cm²/g]', fontsize=12, color='m')
+                    ax_live1_r.tick_params(axis='y', labelcolor='m')
+                    
+                    # Add opacity to legend
+                    lines1, labels1 = ax_live1.get_legend_handles_labels()
+                    lines2, labels2 = ax_live1_r.get_legend_handles_labels()
+                    ax_live1.legend(lines1 + lines2, labels1 + labels2, loc='best', fontsize=10)
+
+                temp_line, = ax_live2.loglog(disc.R, disc.T, 'k-', linewidth=2)
+                ax_live2.set_xlabel('R [AU]', fontsize=12)
+                ax_live2.set_ylabel('T [K]', fontsize=12)
+                ax_live2.set_title('Temperature (live)', fontsize=13)
+                ax_live2.grid(True, alpha=0.3)
+
+                plt.tight_layout()
+                fig_live.canvas.draw()
+                fig_live.canvas.flush_events()
+
             # --------------- Main integration loop ---------------
+            early_exit = False  # Flag to track early termination
             for ti in times:
+                if early_exit:
+                    break
+                    
                 while t < ti:
                     # timestep control
                     dt = ti - t
@@ -789,6 +892,15 @@ def run_model(config):
                         dt = min(dt, disc._gas.max_timestep(disc))
                     if transport_params['radial_drift']:
                         dt = min(dt, dust.max_timestep(disc))
+
+                    # Check for excessively small timestep
+                    dt_min_threshold = 0.1 * 2 * np.pi  # 0.1 years in code units
+                    if dt < dt_min_threshold:
+                        print(f"\n=== WARNING: Timestep too small (dt = {dt/(2*np.pi):.3e} yr) ===")
+                        print(f"Ending simulation early at t = {t/(2*np.pi*1e6):.6f} Myr")
+                        print(f"Target time was t = {times[-1]/(2*np.pi*1e6):.6f} Myr")
+                        early_exit = True
+                        break
 
                     dust_frac = getattr(disc, "dust_frac", None)
                     gas_chem, ice_chem = None, None
@@ -837,26 +949,32 @@ def run_model(config):
                             chemistry.update(dt, disc.T, disc.midplane_gas_density,
                                             disc.dust_frac.sum(0), disc.chem)
                         disc.update_ices(disc.chem.ice)
-                        atom_abund_ice = disc.chem.ice.atomic_abundance()
-                        atom_abund_gas = disc.chem.gas.atomic_abundance()
+                        # These seem to be not used (MLB change Jan 13 2026):
+                        # atom_abund_ice = disc.chem.ice.atomic_abundance()
+                        # atom_abund_gas = disc.chem.gas.atomic_abundance()
                         
-                        mol_abund_ice = disc.chem.ice
-                        mol_abund_gas = disc.chem.gas
-                        if disc._planetesimal and chemistry_params["on"]:
-                            atom_abund_planetesimal = disc._planetesimal.ice_abund.atomic_abundance() 
-                            mol_abund_planetesimal = disc._planetesimal.ice_abund 
+                        # mol_abund_ice = disc.chem.ice
+                        # mol_abund_gas = disc.chem.gas
+                        # if disc._planetesimal and chemistry_params["on"]:
+                        #     atom_abund_planetesimal = disc._planetesimal.ice_abund.atomic_abundance() 
+                        #     mol_abund_planetesimal = disc._planetesimal.ice_abund 
 
                     if planet_params['include_planets']:
                         planet_model.integrate(dt, planets)
 
                     disc.update(dt)
+                    
                     t += dt
                     n += 1
+
+                    # Live plot update every N iterations
+                    if live_plot_enabled and (n % live_update_every == 0):
+                        update_live_plot()
 
                     if (n % 1000) == 0:
                         print(f"\rNstep: {n}", flush=True)
                         print(f"\rTime: {t/(1.e6*2*np.pi)} Myr", flush=True)
-                        print(f"\rdt: {dt/(2*np.pi)} yr", flush=True)
+                        print(f"\rdt: {dt/(2*np.pi)} yr", flush=True)   
 
                     # --- every 5 steps: stream per-planet series ---
                     if planet_params['include_planets'] and (n % 5 == 0):
@@ -920,6 +1038,40 @@ def run_model(config):
             # Mark file complete
             h5f.attrs["complete"] = True
 
+        # Turn off interactive mode and keep live plot open
+        if live_plot_enabled:
+            plt.ioff()
+            print("\n=== Live plot displayed. Close the window to end the program. ===")
+
+    # # === Testing: Two-panel final state plot ===
+    # print("\n=== Creating final state diagnostic plot ===")
+    # fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(14, 5))
+    
+    # # Left panel: Surface densities vs R
+    # ax1.loglog(disc.R, disc.Sigma_G, 'k-', linewidth=2, label='Gas')
+    # ax1.loglog(disc.R, disc.Sigma_D[0], 'b--', linewidth=2, label='Dust (grains)')
+    # ax1.loglog(disc.R, disc.Sigma_D[1], 'r:', linewidth=2, label='Pebbles')
+    # if config["planetesimal"]["active"] and len(disc.Sigma_D) > 2:
+    #     ax1.loglog(disc.R, disc.Sigma_D[2], 'g-.', linewidth=2, label='Planetesimals')
+    # ax1.set_xlabel('R [AU]', fontsize=12)
+    # ax1.set_ylabel('Σ [g/cm²]', fontsize=12)
+    # ax1.set_ylim(1e-3, 5e4)
+    # ax1.set_title('Final Surface Density Profile', fontsize=13)
+    # ax1.legend(loc='best', fontsize=10)
+    # ax1.grid(True, alpha=0.3)
+    
+    # # Right panel: Temperature vs R
+    # ax2.loglog(disc.R, disc.T, 'k-', linewidth=2)
+    # ax2.set_xlabel('R [AU]', fontsize=12)
+    # ax2.set_ylabel('T [K]', fontsize=12)
+    # ax2.set_title('Final Temperature Profile', fontsize=13)
+    # ax2.grid(True, alpha=0.3)
+    
+    # plt.tight_layout()
+    # print("Displaying final state plot. Close any plot window to end the program.")
+    # plt.show()  # Display and keep open both plots
+    # print("Plot closed. Exiting cleanly.")
+
     
     
 
@@ -938,7 +1090,7 @@ if __name__ == "__main__":
             "rmax": 1000,
             "nr": 1000,
             "spacing": "natural",
-            "smart_bining": False,
+            "smart_binning": False,
             "type": "winds-alpha" # "LBP", "Booth-alpha", "Booth-Rd", "winds-alpha", or "Booth-Mdot"
         },
         "star": {
@@ -949,17 +1101,18 @@ if __name__ == "__main__":
         "simulation": {
             "t_initial": 0,
             "t_final": 3.e6,
-            "t_interval": [0, 1e-3, 1e-2, 1e-1, 2e-1,5e-1, 1, 2.0, 3.0], #Myr
-            #"t_interval": [0, 1e-3, 1e-2, 1e-1,5e-1 ] #Myr
+            #"t_final": 1200.,
+            "t_interval": [0, 1e-3, 1e-2, 1e-1, 2e-1,5e-1, 1, 2.0, 3.0], # Myr
+            #"t_interval": [0, 1e-3,1e-3,7.5e-3] # Myr
         },
         "disc": {
-            "alpha": 6.31e-4,
-            "M": 0.01,
+            "alpha": 3.22259263116507e-03,
+            "M": 0.1,
             "d2g": 0.01,
             "Mdot": 3.e-9, # for Tmax=1500
             #"Mdot": 6.e-8, # with no T cap
             "Sc": 1.0, # schmidt number
-            "Rd": 20,
+            "Rd": 50,
             'gamma': 1
         },
         "eos": {
@@ -1004,7 +1157,7 @@ if __name__ == "__main__":
             "planetesimal_accretion": True
         },
         "planetesimal": {
-            "active": False,
+            "active": True,
             "diameter": 200,
             "St_min": 1e-2,
             "St_max": 10,

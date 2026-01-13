@@ -361,6 +361,7 @@ class IrradiatedEOS(EOS_Table):
         X = star.Rau/R
         f_flat  = (2/(3*np.pi)) * X**3
         f_flare = 0.5 * self._dlogHdlogRm1 * X**2
+        tauPovertauR = 2.4 # Ratio of Planck to Rosseland optical depths.  Nakamoto => 2.4.
         
         # Heat capacity
         mu = self._mu
@@ -381,6 +382,8 @@ class IrradiatedEOS(EOS_Table):
 
             kappa = self._kappa(Sigma / (sqrt2pi * H), Tm, amax)
             tau = 0.5 * Sigma * kappa
+            tauR = tau
+            tau_P = tauPovertauR * tauR
             H /= AU
 
             # External irradiation
@@ -393,8 +396,11 @@ class IrradiatedEOS(EOS_Table):
             # If psi > 0, includes heating from disk winds based off and 
             # derived from the model proposed by Suzuki et. al (2018, 
             #  doi:10.1051/0004-6361/201628955).
-            visc_heat = self._e_rad*1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)         
-            dEdt += visc_heat*(0.375*tau*Sigma + 1./kappa)
+            visc_heat = self._e_rad*1.125*alpha*cs*cs * Om_k * (1 + self._psi/3)   
+            #dEdt += visc_heat*(0.375*tau*Sigma + 1./(kappa))
+            # Reformulation by MLB Jan 2026 for easier comparison with literature
+            visc_heat = visc_heat * Sigma
+            dEdt += visc_heat*(3./8.*tauR + 1./(1.*tau_P))
             
             # Prevent heating above the temperature cap:
             dEdt = np.minimum(dEdt, max_heat)
@@ -421,7 +427,6 @@ class IrradiatedEOS(EOS_Table):
         cs = np.sqrt(GasConst * self._T / mu)
         H = cs / Om_k
         self._kappa_arr = self._kappa(Sigma / (sqrt2pi * H), self._T, amax)
-        
         self._set_arrays()
 
 
