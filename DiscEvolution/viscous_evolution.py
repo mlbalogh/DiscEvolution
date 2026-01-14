@@ -519,9 +519,9 @@ class HybridWindModel(object):
 
             if disc.chem:
                 # update dust/gas fractions stored in chemisry accordingly
-                disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/disc._eps[2])
+                disc._planetesimal.ice_abund.data[:] *= np.nan_to_num(Dust_Frac_New[2]/(disc._eps[2]+1.e-300))
                 disc.chem.gas.data[:] *= (1 - Dust_Frac_New.sum(0))/(1 - disc._eps.sum(0))
-                disc.chem.ice.data[:] *= Dust_Frac_New[:2].sum(0)/disc._eps[:2].sum(0)
+                disc.chem.ice.data[:] *= Dust_Frac_New[:2].sum(0)/(disc._eps[:2].sum(0)+1.e-300)
 
             disc._eps = np.where(Dust_Frac_New < 0, 1e-300, Dust_Frac_New)
         else:

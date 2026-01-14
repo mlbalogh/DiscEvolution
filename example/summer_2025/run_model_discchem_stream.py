@@ -880,27 +880,62 @@ def run_model(config):
                 fig_live.canvas.flush_events()
 
             # --------------- Main integration loop ---------------
+            # Track wall-clock per step to estimate time to completion
+            sim_advanced = 0.0  # total simulated time advanced (code units)
+            wall_spent = 0.0    # total wall-clock time spent (seconds)
+            # Cache ETA values computed each step to avoid recomputation
+            last_eta_seconds = None
+            last_eta_hours = 0
+            last_eta_minutes = 0
+            # Abort simulation if ETA exceeds threshold (hours); configurable via simulation.eta_abort_hours
+            eta_abort_hours = sim_params.get('eta_abort_hours', 12)
             early_exit = False  # Flag to track early termination
+            dt_min = 1.         # minimum time step; otherwise break early
             for ti in times:
                 if early_exit:
                     break
                     
                 while t < ti:
-                    # timestep control
-                    dt = ti - t
+                    # Compute physics-limited timestep (for ETA estimation)
+                    dt_physics = float('inf')
                     if transport_params['gas_transport']:
-                        dt = min(dt, disc._gas.max_timestep(disc))
+                        dt_physics = min(dt_physics, disc._gas.max_timestep(disc))
                     if transport_params['radial_drift']:
-                        dt = min(dt, dust.max_timestep(disc))
+                        dt_physics = min(dt_physics, dust.max_timestep(disc))
+                    
+                    # Actual timestep control (constrained by snapshot time)
+                    dt = min(ti - t, dt_physics)
 
-                    # Check for excessively small timestep
-                    dt_min_threshold = 0.1 * 2 * np.pi  # 0.1 years in code units
-                    if dt < dt_min_threshold:
-                        print(f"\n=== WARNING: Timestep too small (dt = {dt/(2*np.pi):.3e} yr) ===")
-                        print(f"Ending simulation early at t = {t/(2*np.pi*1e6):.6f} Myr")
-                        print(f"Target time was t = {times[-1]/(2*np.pi*1e6):.6f} Myr")
-                        early_exit = True
-                        break
+                    # Start wall-clock timer for this iteration
+                    step_start = time.time()
+
+                    # dt-based early exit (commented out, preserved for reference)
+                    # dt_min_threshold = dt_min * 2 * np.pi  # years in code units
+                    # if dt < dt_min_threshold:
+                    #     print(f"\n=== WARNING: Timestep too small (dt = {dt/(2*np.pi):.3e} yr) ===", file=sys.stderr)
+                    #     print(f"Ending simulation early at t = {t/(2*np.pi*1e6):.6f} Myr", file=sys.stderr)
+                    #     print(f"Target time was t = {times[-1]/(2*np.pi*1e6):.6f} Myr", file=sys.stderr)
+                    #     early_exit = True
+                    #     break
+
+                    # ETA-based early exit: use physics timestep for projection to avoid snapshot-induced artifacts
+                    if n > 0:
+                        remaining_sim = max(times[-1] - t, 0.0)
+                        avg_sec_per_step = wall_spent / max(n, 1)
+                        # Use physics-limited dt for ETA, not the snapshot-constrained dt
+                        dt_for_eta = dt_physics if dt_physics < float('inf') else dt
+                        remaining_steps = int(np.ceil(remaining_sim / max(dt_for_eta, 1e-300))) if dt_for_eta > 0 else 0
+                        eta_seconds = avg_sec_per_step * remaining_steps
+                        # Cache ETA for later printing without recomputation
+                        last_eta_seconds = eta_seconds
+                        last_eta_hours = int(eta_seconds // 3600)
+                        last_eta_minutes = int((eta_seconds % 3600) // 60)
+                        if eta_seconds > eta_abort_hours * 3600:
+                            print(f"\n=== WARNING: ETA {last_eta_hours:02d}::{last_eta_minutes:02d} h::m exceeds threshold ({eta_abort_hours}h) ===", file=sys.stderr)
+                            print(f"Ending simulation early at t = {t/(2*np.pi*1e6):.6f} Myr with dt = {dt/(2*np.pi)} yr", file=sys.stderr)
+                            print(f"Target time was t = {times[-1]/(2*np.pi*1e6):.6f} Myr", file=sys.stderr)
+                            early_exit = True
+                            break
 
                     dust_frac = getattr(disc, "dust_frac", None)
                     gas_chem, ice_chem = None, None
@@ -967,14 +1002,23 @@ def run_model(config):
                     t += dt
                     n += 1
 
+                    # Accumulate wall-clock and simulated time for ETA
+                    wall_spent += (time.time() - step_start)
+                    sim_advanced += dt
+
                     # Live plot update every N iterations
                     if live_plot_enabled and (n % live_update_every == 0):
                         update_live_plot()
 
                     if (n % 1000) == 0:
+                        # Use cached ETA from the per-step computation
+                        eta_hours = last_eta_hours
+                        eta_minutes = last_eta_minutes
+
                         print(f"\rNstep: {n}", flush=True)
                         print(f"\rTime: {t/(1.e6*2*np.pi)} Myr", flush=True)
-                        print(f"\rdt: {dt/(2*np.pi)} yr", flush=True)   
+                        print(f"\rdt: {dt/(2*np.pi)} yr", flush=True)
+                        print(f"\rETA: {eta_hours:02d}::{eta_minutes:02d} (h::m)", flush=True)
 
                     # --- every 5 steps: stream per-planet series ---
                     if planet_params['include_planets'] and (n % 5 == 0):
