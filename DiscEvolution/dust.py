@@ -1059,7 +1059,7 @@ class SingleFluidDrift(object):
 
     def radial_drift_velocity(self, disc, v_visc=None, ret_vphi=False):
         """
-        Compute the radial drift velocity for the disc and optionally the azimuthal velocity
+        Compute the radial drift velocity for the disc and optionally the azimuthal velocity.
         
         Parameters:
             disc: The disc object for which to compute the radial drift velocity.
@@ -1069,8 +1069,14 @@ class SingleFluidDrift(object):
                 If False, the function returns only the radial drift velocity.
         
         Returns:
-            If ret_vphi is True, returns a tuple containing the radial drift velocity and the azimuthal velocity.
-            If ret_vphi is False, returns only the radial drift velocity.
+            DeltaV: Radial drift velocity in AU per code time unit (1 code time = 2π years).
+                Shape: (2, Ncells-1) for [grains, pebbles] at cell edges.
+                To convert to physical units:
+                    - velocity [cm/s] = velocity_code * (AU / (2*np.pi*yr))
+                    - velocity [AU/yr] = velocity_code / (2*np.pi)
+            
+            If ret_vphi is True, also returns:
+                DeltaVphi: Azimuthal velocity in AU per code time unit.
         """
         DeltaV = self._compute_deltaV(disc, v_visc)
         

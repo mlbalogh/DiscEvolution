@@ -639,8 +639,12 @@ def run_model(config):
         print("Running model.  Alpha, Rd, Mdisk=", eos.alpha, Rd, disc.Mtot()/Msun)
 
         # Output filename (HDF5)
-        outfile = f"/Users/mbalogh/projects/PlanetFormation/python/output/HJpaper/V2/" \
-                f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
+        # Use environment variable DISCEVOLUTION_OUTPUT if set, otherwise fall back to config or default
+        output_dir = os.environ.get('DISCEVOLUTION_OUTPUT', sim_params.get('output_dir', './output'))
+        os.makedirs(output_dir, exist_ok=True)
+        
+        filename = f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
+        outfile = os.path.join(output_dir, filename)
 
         with h5py.File(outfile, "w") as h5f:
 
@@ -1122,104 +1126,104 @@ def run_model(config):
 if __name__ == "__main__":
     import argparse
 
-    parser = argparse.ArgumentParser(description="Run disc evolution model with optional parameter overrides.")
-    parser.add_argument("--psi_DW", type=float, default=None, help="Wind parameter psi_DW")
-    parser.add_argument("--Mdot", type=float, default=None, help="Accretion rate [Msun/yr]")
-    parser.add_argument("--M", type=float, default=None, help="Disc mass [Msun]")
-    parser.add_argument("--Rd", type=float, default=None, help="Characteristic disc radius [AU]")
+    parser = argparse.ArgumentParser(
+        description="Run disc evolution model with HDF5 streaming output. "
+                    "Configuration can be loaded from a JSON file and overridden via command-line arguments.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Run with default config
+  python run_model_discchem_stream.py
+
+  # Run with custom config file
+  python run_model_discchem_stream.py --config my_config.json
+
+  # Override specific parameters
+  python run_model_discchem_stream.py --psi_DW 0.02 --Mdot 5e-9
+
+  # Use environment variable for output directory
+  export DISCEVOLUTION_OUTPUT=/path/to/output
+  python run_model_discchem_stream.py
+        """
+    )
+    parser.add_argument(
+        "--config",
+        type=str,
+        default=os.path.join(os.path.dirname(__file__), "DiscConfig_default.json"),
+        help="Path to configuration JSON file (default: DiscConfig_default.json in script directory)"
+    )
+    parser.add_argument(
+        "--psi_DW",
+        type=float,
+        default=None,
+        help="Override wind parameter psi_DW"
+    )
+    parser.add_argument(
+        "--Mdot",
+        type=float,
+        default=None,
+        help="Override accretion rate [Msun/yr]"
+    )
+    parser.add_argument(
+        "--M",
+        type=float,
+        default=None,
+        help="Override disc mass [Msun]"
+    )
+    parser.add_argument(
+        "--Rd",
+        type=float,
+        default=None,
+        help="Override characteristic disc radius [AU]"
+    )
+    parser.add_argument(
+        "--eta_abort_hours",
+        type=float,
+        default=None,
+        help="Override ETA abort threshold [hours]"
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default=None,
+        help="Override output directory (or use DISCEVOLUTION_OUTPUT environment variable)"
+    )
+    
     args = parser.parse_args()
-    config = {
-        "grid": {
-            "rmin": 1e-1,
-            "rmax": 1000,
-            "nr": 1000,
-            "spacing": "natural",
-            "smart_binning": False,
-            "type": "winds-alpha" # "LBP", "Booth-alpha", "Booth-Rd", "winds-alpha", or "Booth-Mdot"
-        },
-        "star": {
-            "M": 1.0, # Solar masses
-            "R": 2.5, # Solar radii
-            "T_eff": 4000 # Kelvin
-        },
-        "simulation": {
-            "t_initial": 0,
-            "t_final": 3.e6,
-            #"t_final": 1200.,
-            "t_interval": [0, 1e-3, 1e-2, 1e-1, 2e-1,5e-1, 1, 2.0, 3.0], # Myr
-            #"t_interval": [0, 1e-3,1e-3,7.5e-3] # Myr
-        },
-        "disc": {
-            "alpha": 3.22259263116507e-03,
-            "M": 0.1,
-            "d2g": 0.01,
-            "Mdot": 3.e-9, # for Tmax=1500
-            #"Mdot": 6.e-8, # with no T cap
-            "Sc": 1.0, # schmidt number
-            "Rd": 50,
-            'gamma': 1
-        },
-        "eos": {
-            "type": "IrradiatedEOS", # "SimpleDiscEOS", "LocallyIsothermalEOS", or "IrradiatedEOS"
-            "opacity": "Tazzari",
-            #"opacity": "Zhu",
-            "h0": 0.025,
-            "q": -0.2,
-            "Tmax": 1500.
-        },
-        "transport": {
-            "gas_transport": True,
-            "radial_drift": True,
-            "diffusion": True,
-            "van_leer": False
-        },
-        "dust_growth": {
-            "feedback": True,
-            "settling": True,
-            "f_ice": 1,
-            "uf_0": 500,          # Fragmentation velocity for ice-free grains (cm/s)
-            "uf_ice": 500,       # Set same as uf_0 to ignore ice effects
-            "thresh": 0.5        # Set high threshold to prevent ice effects
-        },
-        "chemistry": {
-            "on"   : True, 
-            "fix_mu" : True,
-            "mu"     : 2.5,
-            "chem_model": "Equilibrium",
-            "assert_d2g": True
-        },
-        "planets": {
-            'include_planets': True,
-            "planet_model": "Bitsch2015Model",
-            "Rp": [1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30], #[1, 5, 10, 20, 30], # initial position of embryo [AU]
-            "Mp": [1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2, 1e-2], #[0.1, 0.1, 0.1, 0.1, 0.1], # initial mass of embryo [M_Earth]
-            "implant_time": [60000, 60000, 60000, 60000, 60000, 600000, 600000, 600000, 600000, 600000, 600000], # 2pi*t(years)
-            "pb_gas_f": 0.05, # Percent of accreted solids converted to gas
-            "migrate" : True,
-            "pebble_accretion": True,
-            "gas_accretion": True, 
-            "planetesimal_accretion": True
-        },
-        "planetesimal": {
-            "active": True,
-            "diameter": 200,
-            "St_min": 1e-2,
-            "St_max": 10,
-            "pla_eff": 0.05
-        },
-        "winds": {
-            "on": True,
-            "psi_DW": 0.01,
-            "e_rad": 0.9
-        }
-    }
-    # Apply overrides if provided
+    
+    # Load configuration from JSON file
+    if not os.path.exists(args.config):
+        print(f"ERROR: Configuration file not found: {args.config}", file=sys.stderr)
+        sys.exit(1)
+    
+    with open(args.config, 'r') as f:
+        config = json.load(f)
+    
+    print(f"Loaded configuration from: {args.config}")
+    
+    # Apply command-line overrides
     if args.psi_DW is not None:
         config["winds"]["psi_DW"] = args.psi_DW
+        print(f"Overriding psi_DW: {args.psi_DW}")
+    
     if args.Mdot is not None:
         config["disc"]["Mdot"] = args.Mdot
+        print(f"Overriding Mdot: {args.Mdot}")
+    
     if args.M is not None:
         config["disc"]["M"] = args.M
+        print(f"Overriding M: {args.M}")
+    
     if args.Rd is not None:
         config["disc"]["Rd"] = args.Rd
+        print(f"Overriding Rd: {args.Rd}")
+    
+    if args.eta_abort_hours is not None:
+        config["simulation"]["eta_abort_hours"] = args.eta_abort_hours
+        print(f"Overriding eta_abort_hours: {args.eta_abort_hours}")
+    
+    if args.output_dir is not None:
+        config["simulation"]["output_dir"] = args.output_dir
+        print(f"Overriding output_dir: {args.output_dir}")
+    
     run_model(config)

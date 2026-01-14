@@ -19,7 +19,8 @@ DRYRUN=0
 
 COMPLETED_FILE="completed_disks.txt"
 LOGDIR="logs"
-OUTDIR="/home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/Test"
+# Use DISCEVOLUTION_OUTPUT env var if set, otherwise fall back to default
+OUTDIR="${DISCEVOLUTION_OUTPUT:-.}/HJpaper/Test"
 
 export DRYRUN LOGDIR OUTDIR COMPLETED_FILE
 # Read completed.txt into a Bash associative array

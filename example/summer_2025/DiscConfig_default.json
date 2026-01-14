@@ -1,0 +1,82 @@
+{
+    "grid": {
+        "rmin": 1e-1,
+        "rmax": 1000,
+        "nr": 1000,
+        "spacing": "natural",
+        "smart_binning": false,
+        "type": "winds-alpha"
+    },
+    "star": {
+        "M": 1.0,
+        "R": 2.5,
+        "T_eff": 4000
+    },
+    "simulation": {
+        "t_initial": 0,
+        "t_final": 3000000.0,
+        "t_interval": [0, 0.001, 0.01, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0],
+        "eta_abort_hours": 12
+    },
+    "disc": {
+        "alpha": 0.00322259263116507,
+        "M": 0.1,
+        "d2g": 0.01,
+        "Mdot": 3.0e-9,
+        "Sc": 1.0,
+        "Rd": 50,
+        "gamma": 1
+    },
+    "eos": {
+        "type": "IrradiatedEOS",
+        "opacity": "Tazzari",
+        "h0": 0.025,
+        "q": -0.2,
+        "Tmax": 1500.0
+    },
+    "transport": {
+        "gas_transport": true,
+        "radial_drift": true,
+        "diffusion": true,
+        "van_leer": false
+    },
+    "dust_growth": {
+        "feedback": true,
+        "settling": true,
+        "f_ice": 1,
+        "uf_0": 500,
+        "uf_ice": 500,
+        "thresh": 0.5
+    },
+    "chemistry": {
+        "on": true,
+        "fix_mu": true,
+        "mu": 2.5,
+        "chem_model": "Equilibrium",
+        "assert_d2g": true
+    },
+    "planets": {
+        "include_planets": true,
+        "planet_model": "Bitsch2015Model",
+        "Rp": [1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30],
+        "Mp": [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
+        "implant_time": [60000, 60000, 60000, 60000, 60000, 600000, 600000, 600000, 600000, 600000, 600000],
+        "pb_gas_f": 0.05,
+        "migrate": true,
+        "pebble_accretion": true,
+        "gas_accretion": true,
+        "planetesimal_accretion": true
+    },
+    "planetesimal": {
+        "active": true,
+        "diameter": 200,
+        "St_min": 0.01,
+        "St_max": 10,
+        "pla_eff": 0.05
+    },
+    "winds": {
+        "on": true,
+        "psi_DW": 0.01,
+        "e_rad": 0.9
+    }
+}
