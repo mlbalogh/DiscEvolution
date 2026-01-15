@@ -482,10 +482,15 @@ class DustGrowthTwoPop(DustyDisc):
         # Update the mass-fractions in each population with smooth transition
         # Use tanh-based smooth interpolation between frag (0.75) and drift (0.97) regimes
         # Transition centered at afrag = adrift, spanning self._transition_factor in ratio
-        log_ratio = np.log(afrag / (adrift + 1e-300))
+        # Only compute log_ratio for cells with dust to avoid NaN warnings in empty cells
         transition_width = np.log(self._transition_factor)
-        smooth = 0.5 * (1 + np.tanh(log_ratio / transition_width))
-        fm = self._fmass[1] + (self._fmass[0] - self._fmass[1]) * smooth
+        fm = np.full_like(eps_tot, self._fmass[1])  # Default to drift-dominated value
+        
+        if ids.any():  # Only compute if there are cells with dust
+            log_ratio = np.log((afrag[ids]+1.e-300) / (adrift[ids] + 1e-300))
+            smooth = 0.5 * (1 + np.tanh(log_ratio / transition_width))
+            fm[ids] = self._fmass[1] + (self._fmass[0] - self._fmass[1]) * smooth
+        
         self._fm[ids] = fm[ids]
         
         self._eps[0][ids] = ((1-fm)*eps_tot)[ids]

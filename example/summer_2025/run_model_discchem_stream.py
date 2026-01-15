@@ -94,7 +94,7 @@ def run_model(config):
         def Sigma_profile(R, Rd, Mdisk):
             """Function that creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             Sigma = (Rd/R) * np.exp(-R/Rd)
-            Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
+            Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
             return Sigma
     
         # define an initial guess for the Sigma profile
@@ -158,7 +158,7 @@ def run_model(config):
         def Sigma_profile(R, Rd, Mdisk):
             """Function that creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             Sigma = (Rd/R) * np.exp(-R/Rd)
-            Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
+            Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
             return Sigma
     
         # create an initial Sigma profile, scale by Mdisk
@@ -264,7 +264,7 @@ def run_model(config):
 
         # define Sigma profile, scale by Mdisk to get correct disk mass.
         Sigma = (Rd/R) * np.exp(-R/Rd)
-        Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
+        Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
 
         # Create the EOS
         if eos_params["type"] == "SimpleDiscEOS":
@@ -370,7 +370,7 @@ def run_model(config):
             """Creates a non-steady state Sigma profile for gamma=1, scaled such that the disk mass equals Mdisk"""
             chi = 0.25 * (1 + psi) * (np.sqrt(1 + 4*psi/((lambda_DW - 1) * (psi + 1)**2)) - 1)
             Sigma = (R/Rd)**(chi - gamma) * np.exp(-(R/Rd)**(2 - gamma))
-            Sigma *= Mdisk / np.trapz(Sigma, np.pi * (R * AU)**2)
+            Sigma *= Mdisk / np.trapezoid(Sigma, np.pi * (R * AU)**2)
             return Sigma
     
         # create an initial Sigma profile, scale by Mdisk
@@ -432,7 +432,7 @@ def run_model(config):
         # define Sigma profile, scale by Mdisk to get correct disk mass.
         chi = 0.25 * (1 + psi) * (np.sqrt(1 + 4*psi/((lambda_DW - 1) * (psi + 1)**2)) - 1)
         Sigma = (R/Rd)**(chi - gamma) * np.exp(-(R/Rd)**(2 - gamma))
-        Sigma *= Mdisk / (np.trapz(Sigma, np.pi * (R * AU)**2)/Msun)
+        Sigma *= Mdisk / (np.trapezoid(Sigma, np.pi * (R * AU)**2)/Msun)
 
         # Create the EOS
         if eos_params["type"] == "SimpleDiscEOS":
@@ -504,8 +504,8 @@ def run_model(config):
             if chemistry_params["assert_d2g"]:
 
                 # find the total gas and dust mass.
-                M_dust = np.trapz(disc.Sigma_D.sum(0), np.pi*grid.Rc**2)
-                M_gas = np.trapz(disc.Sigma_G, np.pi*grid.Rc**2)
+                M_dust = np.trapezoid(disc.Sigma_D.sum(0), np.pi*grid.Rc**2)
+                M_gas = np.trapezoid(disc.Sigma_G, np.pi*grid.Rc**2)
 
                 # calculate a modification fraction by dividing the wanted dust fraction by the current dust fraction.
                 mod_frac = disc_params["d2g"]/(M_dust/M_gas)
@@ -923,7 +923,7 @@ def run_model(config):
                     #     break
 
                     # ETA-based early exit: use physics timestep for projection to avoid snapshot-induced artifacts
-                    if n > 0:
+                    if n > 100:
                         remaining_sim = max(times[-1] - t, 0.0)
                         avg_sec_per_step = wall_spent / max(n, 1)
                         # Use physics-limited dt for ETA, not the snapshot-constrained dt
