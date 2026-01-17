@@ -18,7 +18,7 @@ RD_VALUES="20 50 100 150 200"
 # PSI_VALUES="0.01"
 # MDOT_VALUES="3e-8"
 # M_VALUES="0.1"
-# RD_VALUES="50 100"
+# RD_VALUES="50"
 
 
 NPROC=8
@@ -30,7 +30,7 @@ LOGDIR="logs"
 OUTDIR="${DISCEVOLUTION_OUTPUT:-.}"
 # Get absolute path to script directory and config file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/DiscConfig_HJpaper.json"
+CONFIG_FILE="$SCRIPT_DIR/V2/DiscConfig_HJpaper.json"
 
 export DRYRUN LOGDIR OUTDIR COMPLETED_FILE SCRIPT_DIR CONFIG_FILE
 # Read COMPLETED_FILE into a Bash associative array
@@ -64,6 +64,7 @@ parallel -j "$JOBS" --lb --tagstring 'psi{1}_Mdot{2}_M{3}_Rd{4}' '
       echo "[`date +%F" "%T`] Would launch: $OUTFILE"
     else
       echo "[`date +%F" "%T`] Launching: $OUTFILE"
+      echo "configfile=$CONFIG_FILE"
       python3 run_model_discchem_stream.py --config "$CONFIG_FILE"  --psi_DW "$psi" --Mdot "$mdot" --M "$M" --Rd "$Rd" \
         > "$LOGDIR/winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
         2> "$LOGDIR/winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"

@@ -77,9 +77,11 @@ def run_model(config):
         times = np.arange(sim_params['t_initial'], sim_params['t_final'], sim_params['t_interval']) * 2 * np.pi
     # define opacity class used. If not Tazzari, defaults to Zhu in IrradiatedEOS.
     if eos_params["opacity"] == "Tazzari":
-        kappa = Tazzari2016()
+        kappa = Tazzari2016
+    elif eos_params["opacity"] == "Zhu2012":
+        kappa = Zhu2012
     else:
-        kappa = None
+        kappa = Zhu2012
 
     if grid_params['type'] == 'Booth-alpha':
         # For fixed Rd, Mdot and Mdisk, solve for alpha
@@ -892,7 +894,7 @@ def run_model(config):
             last_eta_hours = 0
             last_eta_minutes = 0
             # Abort simulation if ETA exceeds threshold (hours); configurable via simulation.eta_abort_hours
-            eta_abort_hours = sim_params.get('eta_abort_hours', 12)
+            eta_abort_hours = sim_params.get('eta_abort_hours', 24)
             early_exit = False  # Flag to track early termination
             dt_min = 1.         # minimum time step; otherwise break early
             for ti in times:
@@ -923,7 +925,7 @@ def run_model(config):
                     #     break
 
                     # ETA-based early exit: use physics timestep for projection to avoid snapshot-induced artifacts
-                    if n > 100:
+                    if n > 1000:
                         remaining_sim = max(times[-1] - t, 0.0)
                         avg_sec_per_step = wall_spent / max(n, 1)
                         # Use physics-limited dt for ETA, not the snapshot-constrained dt

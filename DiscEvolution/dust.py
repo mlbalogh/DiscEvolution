@@ -11,6 +11,8 @@ from DiscEvolution.constants import *
 from DiscEvolution.disc import AccretionDisc
 from DiscEvolution.reconstruction import DonorCell, VanLeer
 from DiscEvolution.chemistry import SimpleCOMolAbund
+from scipy.signal import savgol_filter
+
 
 class DustyDisc(AccretionDisc):
     """Dusty accretion disc. Base class for an accretion disc that also
@@ -407,7 +409,6 @@ class DustGrowthTwoPop(DustyDisc):
         
         MLB implementation: Jan 12, 2026
         """
-        from scipy.signal import savgol_filter
         
         P = self.P
         R = self.R
@@ -420,7 +421,7 @@ class DustGrowthTwoPop(DustyDisc):
 
     def _drift_limit(self, eps_tot):
         """Maximum size due to drift limit or drift driven fragmentation"""
-        gamma = self._gammaP_smooth()
+        gamma = self._gammaP()
         
         Sigma_D = self.Sigma * eps_tot
         Sigma_G = self.Sigma_G
@@ -939,6 +940,9 @@ class SingleFluidDrift(object):
 
         # Compute the gas velocities due to pressure (with feedback):
         rho = disc.midplane_gas_density
+        # Smooth pressure before differentiation to reduce noise (MLB Jan 16, 2026)
+        #P_smooth = savgol_filter(disc.P, window_length=11, polyorder=3, mode='nearest')
+        #dPdr = np.diff(P_smooth) / disc.grid.dRc
         dPdr = np.diff(disc.P) / disc.grid.dRc
         eta = - dPdr / (0.5*(rho[1:] + rho[:-1] + 1e-300)*Om_kav)
 

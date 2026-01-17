@@ -16,7 +16,7 @@
         "t_initial": 0,
         "t_final": 3000000.0,
         "t_interval": [0, 0.001, 0.01, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0],
-        "eta_abort_hours": 12,
+        "eta_abort_hours": 24,
         "output_dir": "/Users/mbalogh/projects/PlanetFormation/python/output/HJpaper/V2"
     },
     "disc": {
@@ -30,7 +30,7 @@
     },
     "eos": {
         "type": "IrradiatedEOS",
-        "opacity": "Tazzari",
+        "opacity": "Zhu2012",
         "h0": 0.025,
         "q": -0.2,
         "Tmax": 1500.0

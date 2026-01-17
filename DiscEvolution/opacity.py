@@ -20,7 +20,6 @@ def Zhu2012(rho, T, amax=None):
         [1] Zhu, Z., Hartmann, L., Nelson, R. P., et al. 2012, ApJ, 746, 110.
         [2] Bell, K. R. & Lin, D. N.C. 1994, ApJ, 427, 987.
     """
-
     pre = rho * T * 8.314472e7 / 2.4
     xlp = np.log10(pre)
     xlt = np.log10(T)
