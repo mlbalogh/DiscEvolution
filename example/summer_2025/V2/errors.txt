@@ -1,0 +1,2 @@
+raise RuntimeError("Iteration failed to converge") | psi=0.01, Mdot=1e-08, M=0.1, Rd=50
+raise RuntimeError("Iteration failed to converge") | psi=10, Mdot=3e-09, M=0.05, Rd=100
