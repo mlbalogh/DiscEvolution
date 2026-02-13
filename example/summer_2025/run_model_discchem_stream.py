@@ -925,7 +925,7 @@ def run_model(config):
                     #     break
 
                     # ETA-based early exit: use physics timestep for projection to avoid snapshot-induced artifacts
-                    if n > 1000:
+                    if n >= 1000:
                         remaining_sim = max(times[-1] - t, 0.0)
                         avg_sec_per_step = wall_spent / max(n, 1)
                         # Use physics-limited dt for ETA, not the snapshot-constrained dt
