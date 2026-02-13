@@ -13,3 +13,4 @@ output/
 logs/
 data/
 .DS_Store
+*.pkl
