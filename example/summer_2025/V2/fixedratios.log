@@ -1,0 +1,401 @@
+nohup: ignoring input
+psi0.01_Mdot3e-9_M0.05_Rd150	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.075_Rd20	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M7.5e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.05_Rd20	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.05_Rd200	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.075_Rd50	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M7.5e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.05_Rd50	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.05_Rd100	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.075_Rd100	[2026-03-23 17:11:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M7.5e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.075_Rd150	[2026-03-23 18:13:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M7.5e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.075_Rd200	[2026-03-23 18:28:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M7.5e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.1_Rd20	[2026-03-23 18:52:33] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.1_Rd50	[2026-03-23 19:20:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.1_Rd100	[2026-03-23 19:29:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.1_Rd150	[2026-03-23 20:00:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.1_Rd200	[2026-03-23 20:24:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.125_Rd20	[2026-03-23 21:04:35] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.125_Rd50	[2026-03-23 21:40:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.125_Rd100	[2026-03-23 23:39:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.125_Rd150	[2026-03-24 00:00:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.125_Rd200	[2026-03-24 00:45:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.15_Rd20	[2026-03-24 00:56:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-9_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.15_Rd50	[2026-03-24 01:22:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-9_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.15_Rd100	[2026-03-24 01:39:14] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.15_Rd150	[2026-03-24 01:52:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-9_M0.15_Rd200	[2026-03-24 02:24:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-09_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-9_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.05_Rd20	[2026-03-24 02:43:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.05_Rd50	[2026-03-24 02:59:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.05_Rd100	[2026-03-24 03:25:15] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.05_Rd150	[2026-03-24 03:34:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.05_Rd200	[2026-03-24 04:52:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.075_Rd20	[2026-03-24 05:54:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M7.5e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.075_Rd50	[2026-03-24 07:10:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M7.5e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.075_Rd100	[2026-03-24 07:52:49] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M7.5e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.075_Rd150	[2026-03-24 08:45:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M7.5e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.075_Rd200	[2026-03-24 08:45:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M7.5e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.1_Rd20	[2026-03-24 09:54:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.1_Rd50	[2026-03-24 10:05:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.1_Rd100	[2026-03-24 11:18:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.1_Rd150	[2026-03-24 11:21:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.1_Rd200	[2026-03-24 12:21:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.125_Rd20	[2026-03-24 12:47:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.125_Rd50	[2026-03-24 13:32:32] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.125_Rd100	[2026-03-24 13:52:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.125_Rd150	[2026-03-24 14:14:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.125_Rd200	[2026-03-24 15:13:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.15_Rd20	[2026-03-24 15:43:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-8_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.15_Rd50	[2026-03-24 16:22:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-8_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.15_Rd100	[2026-03-24 16:24:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.15_Rd150	[2026-03-24 17:36:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-8_M0.15_Rd200	[2026-03-24 18:00:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-8_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.05_Rd20	[2026-03-24 18:32:56] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.05_Rd50	[2026-03-24 19:18:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.05_Rd100	[2026-03-24 19:20:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.05_Rd150	[2026-03-24 20:33:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.05_Rd200	[2026-03-24 20:34:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.075_Rd20	[2026-03-24 20:35:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M7.5e-02_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.075_Rd50	[2026-03-24 21:08:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M7.5e-02_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.075_Rd100	[2026-03-24 21:41:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M7.5e-02_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.075_Rd150	[2026-03-24 22:24:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M7.5e-02_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.075_Rd200	[2026-03-25 00:15:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M7.5e-02_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.1_Rd20	[2026-03-25 00:52:36] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.1_Rd50	[2026-03-25 01:32:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.1_Rd100	[2026-03-25 02:16:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.1_Rd150	[2026-03-25 03:24:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.1_Rd200	[2026-03-25 06:10:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.125_Rd20	[2026-03-25 06:14:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.125_Rd50	[2026-03-25 06:19:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.125_Rd100	[2026-03-25 08:06:31] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.125_Rd150	[2026-03-25 09:39:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.125_Rd200	[2026-03-25 10:08:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.15_Rd20	[2026-03-25 11:08:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot3e-8_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.15_Rd50	[2026-03-25 13:24:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot3e-8_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.15_Rd100	[2026-03-25 13:46:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.15_Rd150	[2026-03-25 13:49:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot3e-8_M0.15_Rd200	[2026-03-25 14:37:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot3.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot3e-8_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.05_Rd20	[2026-03-25 18:11:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.05_Rd50	[2026-03-25 18:36:55] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.05_Rd100	[2026-03-25 18:38:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.05_Rd150	[2026-03-25 18:39:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.05_Rd200	[2026-03-25 18:40:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.075_Rd20	[2026-03-25 18:41:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M7.5e-02_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.075_Rd50	[2026-03-25 18:41:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M7.5e-02_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.075_Rd100	[2026-03-25 18:42:29] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M7.5e-02_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.075_Rd150	[2026-03-25 18:43:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M7.5e-02_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.075_Rd200	[2026-03-25 18:44:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M7.5e-02_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.1_Rd20	[2026-03-25 18:45:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.1_Rd50	[2026-03-25 19:03:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.1_Rd100	[2026-03-25 19:28:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.1_Rd150	[2026-03-25 19:29:09] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.1_Rd200	[2026-03-25 19:30:15] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.125_Rd20	[2026-03-25 19:31:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.125_Rd50	[2026-03-25 21:14:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.125_Rd100	[2026-03-25 21:50:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.125_Rd150	[2026-03-25 21:51:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.125_Rd200	[2026-03-25 21:52:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.15_Rd20	[2026-03-25 21:53:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi0.01_Mdot1e-7_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.15_Rd50	[2026-03-26 00:41:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi0.01_Mdot1e-7_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.15_Rd100	[2026-03-26 00:47:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.15_Rd150	[2026-03-26 00:49:05] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi0.01_Mdot1e-7_M0.15_Rd200	[2026-03-26 00:50:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi0.01_Mdot1.0e-07_M1.5e-01_Rd2.0e+02.h5
+psi0.01_Mdot1e-7_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.05_Rd20	[2026-03-26 00:51:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M5.0e-02_Rd2.0e+01.h5
+psi10_Mdot3e-9_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.05_Rd50	[2026-03-26 01:23:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M5.0e-02_Rd5.0e+01.h5
+psi10_Mdot3e-9_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.05_Rd100	[2026-03-26 01:45:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M5.0e-02_Rd1.0e+02.h5
+psi10_Mdot3e-9_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.05_Rd150	[2026-03-26 02:29:31] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M5.0e-02_Rd1.5e+02.h5
+psi10_Mdot3e-9_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.05_Rd200	[2026-03-26 04:06:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M5.0e-02_Rd2.0e+02.h5
+psi10_Mdot3e-9_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.075_Rd20	[2026-03-26 04:28:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M7.5e-02_Rd2.0e+01.h5
+psi10_Mdot3e-9_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.075_Rd50	[2026-03-26 04:35:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M7.5e-02_Rd5.0e+01.h5
+psi10_Mdot3e-9_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.075_Rd100	[2026-03-26 05:22:17] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M7.5e-02_Rd1.0e+02.h5
+psi10_Mdot3e-9_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.075_Rd150	[2026-03-26 07:12:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M7.5e-02_Rd1.5e+02.h5
+psi10_Mdot3e-9_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.075_Rd200	[2026-03-26 08:11:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M7.5e-02_Rd2.0e+02.h5
+psi10_Mdot3e-9_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.1_Rd20	[2026-03-26 08:28:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.0e-01_Rd2.0e+01.h5
+psi10_Mdot3e-9_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.1_Rd50	[2026-03-26 09:07:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.0e-01_Rd5.0e+01.h5
+psi10_Mdot3e-9_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.1_Rd100	[2026-03-26 09:39:50] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.0e-01_Rd1.0e+02.h5
+psi10_Mdot3e-9_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.1_Rd150	[2026-03-26 09:43:51] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.0e-01_Rd1.5e+02.h5
+psi10_Mdot3e-9_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.1_Rd200	[2026-03-26 10:16:40] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.0e-01_Rd2.0e+02.h5
+psi10_Mdot3e-9_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.125_Rd20	[2026-03-26 10:32:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.2e-01_Rd2.0e+01.h5
+psi10_Mdot3e-9_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.125_Rd50	[2026-03-26 10:32:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.2e-01_Rd5.0e+01.h5
+psi10_Mdot3e-9_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.125_Rd100	[2026-03-26 11:58:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.2e-01_Rd1.0e+02.h5
+psi10_Mdot3e-9_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.125_Rd150	[2026-03-26 12:44:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.2e-01_Rd1.5e+02.h5
+psi10_Mdot3e-9_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.125_Rd200	[2026-03-26 12:55:59] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.2e-01_Rd2.0e+02.h5
+psi10_Mdot3e-9_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.15_Rd20	[2026-03-26 13:34:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.5e-01_Rd2.0e+01.h5
+psi10_Mdot3e-9_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.15_Rd50	[2026-03-26 13:34:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.5e-01_Rd5.0e+01.h5
+psi10_Mdot3e-9_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.15_Rd100	[2026-03-26 14:52:11] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.5e-01_Rd1.0e+02.h5
+psi10_Mdot3e-9_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.15_Rd150	[2026-03-26 15:58:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.5e-01_Rd1.5e+02.h5
+psi10_Mdot3e-9_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-9_M0.15_Rd200	[2026-03-26 16:56:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-09_M1.5e-01_Rd2.0e+02.h5
+psi10_Mdot3e-9_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.05_Rd20	[2026-03-26 17:02:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi10_Mdot1e-8_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.05_Rd50	[2026-03-26 17:36:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi10_Mdot1e-8_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.05_Rd100	[2026-03-26 18:00:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi10_Mdot1e-8_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.05_Rd150	[2026-03-26 18:38:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi10_Mdot1e-8_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.05_Rd200	[2026-03-26 19:21:42] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi10_Mdot1e-8_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.075_Rd20	[2026-03-26 19:53:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M7.5e-02_Rd2.0e+01.h5
+psi10_Mdot1e-8_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.075_Rd50	[2026-03-26 20:38:24] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M7.5e-02_Rd5.0e+01.h5
+psi10_Mdot1e-8_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.075_Rd100	[2026-03-26 20:53:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M7.5e-02_Rd1.0e+02.h5
+psi10_Mdot1e-8_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.075_Rd150	[2026-03-26 21:15:02] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M7.5e-02_Rd1.5e+02.h5
+psi10_Mdot1e-8_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.075_Rd200	[2026-03-26 21:26:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M7.5e-02_Rd2.0e+02.h5
+psi10_Mdot1e-8_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.1_Rd20	[2026-03-26 21:49:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi10_Mdot1e-8_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.1_Rd50	[2026-03-26 22:19:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi10_Mdot1e-8_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.1_Rd100	[2026-03-26 22:27:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi10_Mdot1e-8_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.1_Rd150	[2026-03-26 22:40:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi10_Mdot1e-8_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.1_Rd200	[2026-03-26 23:55:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi10_Mdot1e-8_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.125_Rd20	[2026-03-27 00:28:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi10_Mdot1e-8_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.125_Rd50	[2026-03-27 00:55:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi10_Mdot1e-8_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.125_Rd100	[2026-03-27 01:01:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi10_Mdot1e-8_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.125_Rd150	[2026-03-27 01:36:37] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi10_Mdot1e-8_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.125_Rd200	[2026-03-27 03:34:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi10_Mdot1e-8_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.15_Rd20	[2026-03-27 04:16:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi10_Mdot1e-8_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.15_Rd50	[2026-03-27 04:34:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi10_Mdot1e-8_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.15_Rd100	[2026-03-27 04:47:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi10_Mdot1e-8_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.15_Rd150	[2026-03-27 06:43:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi10_Mdot1e-8_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-8_M0.15_Rd200	[2026-03-27 08:02:54] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi10_Mdot1e-8_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.05_Rd20	[2026-03-27 08:45:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M5.0e-02_Rd2.0e+01.h5
+psi10_Mdot3e-8_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.05_Rd50	[2026-03-27 09:16:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M5.0e-02_Rd5.0e+01.h5
+psi10_Mdot3e-8_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.05_Rd100	[2026-03-27 09:45:48] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M5.0e-02_Rd1.0e+02.h5
+psi10_Mdot3e-8_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.05_Rd150	[2026-03-27 10:21:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M5.0e-02_Rd1.5e+02.h5
+psi10_Mdot3e-8_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.05_Rd200	[2026-03-27 10:29:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M5.0e-02_Rd2.0e+02.h5
+psi10_Mdot3e-8_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.075_Rd20	[2026-03-27 12:21:44] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M7.5e-02_Rd2.0e+01.h5
+psi10_Mdot3e-8_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.075_Rd50	[2026-03-27 13:01:25] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M7.5e-02_Rd5.0e+01.h5
+psi10_Mdot3e-8_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.075_Rd100	[2026-03-27 13:29:45] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M7.5e-02_Rd1.0e+02.h5
+psi10_Mdot3e-8_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.075_Rd150	[2026-03-27 13:31:46] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M7.5e-02_Rd1.5e+02.h5
+psi10_Mdot3e-8_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.075_Rd200	[2026-03-27 14:18:27] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M7.5e-02_Rd2.0e+02.h5
+psi10_Mdot3e-8_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.1_Rd20	[2026-03-27 14:29:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.0e-01_Rd2.0e+01.h5
+psi10_Mdot3e-8_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.1_Rd50	[2026-03-27 15:08:10] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.0e-01_Rd5.0e+01.h5
+psi10_Mdot3e-8_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.1_Rd100	[2026-03-27 15:36:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.0e-01_Rd1.0e+02.h5
+psi10_Mdot3e-8_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.1_Rd150	[2026-03-27 16:25:39] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.0e-01_Rd1.5e+02.h5
+psi10_Mdot3e-8_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.1_Rd200	[2026-03-27 16:27:22] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.0e-01_Rd2.0e+02.h5
+psi10_Mdot3e-8_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.125_Rd20	[2026-03-27 17:21:18] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.2e-01_Rd2.0e+01.h5
+psi10_Mdot3e-8_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.125_Rd50	[2026-03-27 17:35:57] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.2e-01_Rd5.0e+01.h5
+psi10_Mdot3e-8_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.125_Rd100	[2026-03-27 18:39:30] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.2e-01_Rd1.0e+02.h5
+psi10_Mdot3e-8_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.125_Rd150	[2026-03-27 18:55:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.2e-01_Rd1.5e+02.h5
+psi10_Mdot3e-8_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.125_Rd200	[2026-03-27 19:34:20] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.2e-01_Rd2.0e+02.h5
+psi10_Mdot3e-8_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.15_Rd20	[2026-03-27 20:06:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.5e-01_Rd2.0e+01.h5
+psi10_Mdot3e-8_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.15_Rd50	[2026-03-27 20:25:01] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.5e-01_Rd5.0e+01.h5
+psi10_Mdot3e-8_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.15_Rd100	[2026-03-27 20:53:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.5e-01_Rd1.0e+02.h5
+psi10_Mdot3e-8_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.15_Rd150	[2026-03-27 20:58:06] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.5e-01_Rd1.5e+02.h5
+psi10_Mdot3e-8_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot3e-8_M0.15_Rd200	[2026-03-27 22:10:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot3.0e-08_M1.5e-01_Rd2.0e+02.h5
+psi10_Mdot3e-8_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.05_Rd20	[2026-03-27 22:12:19] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M5.0e-02_Rd2.0e+01.h5
+psi10_Mdot1e-7_M0.05_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.05_Rd50	[2026-03-27 22:47:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M5.0e-02_Rd5.0e+01.h5
+psi10_Mdot1e-7_M0.05_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.05_Rd100	[2026-03-27 22:54:13] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M5.0e-02_Rd1.0e+02.h5
+psi10_Mdot1e-7_M0.05_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.05_Rd150	[2026-03-27 23:25:23] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M5.0e-02_Rd1.5e+02.h5
+psi10_Mdot1e-7_M0.05_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.05_Rd200	[2026-03-28 00:28:53] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M5.0e-02_Rd2.0e+02.h5
+psi10_Mdot1e-7_M0.05_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.075_Rd20	[2026-03-28 01:50:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M7.5e-02_Rd2.0e+01.h5
+psi10_Mdot1e-7_M0.075_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.075_Rd50	[2026-03-28 02:10:04] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M7.5e-02_Rd5.0e+01.h5
+psi10_Mdot1e-7_M0.075_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.075_Rd100	[2026-03-28 03:46:00] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M7.5e-02_Rd1.0e+02.h5
+psi10_Mdot1e-7_M0.075_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.075_Rd150	[2026-03-28 04:37:43] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M7.5e-02_Rd1.5e+02.h5
+psi10_Mdot1e-7_M0.075_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.075_Rd200	[2026-03-28 04:50:38] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M7.5e-02_Rd2.0e+02.h5
+psi10_Mdot1e-7_M0.075_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.1_Rd20	[2026-03-28 05:51:31] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.0e-01_Rd2.0e+01.h5
+psi10_Mdot1e-7_M0.1_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.1_Rd50	[2026-03-28 06:48:07] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.0e-01_Rd5.0e+01.h5
+psi10_Mdot1e-7_M0.1_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.1_Rd100	[2026-03-28 08:33:21] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.0e-01_Rd1.0e+02.h5
+psi10_Mdot1e-7_M0.1_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.1_Rd150	[2026-03-28 08:46:26] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.0e-01_Rd1.5e+02.h5
+psi10_Mdot1e-7_M0.1_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.1_Rd200	[2026-03-28 09:02:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.0e-01_Rd2.0e+02.h5
+psi10_Mdot1e-7_M0.1_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.125_Rd20	[2026-03-28 11:22:16] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.2e-01_Rd2.0e+01.h5
+psi10_Mdot1e-7_M0.125_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.125_Rd50	[2026-03-28 11:40:34] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.2e-01_Rd5.0e+01.h5
+psi10_Mdot1e-7_M0.125_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.125_Rd100	[2026-03-28 12:49:47] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.2e-01_Rd1.0e+02.h5
+psi10_Mdot1e-7_M0.125_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.125_Rd150	[2026-03-28 13:27:52] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.2e-01_Rd1.5e+02.h5
+psi10_Mdot1e-7_M0.125_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.125_Rd200	[2026-03-28 13:54:12] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.2e-01_Rd2.0e+02.h5
+psi10_Mdot1e-7_M0.125_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.15_Rd20	[2026-03-28 14:38:41] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.5e-01_Rd2.0e+01.h5
+psi10_Mdot1e-7_M0.15_Rd20	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.15_Rd50	[2026-03-28 14:42:58] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.5e-01_Rd5.0e+01.h5
+psi10_Mdot1e-7_M0.15_Rd50	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.15_Rd100	[2026-03-28 16:14:49] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.5e-01_Rd1.0e+02.h5
+psi10_Mdot1e-7_M0.15_Rd100	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.15_Rd150	[2026-03-28 16:35:15] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.5e-01_Rd1.5e+02.h5
+psi10_Mdot1e-7_M0.15_Rd150	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json
+psi10_Mdot1e-7_M0.15_Rd200	[2026-03-28 16:37:08] Launching: /home/mbalogh/projects/PlanetFormation/DiscEvolution/output/HJpaper/V2/FixedRatios/fixedratios_winds_mig_psi10.0_Mdot1.0e-07_M1.5e-01_Rd2.0e+02.h5
+psi10_Mdot1e-7_M0.15_Rd200	configfile=/home/mbalogh/projects/PlanetFormation/DiscEvolution/example/summer_2025/V2/DiscConfig_HJpaper_FixedRatios.json

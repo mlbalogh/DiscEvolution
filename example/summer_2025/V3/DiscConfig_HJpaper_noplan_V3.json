@@ -66,10 +66,10 @@
         "migrate": true,
         "pebble_accretion": true,
         "gas_accretion": true,
-        "planetesimal_accretion": true
+        "planetesimal_accretion": false
     },
     "planetesimal": {
-        "active": true,
+        "active": false,
         "diameter": 200,
         "St_min": 0.01,
         "St_max": 10,

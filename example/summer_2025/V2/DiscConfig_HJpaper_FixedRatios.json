@@ -15,15 +15,15 @@
     "simulation": {
         "t_initial": 0,
         "t_final": 3000000.0,
-        "t_interval": [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 2.5, 3.0],
+        "t_interval": [0, 0.001, 0.01, 0.1, 0.2, 0.5, 1.0, 2.0, 3.0],
         "eta_abort_hours": 24,
-        "output_dir": "/home/mbalogh/projects/PlanetFormation/python/output/HJpaper/V3"
+        "output_dir": "/Users/mbalogh/projects/PlanetFormation/python/output/HJpaper/V2"
     },
     "disc": {
         "alpha": 0.00322259263116507,
         "M": 0.1,
         "d2g": 0.01,
-        "Mdot": 1.0e-8,
+        "Mdot": 3.0e-9,
         "Sc": 1.0,
         "Rd": 50,
         "gamma": 1
@@ -39,7 +39,7 @@
         "gas_transport": true,
         "radial_drift": true,
         "diffusion": true,
-        "van_leer": true
+        "van_leer": false
     },
     "dust_growth": {
         "feedback": true,
@@ -62,7 +62,7 @@
         "Rp": [1, 2, 3, 4, 5, 7, 10, 15, 20, 25, 30],
         "Mp": [0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01, 0.01],
         "implant_time": [60000, 60000, 60000, 60000, 60000, 600000, 600000, 600000, 600000, 600000, 600000],
-        "pb_gas_f": 0.1,
+        "pb_gas_f": 0.05,
         "migrate": true,
         "pebble_accretion": true,
         "gas_accretion": true,
@@ -73,7 +73,7 @@
         "diameter": 200,
         "St_min": 0.01,
         "St_max": 10,
-        "pla_eff": 0.1
+        "pla_eff": 0.05
     },
     "winds": {
         "on": true,

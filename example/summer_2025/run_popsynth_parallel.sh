@@ -20,10 +20,10 @@ set -euo pipefail
 # M_VALUES="0.075 0.125"
 # RD_VALUES="20 50 100 150 200"
 # V2 - equilibrium chemistry with fixed ratios
-PSI_VALUES="0.01 10"
-MDOT_VALUES="3e-9 1e-8 3e-8 1e-7"
-M_VALUES="0.05 0.075 0.1 0.125 0.15"
-RD_VALUES="20 50 100 150 200"
+# PSI_VALUES="0.01 10"
+# MDOT_VALUES="3e-9 1e-8 3e-8 1e-7"
+# M_VALUES="0.05 0.075 0.1 0.125 0.15"
+# RD_VALUES="20 50 100 150 200"
 #
 # Test
 # PSI_VALUES="0.01"
@@ -31,17 +31,23 @@ RD_VALUES="20 50 100 150 200"
 # M_VALUES="0.1"
 # RD_VALUES="50"
 
+# V3
+PSI_VALUES="0.01 10"
+MDOT_VALUES="1e-9 3e-9 1e-8 3e-8 1e-7 3e-7 1e-6"
+M_VALUES="0.05 0.075 0.1 0.125 0.15"
+RD_VALUES="50 100 150 200"
+
 
 NPROC=8
 DRYRUN=0
 
-COMPLETED_FILE="completed_fixedratios.txt"
+COMPLETED_FILE="completed_V3.txt"
 LOGDIR="logs"
 # Use DISCEVOLUTION_OUTPUT env var if set, otherwise fall back to default
 OUTDIR="${DISCEVOLUTION_OUTPUT:-.}"
 # Get absolute path to script directory and config file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-CONFIG_FILE="$SCRIPT_DIR/V2/DiscConfig_HJpaper_FixedRatios.json"
+CONFIG_FILE="$SCRIPT_DIR/V3/DiscConfig_HJpaper_noplan_V3.json"
 
 export DRYRUN LOGDIR OUTDIR COMPLETED_FILE SCRIPT_DIR CONFIG_FILE
 # Read COMPLETED_FILE into a Bash associative array
@@ -69,7 +75,7 @@ parallel -j "$JOBS" --lb --tagstring 'psi{1}_Mdot{2}_M{3}_Rd{4}' '
     mdot_fmt=$(printf "%.1e" "$mdot")
     M_fmt=$(printf "%.1e" "$M")
     Rd_fmt=$(printf "%.1e" "$Rd")
-    OUTFILE="$OUTDIR/fixedratios_winds_mig_psi${psi_fmt}_Mdot${mdot_fmt}_M${M_fmt}_Rd${Rd_fmt}.h5"
+    OUTFILE="$OUTDIR/noplan_winds_mig_psi${psi_fmt}_Mdot${mdot_fmt}_M${M_fmt}_Rd${Rd_fmt}.h5"
 
     if [[ $DRYRUN -eq 1 ]]; then
       echo "[`date +%F" "%T`] Would launch: $OUTFILE with $CONFIG_FILE"
@@ -77,8 +83,8 @@ parallel -j "$JOBS" --lb --tagstring 'psi{1}_Mdot{2}_M{3}_Rd{4}' '
       echo "[`date +%F" "%T`] Launching: $OUTFILE"
       echo "configfile=$CONFIG_FILE"
       python3 run_model_discchem_stream.py --config "$CONFIG_FILE"  --psi_DW "$psi" --Mdot "$mdot" --M "$M" --Rd "$Rd" \
-        > "$LOGDIR/fixedratios_winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
-        2> "$LOGDIR/fixedratios_winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"
+        > "$LOGDIR/noplan_winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.out" \
+        2> "$LOGDIR/noplan_winds_mig_psi${psi}_Mdot${mdot}_M${M}_Rd${Rd}.err"
     fi
   fi
 ' ::: $PSI_VALUES ::: $MDOT_VALUES ::: $M_VALUES ::: $RD_VALUES
