@@ -32,8 +32,14 @@ set -euo pipefail
 # RD_VALUES="50"
 
 # V3
-PSI_VALUES="0.01 10"
-MDOT_VALUES="1e-9 3e-9 1e-8 3e-8 1e-7 3e-7 1e-6"
+# PSI_VALUES="0.01 10"
+# MDOT_VALUES="1e-9 3e-9 1e-8 3e-8 1e-7 3e-7 1e-6"
+# M_VALUES="0.05 0.075 0.1 0.125 0.15"
+# RD_VALUES="50 100 150 200"
+
+# V3 rerun with fix to Migration switch
+PSI_VALUES="10"
+MDOT_VALUES="1e-9 3e-9 1e-8 3e-8 1e-7 3e-7"
 M_VALUES="0.05 0.075 0.1 0.125 0.15"
 RD_VALUES="50 100 150 200"
 

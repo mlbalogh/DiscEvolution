@@ -1112,9 +1112,8 @@ class PlanetMigration(object):
         Me = Mp*Mearth/Msun
         q = Me / star.M
         rH = star.r_Hill(Rp, Mp)
-        nu = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
-    # For testing
-        #nu = disc.interp(Rp, disc.nu)
+        #nu = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
+        nu = disc.interp(Rp, disc.nu)
 
         H  = disc.interp(Rp, disc.H)
 
