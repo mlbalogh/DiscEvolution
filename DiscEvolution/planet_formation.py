@@ -962,12 +962,12 @@ class TypeIMigration(object):
         h     = disc.interp(Rp, disc.H) / Rp
         Sigma = disc.interp(Rp, disc.Sigma)
         nu_SS = disc.interp(Rp, disc.nu)
-        nu    = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
+        nu    = disc.interp(Rp, disc.nu) 
         Pr    = disc.interp(Rp, disc.Pr)
 
         Om_k = star.Omega_k(Rp)
-        
-        Xi = nu/Pr
+        # Include disk wind contribution to temperature
+        Xi = nu_SS/Pr* (1 + disc._gas._psi/3.)
         Q = 2*Xi/(3*h*h*h*Rp*Rp*Om_k)
         g_eff = self.gamma_eff_tab(Q)
         
