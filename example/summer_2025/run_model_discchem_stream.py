@@ -716,7 +716,7 @@ def run_model(config, cli_output_dir=None):
         output_dir = cli_output_dir or os.environ.get('DISCEVOLUTION_OUTPUT', sim_params.get('output_dir', './output'))
         os.makedirs(output_dir, exist_ok=True)
         
-        filename = f"noplan_winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
+        filename = f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5"
         outfile = os.path.join(output_dir, filename)
 
         with h5py.File(outfile, "w") as h5f:
