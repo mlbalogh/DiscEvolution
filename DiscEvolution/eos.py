@@ -143,7 +143,7 @@ class LocallyIsothermalEOS(EOS_Table):
 
 
 class SimpleDiscEOS(EOS_Table):
-    """Simple approximate irradiated/viscous equation of state from Liu et al.
+    """Simple approximate irradiated/viscous equation of state from Liu, Lambrechts, Johansen and Liu
     (2019).
 
     args:
