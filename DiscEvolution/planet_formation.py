@@ -558,7 +558,7 @@ class PlanetesimalAccretion(object):
     def R_captr_detached(self, M_Z, M_HHe, time=1e7):
         """
         Calculate the protoplanet capture radius in the detached phase.
-        Applies when M_Z >= M_HHe (core-dominated case).
+        Applies when M_Z < M_HHe (H+He-dominated envelope).
 
         args:
             M_Z: Total heavy-element mass (in Earth masses)
@@ -616,7 +616,7 @@ class PlanetesimalAccretion(object):
             return R_attached
 
         R_detached = self.R_captr_detached(M_Z, M_HHe, time=time)
-        R_captr = np.where(M_Z < M_HHe, R_attached, R_detached)
+        R_captr = np.where(M_Z >= M_HHe, R_attached, R_detached)
         self._R_captr = R_captr
 
         return R_captr
