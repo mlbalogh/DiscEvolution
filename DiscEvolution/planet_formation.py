@@ -874,7 +874,7 @@ class PlanetesimalAccretion(object):
         
         return Mdot
 
-    def computeMdot(self, Rp, Mp, dRdt=None):
+    def computeMdot(self, Rp, Mp, dRdt=None,M_Z=None, M_HHe=None, time=1e7):
         """
         Compute the planetesimal accretion rate in migrating and nonmigrating cases.
         
@@ -892,7 +892,7 @@ class PlanetesimalAccretion(object):
         #     Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
         # else:
         #     Mdot = self.computeMdotTwoPhase(Rp, Mp)
-        Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
+        Mdot = self.computeMdotMigration(Rp, Mp, dRdt, M_Z=M_Z, M_HHe=M_HHe, time=time)
 
         return Mdot 
     
