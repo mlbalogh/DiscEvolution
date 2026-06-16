@@ -569,6 +569,8 @@ class PlanetesimalAccretion(object):
         return: Protoplanet capture radius in AU (depends only on M_Z/M_HHe ratio)
         """
         ratio = M_Z / np.maximum(M_HHe, 1e-300)
+        # Clamp ratio to [0, 1] for numerical stability
+        ratio = np.clip(ratio, 0, 1.0)
 
         # Polynomial coefficients for two different times
         coeffs_1e7 = np.array([12.80662188, -50.86303789, 382.66267044, -1388.57741163, 1902.60362959])
