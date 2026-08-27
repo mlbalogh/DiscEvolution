@@ -460,19 +460,24 @@ class PlanetesimalAccretion(object):
     def drag_coeff(self,Rp = None):
         """
         Calculate the drag coefficient given by Podolak et al. (1988).
+        Note these are the values of D in Podolak which are half the usual C_D.
         """
         vrel = self.relative_velocity(Rp)
         Ma = self.Mach(Rp,vrel)
         Re = self.Reynolds(Rp,vrel)
-        for number in Re:
-            if number < 1: 
-                warnings.warn(f"Reynolds number of {number:.2f} found, setting to 1 to avoid division by zero.")
-        Re = np.where(Re < 1, 1, Re)
+        # for number in Re:
+        #     if number < 1: 
+        #         warnings.warn(f"Reynolds number of {number:.2f} found, setting to 1 to avoid division by zero.")
+        # Re = np.where(Re < 1, 1, Re)
      
         drag_coeff = np.zeros_like(Ma)
 
         # Calculate the drag coefficient for the different regimes
         # Apply conditions: Ma < 1 and Re < 10^3
+
+        condition = (Re < 1) # Assume Stokes regime
+        drag_coeff[condition] = 6 / Re[condition]
+
         condition = (Ma < 1) & (Re < 1e3) & (Re >= 1)
         drag_coeff[condition] = 6 / np.sqrt(Re[condition])
 
@@ -550,17 +555,70 @@ class PlanetesimalAccretion(object):
     
         return R_capt
     
-    def R_capt(self, Rp, Mp):
+    def R_captr_detached(self, M_Z, M_HHe, time=1e7):
         """
-        Calculate the protoplanet capture radius.
-        
+        Calculate the protoplanet capture radius in the detached phase.
+        Applies when M_Z < M_HHe (H+He-dominated envelope).
+
+        args:
+            M_Z: Total heavy-element mass (in Earth masses)
+            M_HHe: Total H/He mass (in Earth masses)
+            time: Time in years (default 1e7). Used to interpolate coefficients
+                  between 1e7 and 1e8 years. Values outside this range use nearest set.
+
+        return: Protoplanet capture radius in AU (depends only on M_Z/M_HHe ratio)
+        """
+        ratio = M_Z / np.maximum(M_HHe, 1e-300)
+        # Clamp ratio to [0, 1] for numerical stability
+        ratio = np.clip(ratio, 0, 1.0)
+
+        # Polynomial coefficients for two different times
+        coeffs_1e7 = np.array([12.80662188, -50.86303789, 382.66267044, -1388.57741163, 1902.60362959])
+        coeffs_1e8 = np.array([9.15426162, -6.74548399, 9.40271959, 0, 0])
+
+        # Select or interpolate coefficients based on time
+        if time <= 1e7:
+            coeffs = coeffs_1e7
+        elif time >= 1e8:
+            coeffs = coeffs_1e8
+        else:
+            # Log-linear interpolation between 1e7 and 1e8 years
+            log_time = np.log10(time)
+            log_t1 = 7.0
+            log_t2 = 8.0
+            alpha = (log_time - log_t1) / (log_t2 - log_t1)
+            coeffs = (1 - alpha) * coeffs_1e7 + alpha * coeffs_1e8
+
+        # Evaluate polynomial sum from i=0 to 4
+        R_capt = np.zeros_like(ratio, dtype=float)
+        for i in np.arange(5):
+            R_capt += coeffs[i] * ratio**i
+
+        # Convert from cm to AU
+        R_capt = R_capt * 1.0e9 / AU  # cm to AU
+
+        return R_capt
+
+    def R_capt(self, Rp, Mp, M_Z=None, M_HHe=None, time=1e7):
+        """
+        Calculate the protoplanet capture radius with phase switch.
+
         Rp: Protoplanet radius (in AU)
         Mp: Protoplanet mass (in Earth masses)
+        M_Z: Total heavy-element mass (optional, for phase switch)
+        M_HHe: Total H/He mass (optional, for phase switch)
+        time: Time in years (default 1e7, passed to detached phase calculation)
 
         return: Protoplanet capture radius
         """
-        # if attached M_Z < M_H-He
-        R_captr = self.R_captr_attached(Rp, Mp)
+        R_attached = self.R_captr_attached(Rp, Mp)
+
+        if M_Z is None or M_HHe is None:
+            self._R_captr = R_attached
+            return R_attached
+
+        R_detached = self.R_captr_detached(M_Z, M_HHe, time=time)
+        R_captr = np.where(M_Z >= M_HHe, R_attached, R_detached)
         self._R_captr = R_captr
 
         return R_captr
@@ -604,24 +662,27 @@ class PlanetesimalAccretion(object):
     
         return i0
 
-    def computeAccEff(self, Rp, Mp, dRdt):
+    def computeAccEff(self, Rp, Mp, dRdt, M_Z=None, M_HHe=None, time=1e7):
         """
         Calculate the planetesimal accretion efficiency.
 
         Rp: Protoplanet orbital radius (in AU)
         Mp: Protoplanet mass (in Earth masses)
         dRdt: Protoplanet migration rate
+        M_Z: Total heavy-element mass (optional, for phase switch)
+        M_HHe: Total H/He mass (optional, for phase switch)
+        time: Time in years (default 1e7, for detached phase)
 
         return: Planetesimal accretion efficiency
         """
         disc = self._disc
         star = disc.star
-        
+
         rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
         h_p = rH/Rp
-        R_captr = self.R_capt(Rp, Mp)
+        R_captr = self.R_capt(Rp, Mp, M_Z=M_Z, M_HHe=M_HHe, time=time)
         R_captr /= rH # capture used instead of physical
-        
+
         i0 = self.inclination(Rp) / h_p
 
         T_k = (2*np.pi) / star.Omega_k(Rp) # Orbital period in 2pi*years
@@ -636,22 +697,25 @@ class PlanetesimalAccretion(object):
         # Calculate the accretion efficiency
         # Do not allow accretion efficiency to exceed 1.
         acc_eff = np.minimum(1., alpha_pla * b_p ** (beta_pla - 1))
-        
+
         return acc_eff, R_captr
 
-    def computeMdotMigration(self, Rp, Mp, dRdt):
+    def computeMdotMigration(self, Rp, Mp, dRdt, M_Z=None, M_HHe=None, time=1e7):
         """
         Compute the planetesimal accretion rate in the case of migration.
-        
+
         Rp: Protoplanet radius (in AU)
         Mp: Protoplanet mass (in Earth masses)
+        M_Z: Total heavy-element mass (optional, for phase switch)
+        M_HHe: Total H/He mass (optional, for phase switch)
+        time: Time in years (default 1e7, for detached phase)
 
         return: Planetesimal accretion rate
         """
         disc = self._disc
         Sigma_pla = disc.interp(Rp, disc.Sigma_D[2])
-        
-        acc_eff = self.computeAccEff(Rp, Mp, dRdt)
+
+        acc_eff = self.computeAccEff(Rp, Mp, dRdt, M_Z=M_Z, M_HHe=M_HHe, time=time)
         R_captr = acc_eff[1]
         acc_eff_Rp = acc_eff[0]
 
@@ -812,7 +876,7 @@ class PlanetesimalAccretion(object):
         
         return Mdot
 
-    def computeMdot(self, Rp, Mp, dRdt=None):
+    def computeMdot(self, Rp, Mp, dRdt=None,M_Z=None, M_HHe=None, time=1e7):
         """
         Compute the planetesimal accretion rate in migrating and nonmigrating cases.
         
@@ -830,7 +894,7 @@ class PlanetesimalAccretion(object):
         #     Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
         # else:
         #     Mdot = self.computeMdotTwoPhase(Rp, Mp)
-        Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
+        Mdot = self.computeMdotMigration(Rp, Mp, dRdt, M_Z=M_Z, M_HHe=M_HHe, time=time)
 
         return Mdot 
     
@@ -962,12 +1026,12 @@ class TypeIMigration(object):
         h     = disc.interp(Rp, disc.H) / Rp
         Sigma = disc.interp(Rp, disc.Sigma)
         nu_SS = disc.interp(Rp, disc.nu)
-        nu    = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
+        nu    = disc.interp(Rp, disc.nu) 
         Pr    = disc.interp(Rp, disc.Pr)
 
         Om_k = star.Omega_k(Rp)
-        
-        Xi = nu/Pr
+        # Include disk wind contribution to temperature
+        Xi = nu_SS/Pr* (1 + disc._gas._psi/3.)
         Q = 2*Xi/(3*h*h*h*Rp*Rp*Om_k)
         g_eff = self.gamma_eff_tab(Q)
         
@@ -1112,9 +1176,8 @@ class PlanetMigration(object):
         Me = Mp*Mearth/Msun
         q = Me / star.M
         rH = star.r_Hill(Rp, Mp)
-        nu = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
-    # For testing
-        #nu = disc.interp(Rp, disc.nu)
+        #nu = disc.interp(Rp, disc.nu) * (1 + disc._gas._psi)
+        nu = disc.interp(Rp, disc.nu)
 
         H  = disc.interp(Rp, disc.H)
 
@@ -1314,17 +1377,28 @@ class Bitsch2015Model(object):
             M_core = np.where(y[N  :2*N]<0, 0, y[N  :2*N])
             M_env  = np.where(y[2*N:3*N]<0, 0, y[2*N:3*N]) # Avoid negative envelope masses
 
+            # Extract M_Z and M_HHe for phase switch
+            if chem:
+                Nspec = (len(y) - 3*N) // (2*N)
+                Chem_core = y[3*N : 3*N + Nspec*N].reshape(Nspec, N)
+                Chem_env = y[3*N + Nspec*N : 3*N + 2*Nspec*N].reshape(Nspec, N)
+                M_Z = Chem_core.sum(0) + Chem_env.sum(0)
+                M_HHe = M_core + M_env - M_Z
+            else:
+                M_Z = M_core
+                M_HHe = M_env
+
             Rdot = dRdt(R_p, M_core, M_env)
 
             Mcdot = np.zeros_like(Rdot)
             Medot = np.zeros_like(Rdot)
-            
+
             Mcdot, Medot = dMdt(R_p, M_core, M_env)
 
             # Compute the mass accretion rate due to planetesimal accretion
             Mdot_pla = np.zeros_like(Mcdot)
             if self._pl_acc:
-                Mdot_pla = self._pl_acc.computeMdot(R_p, M_core, Rdot)
+                Mdot_pla = self._pl_acc.computeMdot(R_p, M_core, Rdot, M_Z=M_Z, M_HHe=M_HHe)
 
             # Compute planetesimal partitioning fraction based on envelope mass
             # All planetesimals go to core if M_env < 1 M_earth, to envelope if M_env >= 1 M_earth
