@@ -9,16 +9,8 @@ WHAT THIS RUNS
 --------------
 This script reproduces exactly one physical setup out of the several that
 DiscEvolution supports: a viscously- and magnetically-(disc-wind)-accreting
-disc, with two-population dust growth and radial drift, equilibrium C/N/O/S
+disc, with two-population dust growth and radial drift, simple C/O
 chemistry, planetesimal formation, and Bitsch-model planet growth/migration.
-This is the "winds-alpha" configuration used for every production run in
-run_popsynth_parallel.sh with example/summer_2025/V3/DiscConfig_HJpaper_V3.json.
-
-The original, unabridged script (run_model_discchem_stream.py) supports five
-further ways of setting up the initial disc, and an unused live-plotting
-mode. Both are left out here on purpose, to keep the pipeline below short
-enough to read top to bottom. run_model_discchem_stream.py is unchanged and
-still the one to use if you need those features.
 
 UNIT CONVENTIONS (the part that trips everyone up at first)
 -------------------------------------------------------------
@@ -61,8 +53,8 @@ PIPELINE OVERVIEW
     9. Integrate forward in time, writing a snapshot at each requested
        output time.
 
-Run it the same way as the original script:
-    python run_model_student.py --config V3/DiscConfig_HJpaper_V3.json \\
+Run it with:
+    python run_model_student.py --config config/DiscConfig_default.json \\
         --psi_DW 0.01 --Mdot 1e-8 --M 0.1 --Rd 50
 """
 
@@ -510,6 +502,29 @@ def write_disc_snapshot(h5f, disc, config, t, Natom, Nmol):
 
 
 # ============================================================================
+# Output filename
+# ============================================================================
+#
+# This is the ONE place that decides the output filename, so it can never
+# drift out of sync with a copy hardcoded somewhere else (that used to
+# happen between this script and run_popsynth_parallel.sh). The prefix
+# comes from config['simulation']['run_name'] -- change it there and every
+# script that calls output_filename() picks it up automatically. A batch
+# launcher does not need to know this format at all: it can just always
+# invoke run_model_student.py and let `run_model()`'s own skip-if-complete
+# check (below) decide whether there's anything to do.
+
+def output_filename(config):
+    """Build the deterministic output filename for one parameter combination."""
+    sim_params = config['simulation']
+    disc_params = config['disc']
+    wind_params = config['winds']
+    run_name = sim_params.get('run_name', 'run')
+    return (f"{run_name}_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}"
+            f"_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5")
+
+
+# ============================================================================
 # Main driver
 # ============================================================================
 
@@ -521,7 +536,7 @@ def run_model(config, cli_output_dir=None):
     Parameters
     ----------
     config : dict
-        Parsed JSON configuration (see V3/DiscConfig_HJpaper_V3.json for
+        Parsed JSON configuration (see config/DiscConfig_default.json for
         an example of every field used below).
     cli_output_dir : str, optional
         Output directory, highest priority (beats $DISCEVOLUTION_OUTPUT
@@ -538,6 +553,21 @@ def run_model(config, cli_output_dir=None):
     chemistry_params = config['chemistry']
     planetesimal_params = config['planetesimal']
     wind_params = config['winds']
+
+    # ---- 0. skip immediately if this exact run already finished ----
+    # (checked before any of the expensive setup below, so a batch sweep
+    #  can be safely re-launched after an interruption without re-solving
+    #  discs it already has answers for)
+    output_dir = cli_output_dir or os.environ.get(
+        'DISCEVOLUTION_OUTPUT', sim_params.get('output_dir', './output'))
+    os.makedirs(output_dir, exist_ok=True)
+    outfile = os.path.join(output_dir, output_filename(config))
+    if os.path.exists(outfile):
+        with h5py.File(outfile, "r") as existing:
+            if existing.attrs.get("complete", False):
+                print(f"Skipping -- output already complete: {outfile}")
+                return
+        print(f"Output file exists but is incomplete; re-running: {outfile}")
 
     # ---- 2. grid + star ----
     grid = Grid(grid_params['rmin'], grid_params['rmax'], grid_params['nr'],
@@ -577,14 +607,7 @@ def run_model(config, cli_output_dir=None):
     planets, planet_model = build_planets(disc, planet_params, chemistry_params, wind_params)
     nplanets = len(planet_params["Mp"])
 
-    # ---- 8. output file ----
-    output_dir = cli_output_dir or os.environ.get(
-        'DISCEVOLUTION_OUTPUT', sim_params.get('output_dir', './output'))
-    os.makedirs(output_dir, exist_ok=True)
-    filename = (f"winds_mig_psi{wind_params['psi_DW']}_Mdot{disc_params['Mdot']:.1e}"
-                f"_M{disc_params['M']:.1e}_Rd{disc_params['Rd']:.1e}.h5")
-    outfile = os.path.join(output_dir, filename)
-
+    # ---- 8. output file (path already computed in the skip-check above) ----
     h5f, groups = create_output_file(outfile, grid, config, Natom, Nmol, alpha_SS)
     try:
         _integrate(h5f, groups, disc, grid, star, planets, planet_model, gas, dust, diffuse,
@@ -748,7 +771,6 @@ if __name__ == "__main__":
 
     parser = argparse.ArgumentParser(
         description="Run disc evolution model with HDF5 streaming output "
-                    "(student/reference version -- winds-alpha setup only). "
                     "Configuration can be loaded from a JSON file and overridden "
                     "via command-line arguments.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -758,9 +780,9 @@ Examples:
   python run_model_student.py
 
   # Run with custom config file
-  python run_model_student.py --config V3/DiscConfig_HJpaper_V3.json
+  python run_model_student.py --config config/DiscConfig_default.json
 
-  # Override specific parameters (matches run_popsynth_parallel.sh usage)
+  # Override specific parameters 
   python run_model_student.py --psi_DW 0.01 --Mdot 1e-8 --M 0.1 --Rd 50
 
   # Use environment variable for output directory
