@@ -399,8 +399,6 @@ only — `nohup`/`setsid` still won't be available there).
 
 ## 9. Where to go next
 
-- **Other disc setups** (fixed-Rd, no winds, etc.): `run_model_discchem_stream.py`
-  and `disc_setup.py`'s module docstring.
 - **Analysing output**: see the notebook `HJpaper.ipynb`.
 - **Questions**: don't sit stuck on a plumbing/environment issue for more
   than ~15 minutes — ask. Physics questions about *why* the code does
