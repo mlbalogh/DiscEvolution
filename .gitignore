@@ -16,3 +16,4 @@ Figs/
 .DS_Store
 BACKUP
 *.pkl
+.specstory
