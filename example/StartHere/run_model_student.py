@@ -746,16 +746,20 @@ def _integrate(h5f, groups, disc, grid, star, planets, planet_model, gas, dust, 
                 print(f"\rdt: {dt/yr} yr", flush=True)
                 print(f"\rETA: {last_eta_hours:02d}:{last_eta_minutes:02d} (h:m)", flush=True)
 
-            # --- stream per-planet series every 5 steps ---
-            if planets is not None and (n % 5 == 0):
+            # --- stream disc-level (and, if present, per-planet) series every 5 steps ---
+            # These scalar series are useful on their own even with no planets
+            # (e.g. Md(t), Mdot(t) for a disc-only run), so they're written
+            # unconditionally; only the per-planet groups need `planets`.
+            if (n % 5 == 0):
                 disk_Mdot = _disc_star_mdot(disc)
                 grow_and_set(h5f["t"], t / yr)  # years
                 grow_and_set(h5f["disk_Mdot_star"], disk_Mdot[0])
                 grow_and_set(h5f["disk_Mass"], disc.Mtot())
                 grow_and_set(h5f["Tc"], disc.T[0])
                 grow_and_set(h5f["Sigc"], disc.Sigma[0])
-                write_planet_row(h5f, groups, planets, planet_model, disc, grid, disk_Mdot,
-                                  chemistry_params, dust_growth_params)
+                if planets is not None:
+                    write_planet_row(h5f, groups, planets, planet_model, disc, grid, disk_Mdot,
+                                      chemistry_params, dust_growth_params)
 
         # --- once per requested snapshot time: full disc-profile row ---
         write_disc_snapshot(h5f, disc, config, t, Natom, Nmol)
@@ -791,7 +795,7 @@ Examples:
         """
     )
     parser.add_argument("--config", type=str,
-                         default=os.path.join(os.path.dirname(__file__), "DiscConfig_default.json"),
+                         default=os.path.join(os.path.dirname(__file__), "config", "DiscConfig_default.json"),
                          help="Path to configuration JSON file")
     parser.add_argument("--psi_DW", type=float, default=None, help="Override wind parameter psi_DW")
     parser.add_argument("--Mdot", type=float, default=None, help="Override accretion rate [Msun/yr]")

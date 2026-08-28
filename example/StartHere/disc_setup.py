@@ -97,7 +97,15 @@ def winds_alpha_disc(grid, star, disc_params, eos_params, wind_params, kappa):
 
     psi = wind_params["psi_DW"]               # wind mass-loss parameter
     e_rad = wind_params["e_rad"]               # wind lever-arm efficiency
-    lambda_DW = 1 / (2 * (1 - e_rad) * (3 / psi + 1)) + 1
+    if psi > 0:
+        lambda_DW = 1 / (2 * (1 - e_rad) * (3 / psi + 1)) + 1
+    else:
+        # Pure-viscous limit (psi -> 0): the wind velocity v_DW in
+        # HybridWindModel is proportional to psi, so it's exactly zero here
+        # regardless of lambda_DW -- there's no finite limit of the lambda_DW
+        # formula itself (it diverges as psi -> 0), so just pick any finite
+        # placeholder value; it multiplies a wind term that's already zero.
+        lambda_DW = np.inf
     alpha_SS = alpha / (1 + psi)
 
     R = grid.Rc
