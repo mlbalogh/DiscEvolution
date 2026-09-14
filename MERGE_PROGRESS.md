@@ -68,7 +68,7 @@ Work easiest → hardest so the workflow is proven before the big files. For eac
 - [x] `star.py`               (13, mixed)
 - [x] `viscous_evolution.py`  (22, mixed)
 - [x] `dust.py`               (873 — break into function-by-function commits)
-- [ ] `planet_formation.py`   (826 — break into function-by-function commits)
+- [x] `planet_formation.py`   (826 — break into function-by-function commits)
 
 ---
 
