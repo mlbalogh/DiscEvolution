@@ -7,7 +7,7 @@
 ################################################################################
 import numpy as np
 from scipy.interpolate import InterpolatedUnivariateSpline
-from DiscEvolution.constants import Msun, Rsun, AU
+from DiscEvolution.constants import Msun, Rsun, AU, sig_SB
 
 # Base class for all stars, implements general properties that should be
 # common to all stars
@@ -33,7 +33,7 @@ class StarBase(object):
         args:
             r : distance, AU
         returns:
-           Omega : 2 Pi AU / yr
+           Omega : 2 Pi / yr
         """
         return np.sqrt(self._M / (r*r*r))
 
@@ -91,6 +91,11 @@ class StarBase(object):
         """Stellar age"""
         return self._age
 
+    @property
+    def L(self):
+        """Stellar luminosity in erg/s"""
+        return 4 * np.pi * (self.Rs * Rsun) ** 2 * sig_SB * self.T_eff ** 4
+
     def ASCII_header(self):
         """Print stellar type header"""
         head = '# {} M: {}Msun, R: {}Rsun, T: {}K, age: {}yr'
@@ -142,7 +147,7 @@ class SimpleStar(StarBase):
                 raise AttributeError("Error: Attribute {} for SimpleStar not "
                                      "known".format(key))
         return SimpleStar(**kwargs)
-                                     
+
 # A star with a photoevaporating luminosity
 class PhotoStar(SimpleStar):
     def __init__(self, LX=1e30, Phi=0, **kwargs):
@@ -185,7 +190,6 @@ class MesaStar(PhotoStar):
         age = data[cols['Age']]
         Teff = 10**data[cols['log Teff']]
         R = 10**data[cols['log R']]
-
 
         self._tab_Teff = InterpolatedUnivariateSpline(age, Teff, ext='const')
         self._tab_R = InterpolatedUnivariateSpline(age, R, ext='const')
@@ -251,4 +255,3 @@ def from_file(filename):
                 return MesaStar.from_string(line)
             else:
                 continue
-            
