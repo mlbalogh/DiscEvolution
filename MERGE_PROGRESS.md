@@ -63,8 +63,8 @@ Work easiest → hardest so the workflow is proven before the big files. For eac
 
 ### Checklist (easiest first)
 
-- [ ] `constants.py`          (31, mixed)
-- [ ] `disc.py`               (5, additions)
+- [x] `constants.py`          (31, mixed)
+- [x] `disc.py`               (5, additions)
 - [ ] `star.py`               (13, mixed)
 - [ ] `viscous_evolution.py`  (22, mixed)
 - [ ] `dust.py`               (873 — break into function-by-function commits)
