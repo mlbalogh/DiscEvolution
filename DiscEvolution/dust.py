@@ -1,21 +1,26 @@
- # dust.py
+# dust.py
 #
 # Author: R. Booth
 # Date : 10 - Nov - 2016
 #
 # Classes extending accretion disc objects to include dust models.
 ################################################################################
+
 from __future__ import print_function
+from math import gamma
 import numpy as np
 from DiscEvolution.constants import *
 from DiscEvolution.disc import AccretionDisc
 from DiscEvolution.reconstruction import DonorCell, VanLeer
 from DiscEvolution.chemistry import SimpleCOMolAbund
+from scipy.integrate import ode, solve_ivp
 from scipy.signal import savgol_filter
 
 
+
 class DustyDisc(AccretionDisc):
-    """Dusty accretion disc. Base class for an accretion disc that also
+    """
+    Dusty accretion disc. Base class for an accretion disc that also
     includes one or more dust species.
 
     args:
@@ -23,13 +28,14 @@ class DustyDisc(AccretionDisc):
         star     : Stellar object
         eos      : Equation of state
         Sigma    : Initial surface density distribution
-        rho_s    : solid density, default=1
+        rho_s    : solid (grain/pebble) density, default=1
         Sc       : Schmidt number, default=1
         feedback : When False, the dust mass is considered to be a negligible
                    fraction of the total mass.
         grain_size : Grain size in cm (vector of dust population grain sizes)
             - for Planetesimals, grain size should be initialized to [0,0,100km]
     """
+
     def __init__(self, grid, star, eos, Sigma=None, rho_s=1., Sc=1.,
                  feedback=True, grain_size=None):
 
@@ -40,13 +46,15 @@ class DustyDisc(AccretionDisc):
 
         self._Sc = Sc
         self._feedback = feedback
+
         if grain_size is not None:
             self._a = grain_size
-        
+
         self._planetesimal = None
 
     def Stokes(self, Sigma=None, size=None):
-        """Calculates the Stokes number of the dust.
+        """
+        Calculates the Stokes number of the dust.
 
         Parameters:
             Sigma (float) : The surface density of the gas.
@@ -82,6 +90,11 @@ class DustyDisc(AccretionDisc):
         return self._eps
 
     @property
+    def dust_frac_SI(self):
+        """Initial dust fraction for streaming instability"""
+        return self._eps_SI
+
+    @property
     def grain_size(self):
         """Grain size in cm"""
         return self._a
@@ -108,9 +121,7 @@ class DustyDisc(AccretionDisc):
 
     @property
     def Sigma_D(self):
-        """
-        Dust surface density. Index 0 is grains, index 1 is pebbles, index 2 is planetesimals (if included).
-        """
+        """Dust surface density. Index 0 is grains, index 1 is pebbles, index 2 is planetesimals (if included)."""
         return self.Sigma * self.dust_frac
     
     @property
@@ -152,13 +163,9 @@ class DustyDisc(AccretionDisc):
         return self._St_max
     
     @property
-    def M_planetesimal(self):
-        return self._M_planetesimal
-    
-    @property
-    def M_peb(self):
+    def M_flux(self):
         # Compute the mass flux of pebbles for planetesimal formation
-        return self._M_peb
+        return self._M_flux
     
     @property
     def is_critical(self):
@@ -181,7 +188,29 @@ class DustyDisc(AccretionDisc):
     def R_planetesimal(self):
         return self._R_planetesimal
 
-    """Methods to determine global properties of a dust disc"""
+    @property
+    def M_planetesimal(self):
+        return self._M_planetesimal
+
+    @property
+    def rho_s(self):
+        return self._rho_s
+
+    @property
+    def rho_pltsml(self):
+        return self._rho_pltsml
+
+    @property
+    def mfp_H2(self):
+        """Mean free path of H2 molecules in cm."""
+
+        rho_g = self.midplane_gas_density
+        mu = self.mu
+
+        return (rho_g / (mu * m_H) * sig_H2) ** (-1)
+
+    # Methods to determine global properties of a dust disc
+
     def Rdust(self, thresholds=[0.68]):
         """Determine the dust radius by mass"""
         Re = self.R_edge * AU
@@ -231,12 +260,13 @@ class DustyDisc(AccretionDisc):
 
         return self.__class__.__name__, head
 
-
 ################################################################################
 # Growth model
 ################################################################################
+
 class FixedSizeDust(DustyDisc):
-    """Simple model for dust of a fixed size
+    """
+    Simple model for dust of a fixed size
 
     args:
         grid     : Disc gridding object
@@ -245,15 +275,16 @@ class FixedSizeDust(DustyDisc):
         eps      : Initial dust fraction (must broadcast to [size.shape, Ncell])
         size     : size, cm (float or 1-d array of sizes)
         Sigma    : Initial surface density distribution
-        rhos     : solid density, default=1 g / cm^3
+        rho_s    : solid density, default=1 g / cm^3
         Schmidt  : Schmidt number, default=1
         feedback : default=True
     """
-    def __init__(self, grid, star, eos, eps, size, Sigma=None, rhos=1,
+
+    def __init__(self, grid, star, eos, eps, size, Sigma=None, rho_s=1,
                  Schmidt=1.0, feedback=True):
 
         super(FixedSizeDust, self).__init__(
-            grid, star, eos, Sigma, rhos, Schmidt, feedback)
+            grid, star, eos, Sigma, rho_s, Schmidt, feedback)
 
         shape = np.atleast_1d(size).shape + (self.Ncells,)
         self._eps  = np.empty(shape, dtype='f8')
@@ -264,7 +295,8 @@ class FixedSizeDust(DustyDisc):
         self._area = np.pi * self._a**2
 
 class DustGrowthTwoPop(DustyDisc):
-    """Two-population dust growth model of Birnstiel (2011).
+    """
+    Two-population dust growth model of Birnstiel (2011).
 
     This model computes the flux of two dust populations. The smallest size
     particles are assumed to always be well coupled to the gas. For the larger
@@ -279,32 +311,30 @@ class DustGrowthTwoPop(DustyDisc):
         star      : Stellar object
         eos       : Equation of state
         eps       : Initital dust fraction
+        eps_SI    : Initial dust fraction for streaming instability (default = 0.02)
         Sigma     : Initial surface density distribution
         rho_s     : solid density, default=1
         Sc        : Schmidt number, default=1
-        rhos      : Grain solid density, default=1.
         uf_0      : Fragmentation velocity (default = 100 (cm/s))
         uf_ice    : Fragmentation velocity of icy grains (default = 1000 (cm/s))
         f_ice     : Ice fraction, default=1
-        thresh    : Threshold ice fraction for switchng between icy/non icy
-                    fragmentation velocity, default=0.1
+        thresh    : Threshold ice fraction for switchng between icy/non icy fragmentation velocity, default=0.1
         f_grow    : Growth time-scale factor, default=1.
         a0        : Initial particle size (default = 1e-5, 0.1 micron)
         amin      : Minimum particle size (default = 0.0)
-        f_drift   : Drift fitting factor. Reduce by a factor ~10 to model the
-                    role of bouncing (default=0.55).
+        f_drift   : Drift fitting factor. Reduce by a factor ~10 to model the role of bouncing (default=0.55).
         f_frag    : Fragmentation boundary fitting factor (default=0.37).
         feedback  : Whether to include feedback from dust on gas
         start_small:Whether to start at monomer size (True, default) or equilibrium (False)
-        distribution_slope:
-                    The slope d ln n(a) / d ln a of the number distribution with size (3.5 for MRN)
-        transition_factor:
-                    Factor controlling width of smooth transition between frag/drift regimes (default=2)
+        distribution_slope: The slope d ln n(a) / d ln a of the number distribution with size (3.5 for MRN)
+        transition_factor: Factor controlling width of smooth transition between frag/drift regimes (default=2)
     """
-    def __init__(self, grid, star, eos, eps, Sigma=None,
+
+    def __init__(self, grid, star, eos, eps, eps_SI = 0.02, Sigma=None,
                  rho_s=1., Sc=1., uf_0=100., uf_ice=1e3, f_ice=1, thresh=0.1,
                  f_grow=1.0, a0=1e-5, amin=1e-5, f_drift=0.55, f_frag=0.37, feedback=True,
-                 start_small=True, distribution_slope=3.5, gas = None, transition_factor=2.0):
+                 start_small=True, distribution_slope=3.5, gas=None, transition_factor=2.0):
+
         super(DustGrowthTwoPop, self).__init__(grid, star, eos, Sigma, rho_s, Sc, feedback)
         
         self._uf_0   = uf_0 / (AU * Omega0)
@@ -326,6 +356,7 @@ class DustGrowthTwoPop(DustyDisc):
             self._a     = np.empty([2, Ncells], dtype='f8')
         self._eps[0] = eps # start with all dust in small grains
         self._eps[1] = 0
+        self._eps_SI = eps_SI
         self._a[0]   = amin
         self._a[1]   = a0
         
@@ -382,7 +413,6 @@ class DustGrowthTwoPop(DustyDisc):
 
         # MLB Oct 30, 2025:  Corrected to self._eos._alpha_t from self.alpha
         # alpha = self.alpha/self.Sc
-        #alpha = self.alpha/self.Sc
         alpha=self._eos._alpha_t/self.Sc
 
         a0  = 8 * self.Sigma / (np.pi * self._rho_s) * self.Re**-0.25
@@ -400,10 +430,10 @@ class DustGrowthTwoPop(DustyDisc):
         gamma[-1]   = abs((P[-1] - P[ -2])/(R[-1] - R[-2]))
         gamma *= R/(P+1e-300)
         return gamma
-    
-    
+
     def _gammaP_smooth(self):
-        """Dimensionless pressure gradient using Savitzky-Golay filtering.
+        """
+        Dimensionless pressure gradient using Savitzky-Golay filtering.
         
         Applies polynomial smoothing to the pressure profile before computing
         the derivative. This preserves broad features while filtering noise.
@@ -433,6 +463,7 @@ class DustGrowthTwoPop(DustyDisc):
         # MLB Oct 31, 2025: correction to be consistent with Drazkowska growth rate.
         # Bugfix Jan 9 as I'd forgotten the factor 1e-4 in the growth time-scale.
         ad = ad * ((self._eos._alpha_t/1.e-4)/self.R)**(1./3.)
+
         # Radial drift-driven fragmentation:
         cs = self.cs
         St_d = 2 * (self._uf/cs) / (gamma*h + 1e-300)
@@ -443,7 +474,7 @@ class DustGrowthTwoPop(DustyDisc):
     def _t_grow(self, eps=None):
         # Booth:
         #return 1 / (self.Omega_k * eps)
-        "Slightly more realistic growth time-scale from Drazkowska et. al (2021)."
+        # Slightly more realistic growth time-scale from Drazkowska et. al (2021).
         Sigma_dust=self.Sigma_D[0]+self.Sigma_D[1]
         return (self.Sigma_G/((Sigma_dust+1.e-300)*self._star.Omega_k(self._grid.Rc))) * (self._eos._alpha_t/1e-4)**(-1/3) * (self.grid.Rc)**(1/3) 
 
@@ -461,7 +492,6 @@ class DustGrowthTwoPop(DustyDisc):
         afrag = np.minimum(afrag_t, afrag_d)
         a0    = np.minimum(afrag, adrift)       # a0 is the lower of the maximum sizes
    
-
         # Update the particle distribution
         #   Maximum size due to growth:
         if self._start_small:
@@ -541,11 +571,11 @@ class DustGrowthTwoPop(DustyDisc):
 # Author: P. Jiang
 # Date : Jan. 9, 2025
 ################################################################################
+
 class PlanetesimalFormation(object):
     """
     Class representing the formation of planetesimals in a protoplanetary disc.
-    Follows Lenz et al. (2019). Designed to be used
-    with the DustyDisc/DustGrowthTwoPop classes.
+    Follows Lenz et al. (2019). Designed to be used with the DustyDisc/DustGrowthTwoPop classes.
 
     Parameters:
         grid (Grid): The grid object representing the computational domain.
@@ -553,27 +583,52 @@ class PlanetesimalFormation(object):
         eos (EOS): The equation of state object.
         Sigma (ndarray): The surface density profile of the disc.
         R_planetesimal (float): The radius of the planetesimal (km).
+        M_planetesimal (float): The mass of the planetesimal (g).
         H (ndarray): The scale height profile of the disc.
-        rhos (float): The material density of the planetesimal (g/cm^3).
+        rho_pltsml (float): The material density of the planetesimal (g/cm^3), default=2.0.
         St_min (float): The minimum Stokes number.
         St_max (float): The maximum Stokes number.
         trap_lifetime (float): The lifetime of the trap in terms of number of local orbits.
         
     Notes:
-        If planetesimals are being included, pass disc._planetesimal = PlanetesimalFormation(...) 
-        after setting up the disc class.
+        If planetesimals are being included, pass disc._planetesimal = PlanetesimalFormation(...) after setting up the disc class.
     """
 
-    def __init__(self, disc, d_planetesimal=100, St_min=0.001, 
-                 St_max=10.0, trap_lifetime=100, pla_eff=0.1):
-        self._rhos = disc._rho_s
-        self._R_planetesimal = ((d_planetesimal/2) * 1e5) / AU # convert to AU
+    def __init__(self, disc, planets = None, d_planetesimal = 100, rho_pltsml = 2.,
+                 St_min = 0.001, St_max = 10.0, trap_lifetime = 100, pla_eff = 0.1,
+                 drag = True, VS_embryo = True, VS_pltsml = True, DF = True,
+                 e_init = 'eq', i_init = 'eq'):
+        
+        self.disc = disc
+        self.planets = planets
+        
+        # Set inital mass and radius
+
+        self._use_SI = str(d_planetesimal).upper() == 'SI'
+
+        if self._use_SI:
+            self._R_planetesimal = (3 * self.M_birth_pltsml(disc) * Mearth / (4 * np.pi * rho_pltsml)) ** (1/3) / AU  # convert to AU
+            self._M_planetesimal = self.M_birth_pltsml(disc) * Mearth  # convert to grams
+
+        else:
+            self._R_planetesimal = np.full_like(disc.R, ((d_planetesimal/2) * 1e5) / AU) # convert to AU
+            self._M_planetesimal = 4/3 * np.pi * ((self._R_planetesimal * AU) ** 3) * rho_pltsml
+
+        # Set active evolution terms
+
+        self.drag = drag
+        self.VS_embryo = VS_embryo
+        self.VS_pltsml = VS_pltsml
+        self.DF = DF
+
+        # Set other parameters
+
+        self._rho_pltsml = rho_pltsml
         self._H = disc.H
         self._St_min = St_min
         self._St_max = St_max
-        self._compute_planetesimal_mass(disc)
         
-        self._t = 1 / disc.Omega_k
+        self._t = 1 / (disc.Omega_k)
         self._trap_lifetime = trap_lifetime * self._t
         
         self._pla_eff = pla_eff
@@ -582,45 +637,532 @@ class PlanetesimalFormation(object):
         disc._eps = np.vstack((disc._eps, disc._eps[0]*0))
         disc._a = np.vstack((disc._a, disc._a[0]*0))
 
+        disc._rho_pltsml = rho_pltsml
         disc._St_min = St_min
         disc._St_max = St_max
         disc._d = 5. * self._H
         disc._pla_eff = pla_eff
         disc._v_drift = np.zeros((2, len(disc.Sigma)))
         disc._R_planetesimal = self._R_planetesimal
+        disc._M_planetesimal = self._M_planetesimal
 
         self.ice_abund = None
         if disc.chem:
             self.ice_abund = SimpleCOMolAbund(disc.Ncells)
-    
-    def _compute_planetesimal_mass(self, disc):
-        """Compute the mass of a planetesimal."""
-        disc._M_planetesimal = 4/3 * np.pi * (self._R_planetesimal ** 3) * self._rhos
 
+        # Set initial eccentricity and inclination
+
+        self._use_e_eq = str(e_init).lower() == 'eq'
+        self._use_i_eq = str(i_init).lower() == 'eq'
+
+        if self._use_e_eq or self._use_i_eq:
+            e2_eq = self._e_init() ** 2 # e = eta / 2
+            i2_eq = e2_eq / 4 # i = e / 2
+
+        else:
+            e2_eq = np.zeros_like(disc.R, dtype = float)
+            i2_eq = np.zeros_like(disc.R, dtype = float)
+
+        if self._use_e_eq:
+            self._e2 = e2_eq
+
+        else:
+            self._e2 = np.full_like(disc.R, e_init ** 2, dtype = float)
+
+        if self._use_i_eq:
+            self._i2 = i2_eq
+
+        else:
+            self._i2 = np.full_like(disc.R, i_init ** 2, dtype = float)
+
+    # Initial conditions for planetesimal formation
+
+    def M_birth_pltsml(self, disc):
+        """
+        Computes the streaming instability birth mass of planetesimals in Earth masses (equation 13 from Liu et al 2020).
+
+        return: Streaming instability birth mass (in Earth masses)
+        """
+
+        rho_g = disc.midplane_gas_density
+        Omega_k = disc.star.Omega_k(disc.R)
+        Z = disc.dust_frac_SI
+        Mstar = disc.star.M
+        h = disc.h
+
+        gamma = 4 * np.pi * G * rho_g / (Omega_k ** 2) * (AU ** 3 / Msun) # self gravity term
+
+        return 5e-6 * (Z / 0.02) ** 0.5 * (gamma * np.pi) ** 1.5 * (h / 0.05) ** 3 * (Mstar / 0.1)
+
+    def _e_init(self):
+        """
+        Computes the initial eccentricity of the planetesimals. 
+        Assumes that after formation there has not been enough time for dynamical friction to result in a mass dependent eccentricity (Lorek & Johansen 2022).
+        e = eta / 2, i = e / 2
+
+        return: Initial eccentricity
+        """
+
+        eta = self._eta()
+
+        return eta / 2
+
+    def _eta(self):
+        """
+        Computes the gas sub-Keplerian pressure gradient parameter (Fortier et al 2012).
+
+        return: eta parameter
+        """
+
+        disc = self.disc
+        Omega_k = disc.star.Omega_k(disc.R) * Omega0
+        rho_g = disc.midplane_gas_density
+
+        return - disc.dP_dR * (AU * Omega0) ** 2 / (2 * Omega_k ** 2 * rho_g * disc.R * AU)
     
+    # Eccentricity and inclination evolution equations (Kaufmann & Alibert 2023)
+    
+    def de2_dt(self, e2, i2):
+        """
+        Evolution equation for local planetesimal eccentricity squared (Kaufmann & Alibert 2023).
+
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of e2
+        """
+
+        e2_dot = np.zeros_like(e2, dtype = float)
+
+        if self.drag:
+            e2_dot += self.de2_dt_drag(e2, i2)
+
+        if self.VS_embryo:
+            e2_dot += self.de2_dt_VS_embryo(e2, i2)
+
+        if self.VS_pltsml:
+            e2_dot += self.de2_dt_VS_pltsml(e2, i2)
+
+        if self.DF:
+            e2_dot += self.de2_dt_DF(e2, i2)
+        
+        return e2_dot
+
+    def di2_dt(self, e2, i2):
+        """
+        Evolution equation for local planetesimal inclination squared (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of i2
+        """
+
+        i2_dot = np.zeros_like(i2, dtype = float)
+
+        if self.drag:
+            i2_dot += self.di2_dt_drag(e2, i2)
+
+        if self.VS_embryo:
+            i2_dot += self.di2_dt_VS_embryo(e2, i2)
+
+        if self.VS_pltsml:
+            i2_dot += self.di2_dt_VS_pltsml(e2, i2)
+
+        if self.DF:
+            i2_dot += self.di2_dt_DF(e2, i2)
+        
+        return i2_dot
+    
+    def de2_dt_drag(self, e2, i2):
+        """
+        Gas drag term in eccentricity evolution (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of e2 due to gas drag
+        """
+
+        disc = self.disc
+
+        Rpltsml = self._R_planetesimal * AU
+        cs = disc.cs * (AU * Omega0)
+        rho_g = disc.midplane_gas_density
+        rho_pltsml = self._rho_pltsml
+        mfp_H2 = disc.mfp_H2
+
+        # Epstein regime (Rpltsml < 1.5 * mfp_H2)
+        filter = Rpltsml < 1.5 * mfp_H2
+
+        e2_dot = np.zeros_like(e2, dtype = float)
+        e2_dot[filter] = -1 * e2[filter] * cs[filter] * rho_g[filter] / (rho_pltsml * Rpltsml[filter])
+
+        Re = self.Reynolds(e2, i2)
+        vrel = self.v_rel(e2, i2)
+
+        # Stokes regime (Re < 27) and quadratic regime (Re > 27)
+        e2_dot[~filter] = np.where(Re[~filter] < 27,
+            -3/2 * e2[~filter] * mfp_H2[~filter] * cs[~filter] * rho_g[~filter] / (rho_pltsml * Rpltsml[~filter] ** 2),
+            -2 * e2[~filter] * vrel[~filter] * rho_g[~filter] / (6 * rho_pltsml * Rpltsml[~filter]))
+
+        return e2_dot / Omega0
+
+    def di2_dt_drag(self, e2, i2):
+        """
+        Gas drag term in inclination evolution (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of i2 due to gas drag
+        """
+
+        disc = self.disc
+
+        Rpltsml = self._R_planetesimal * AU
+        cs = disc.cs * (AU * Omega0)
+        rho_g = disc.midplane_gas_density
+        rho_pltsml = self._rho_pltsml
+        mfp_H2 = disc.mfp_H2
+
+        # Epstein regime (Rpltsml < 1.5 * mfp_H2)
+        filter = Rpltsml < 1.5 * mfp_H2
+
+        i2_dot = np.zeros_like(i2, dtype = float)
+        i2_dot[filter] = -1/2 * i2[filter] * cs[filter] * rho_g[filter] / (rho_pltsml * Rpltsml[filter])
+
+        Re = self.Reynolds(e2, i2)
+        vrel = self.v_rel(e2, i2)
+
+        # Stokes regime (Re < 27) and quadratic regime (Re > 27)
+        i2_dot[~filter] = np.where(Re[~filter] < 27,
+            -3/4 * i2[~filter] * mfp_H2[~filter] * cs[~filter] * rho_g[~filter] / (rho_pltsml * Rpltsml[~filter] ** 2),
+            -1 * i2[~filter] * vrel[~filter] * rho_g[~filter] / (6 * rho_pltsml * Rpltsml[~filter]))
+
+        return i2_dot / Omega0
+            
+    def de2_dt_VS_pltsml(self, e2, i2):
+        """
+        Viscous stirring due to planetesimal-planetesimal interactions (Fortier et al 2012).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of e2 due to planetesimal viscous stirring
+        """
+
+        disc = self.disc
+
+        R = disc.R
+        Mstar = disc.star.M * Msun
+        Sigma_D = disc.Sigma_D[2]
+        Mpltsml = self._M_planetesimal
+        Omega_k = disc.star.Omega_k(R) * Omega0
+
+        # Reduced eccentricity and inclination
+        e_tilde = 2 * np.sqrt(e2) / (2 * Mpltsml / (3 * Mstar)) ** (1/3)
+        i_tilde = 2 * np.sqrt(i2) / (2 * Mpltsml / (3 * Mstar)) ** (1/3)
+
+        e2_dot = 1/6 * np.sqrt(Omega_k ** 2 * (R * AU) ** 4 / (Mstar) ** 2) * Sigma_D * (2 * Mpltsml / (3 * Mstar)) ** (1/3) * self._P_VS(e_tilde, i_tilde)
+
+        return e2_dot / Omega0
+
+    def di2_dt_VS_pltsml(self, e2, i2):
+        """
+        Viscous stirring due to planetesimal-planetesimal interactions (Fortier et al 2012).
+
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of i2 due to planetesimal viscous stirring
+        """
+
+        disc = self.disc
+
+        R = disc.R
+        Mstar = disc.star.M * Msun
+        Sigma_D = disc.Sigma_D[2]
+        Mpltsml = self._M_planetesimal
+        Omega_k = disc.star.Omega_k(R) * Omega0
+
+        # Reduced eccentricity and inclination
+        e_tilde = 2 * np.sqrt(e2) / (2 * Mpltsml / (3 * Mstar)) ** (1/3)
+        i_tilde = 2 * np.sqrt(i2) / (2 * Mpltsml / (3 * Mstar)) ** (1/3)
+
+        i2_dot = 1/6 * np.sqrt(Omega_k ** 2 * (R * AU) ** 4 / (Mstar) ** 2) * Sigma_D * (2 * Mpltsml / (3 * Mstar)) ** (1/3) * self._Q_VS(e_tilde, i_tilde)
+
+        return i2_dot / Omega0
+
+    def de2_dt_VS_embryo(self, e2, i2):
+        """
+        Viscous stirring due to embryo-planetesimal interactions (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+        
+        return: time derivative of e2 due to embryo viscous stirring
+        """
+
+        disc = self.disc
+
+        R = disc.R
+        Omega_k = disc.star.Omega_k(R) * Omega0
+        b_tilde = 10 # dimensionless spacing parameter
+        Mstar = disc.star.M * Msun
+
+        if self.planets is None or self.planets.N == 0:
+            return np.zeros_like(R)
+
+        Mp = self.planets.M * Mearth
+        Rp = self.planets.R
+
+        e2_dot = np.zeros_like(R, dtype = float)
+
+        for Rp_j, Mp_j in zip(Rp, Mp):
+
+            # Reduced eccentricity and inclination
+            e_tilde = np.sqrt(e2) / (Mp_j / (3 * Mstar)) ** (1/3)
+            i_tilde = np.sqrt(i2) / (Mp_j / (3 * Mstar)) ** (1/3)
+
+            # Distance modulation function
+            f_j = self._f_j(Rp_j)
+
+            e2_dot += f_j * Omega_k * Mp_j / (6 * np.pi * b_tilde * Mstar) * self._P_VS(e_tilde, i_tilde)
+
+        return e2_dot / Omega0
+
+    def di2_dt_VS_embryo(self, e2, i2):
+        """
+        Viscous stirring due to embryo-planetesimal interactions (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+        
+        return: time derivative of i2 due to embryo viscous stirring
+        """
+
+        disc = self.disc
+
+        R = disc.R
+        Omega_k = disc.star.Omega_k(R) * Omega0
+        b_tilde = 10 # dimensionless spacing parameter
+        Mstar = disc.star.M * Msun
+
+        if self.planets is None or self.planets.N == 0:
+            return np.zeros_like(R)
+
+        Mp = self.planets.M * Mearth
+        Rp = self.planets.R
+
+        i2_dot = np.zeros_like(R, dtype = float)
+
+        for Rp_j, Mp_j in zip(Rp, Mp):
+
+            # Reduced eccentricity and inclination
+            e_tilde = np.sqrt(e2) / (Mp_j / (3 * Mstar)) ** (1/3)
+            i_tilde = np.sqrt(i2) / (Mp_j / (3 * Mstar)) ** (1/3)
+
+            # Distance modulation function
+            f_j = self._f_j(Rp_j)
+
+            i2_dot += f_j * Omega_k * Mp_j / (6 * np.pi * b_tilde * Mstar) * self._Q_VS(e_tilde, i_tilde)
+
+        return i2_dot / Omega0
+
+    def de2_dt_DF(self, e2, i2):
+        """
+        Density fluctuation term in eccentricity evolution (Kaufmann & Alibert 2023).
+
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of e2 due to density fluctuations
+        """
+
+        disc = self.disc
+
+        alpha = disc.alpha
+        H = disc.H * AU
+        R = disc.R
+        Sigma_G = disc.Sigma_G
+        Mstar = disc.star.M * Msun
+        Omega_k = disc.star.Omega_k(disc.R) * Omega0
+        cs = disc.cs * (AU * Omega0)
+
+        e2_dot = 400 * alpha * (H * R * AU * Sigma_G / Mstar) ** 2 * Omega_k + (4 * alpha / (3 * Omega_k * self.t_stop(e2, i2) ** 2)) * (cs / (Omega_k * R * AU)) ** 2
+
+        return e2_dot / Omega0
+
+    def di2_dt_DF(self, e2, i2):
+        """
+        Density fluctuation term in inclination evolution (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: time derivative of i2 due to density fluctuations
+        """
+
+        disc = self.disc
+
+        alpha = disc.alpha
+        H = disc.H * AU
+        R = disc.R
+        Sigma_G = disc.Sigma_G
+        Mstar = disc.star.M * Msun
+        Omega_k = disc.star.Omega_k(disc.R) * Omega0
+        cs = disc.cs * (AU * Omega0)
+
+        i2_dot = 4 * alpha * (H * R * AU * Sigma_G / Mstar) ** 2 * Omega_k + (2 * alpha / (3 * Omega_k * self.t_stop(e2, i2) ** 2)) * (cs / (Omega_k * R * AU)) ** 2
+
+        return i2_dot / Omega0
+
+    # Eccentricity and inclination helper functions
+
+    def _f_j(self, Rp_j):
+        """
+        Computes the distance modulation function as a dirac delta function centered on the location of the embryo.
+
+        Rp: Location of embryo j (in AU)
+        """
+
+        disc = self.disc
+
+        R = disc.R
+
+        fj = np.zeros_like(R)
+        idx = np.argmin(np.abs(R - Rp_j))
+        fj[idx] = 1.0
+
+        return fj
+
+    def _P_VS(self, e_tilde, i_tilde):
+        """
+        Computes the stirring function for eccentricity (Kaufmann & Alibert 2023).
+        
+        e_tilde: reduced eccentricity
+        i_tilde: reduced inclination
+
+        return: stirring function value
+        """
+
+        Lambda = 1/12 * (e_tilde ** 2 + i_tilde ** 2) * i_tilde
+        beta = i_tilde / e_tilde
+
+        # Numerical elliptic integral approximation (Kaufmann & Alibert 2023)
+        I_PVS = (beta - 0.36251) / (0.061547 + 0.16112 * beta + 0.054473 * beta ** 2)
+
+        return (73 * e_tilde ** 2) / (10 * Lambda ** 2) * np.log(1 + 10 * Lambda ** 2 / (e_tilde ** 2)) + (72 * I_PVS) / (np.pi * e_tilde * i_tilde) * np.log(1 + Lambda ** 2)
+
+    def _Q_VS(self, e_tilde, i_tilde):
+        """
+        Computes the stirring function for inclination (Kaufmann & Alibert 2023).
+        
+        e_tilde: reduced eccentricity
+        i_tilde: reduced inclination
+        
+        return: stirring function value
+        """
+
+        Lambda = 1/12 * (e_tilde ** 2 + i_tilde ** 2) * i_tilde
+        beta = i_tilde / e_tilde
+
+        # Numerical elliptic integral approximation (Kaufmann & Alibert 2023)
+        I_QVS = (0.71946 - beta) / (0.21239 + 0.49764 * beta + 0.14369 * beta ** 2)
+
+        return (4 * i_tilde ** 2 + 0.2 * i_tilde * e_tilde ** 3) / (10 * Lambda ** 2 * e_tilde) * np.log(1 + 10 * Lambda ** 2 * e_tilde) + (72 * I_QVS) / (np.pi * e_tilde * i_tilde) * np.log(1 + Lambda ** 2)
+
+    def t_stop(self, e2, i2):
+        """
+        Computes the planetesimal gas drag stopping time in s (Kaufmann & Alibert 2023).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: stopping time in seconds
+        """
+
+        disc = self.disc
+
+        Rpltsml = self._R_planetesimal * AU
+        cs = disc.cs * (AU * Omega0)
+        rho_g = disc.midplane_gas_density
+        rho_pltsml = self._rho_pltsml
+        mfp_H2 = disc.mfp_H2
+
+        # Epstein regime (Rpltsml < 1.5 * mfp_H2)
+        filter = Rpltsml < 1.5 * mfp_H2
+
+        t_stop = np.empty_like(Rpltsml, dtype = float)
+        t_stop[filter] = rho_pltsml * Rpltsml[filter] / (rho_g[filter] * cs[filter])
+
+        Re = self.Reynolds(e2, i2)
+        vrel = self.v_rel(e2, i2)
+
+        # Stokes regime (Re < 27) and quadratic regime (Re > 27)
+        t_stop[~filter] = np.where(Re[~filter] < 27,
+            2 * rho_pltsml * Rpltsml[~filter] ** 2 / (3 * rho_g[~filter] * mfp_H2[~filter] * cs[~filter]),
+            6 * rho_pltsml * (Rpltsml[~filter] * 1e5) / (rho_g[~filter] * vrel[~filter]))
+
+        return t_stop
+            
+    def Reynolds(self, e2, i2):
+        """
+        Computes the Reynolds number.
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+
+        return: Reynolds number
+        """
+
+        disc = self.disc
+
+        cs = disc.cs * (AU * Omega0)
+        Rpltsml = self._R_planetesimal * AU
+
+        nu_mol = disc.mfp_H2 * cs / 3
+
+        return self.v_rel(e2, i2) * Rpltsml / nu_mol
+
+    def v_rel(self, e2, i2):
+        """
+        Computes the relative velocity between planetesimals and the embryo in cm/s (Fortier et al. 2012).
+        
+        e2: local planetesimal eccentricity squared
+        i2: local planetesimal inclination squared
+        
+        return: relative velocity in cm/s
+        """
+
+        disc = self.disc
+
+        R = disc.R
+        Omega_k  = disc.star.Omega_k(disc.R) * Omega0
+
+        return Omega_k * R * AU * np.sqrt(5/8 * e2 + 1/2 * i2)
 
     def smooth_v(self, v, R, s_factor=1e-2):
         from scipy.interpolate import UnivariateSpline
-
         """
         Smooth v(R) using a cubic smoothing spline.
         The smoothing parameter s controls how much noise is removed.
 
-        Parameters
-        ----------
-        v : ndarray
-            Quantity to smooth.
-        R : ndarray
-            Radial grid (monotonic, can be nonuniform).
-        s_factor : float
-            Fraction of total variance to use as smoothing strength.
-            Increase for stronger smoothing (e.g. 1e-1); decrease for finer detail.
+        Parameters:
+            v : ndarray
+                Quantity to smooth.
+            R : ndarray
+                Radial grid (monotonic, can be nonuniform).
+            s_factor : float
+                Fraction of total variance to use as smoothing strength.
+                Increase for stronger smoothing (e.g. 1e-1); decrease for finer detail.
 
-        Returns
-        -------
-        v_smooth : ndarray
-            Smoothed version of v.
+        Returns:
+            v_smooth : ndarray
+                Smoothed version of v.
         """
+
         # Scale s by total number of points and variance for consistent behaviour
         s = s_factor * len(R) * np.var(v)
         spline = UnivariateSpline(R, v, s=s)
@@ -632,6 +1174,7 @@ class PlanetesimalFormation(object):
         Fast Gaussian smoothing of v over ~N grid cells.
         Works best if R is monotonic and spacing is nearly uniform.
         """
+
         if logspace:
             x = np.log(R)
         else:
@@ -644,8 +1187,7 @@ class PlanetesimalFormation(object):
         # Use reflect mode to avoid edge artifacts
         return gaussian_filter1d(v, sigma=N, mode='reflect')
 
-
-    def compute_M_peb(self, v_drift, disc):
+    def compute_M_flux(self, v_drift, disc):
         """
         Compute the mass flux of pebbles.
 
@@ -654,15 +1196,12 @@ class PlanetesimalFormation(object):
             disc  : accretion disc model
 
         Returns:
-            M_peb: float, the mass flux of pebbles
+            M_flux: float, the mass flux of pebbles [g/s]
         """
+
         Sigma_d = disc.Sigma_D
-        self._pla_size = len(Sigma_d)-1
-        disc._M_peb = []
-        
-        St = disc.Stokes()
-        St_0 = St[0]    # grains
-        St_1 = St[1]    # pebbles
+        self._pla_size = len(Sigma_d) - 1
+        disc._M_flux = []
         
         # Test if smoothing helps
         v_drift_0 = np.insert(v_drift[0], 0, 0)
@@ -676,22 +1215,60 @@ class PlanetesimalFormation(object):
         v_drift_1_smooth = self.g_smooth_v(v_drift_1, disc.R,N=10)
         #v_drift_2[np.isnan(v_drift_2)] = 0
         
-        # Heaviside functions
-        theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.)
-        theta_St_min_1 = np.heaviside(St_1 - disc.St_min, 1.)
+        f1 = 2 * np.pi * (disc.R * AU) * np.abs(v_drift_0 * AU) * Sigma_d[0]
+        f2 = 2 * np.pi * (disc.R * AU) * np.abs(v_drift_1 * AU) * Sigma_d[1]
 
-        if disc.St_max is None:
-            theta_St_max_0 = 1
-            theta_St_max_1 = 1
-        else:
-            theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.)
-            theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.)
-        f1=2 * np.pi * disc.R * np.abs(v_drift_0) * Sigma_d[0] * theta_St_max_0 * theta_St_min_0
-        f2=2 * np.pi * disc.R * np.abs(v_drift_1) * Sigma_d[1] * theta_St_max_1 * theta_St_min_1
-        disc._M_peb.append(f1)
-        disc._M_peb.append(f2)
+        disc._M_flux.append(f1)
+        disc._M_flux.append(f2)
 
         disc._v_drift = np.array([v_drift_0, v_drift_1])
+
+    def compute_M_cr(self, disc):
+        """
+        Compute the critical pebble mass for planetesimal formation (equation 50 from Lenz et al. 2019).
+
+        Parameters:
+            disc  : accretion disc model
+
+        Returns:
+            M_cr  : criticall mass for planetesimal formation [g]
+        """
+
+        disc._M_cr = []
+
+        St = disc.Stokes()
+        St_0 = St[0] # grains
+        St_1 = St[1] # pebbles
+
+        # Heaviside function
+        theta_St_min_0 = np.heaviside(St_0 - disc.St_min, 1.0)
+        theta_St_min_1 = np.heaviside(St_1 - disc.St_min, 1.0)
+
+        if disc.St_max is None:
+            theta_St_max_0 = 1.0
+            theta_St_max_1 = 1.0
+
+        else:
+            theta_St_max_0 = np.heaviside(disc.St_max - St_0, 1.0)
+            theta_St_max_1 = np.heaviside(disc.St_max - St_1, 1.0)
+
+        dr = 5 * disc.H * AU # assumes surface density is approximately constant over trap size of 5 scale heights
+
+        ## Compute critical mass for grains
+
+        M_cr_insitu_0 = 2 * np.pi * (disc.R * AU) * disc.Sigma_D[0] * dr # calculates critical mass from grains within the trap
+        M_cr_flux_0 = self._trap_lifetime * disc._M_flux[0] # calculates critical mass from grain flux over trap lifetime
+
+        ## Compute critical mass for pebbles
+        
+        M_cr_insitu_1 = 2 * np.pi * (disc.R * AU) * disc.Sigma_D[1] * dr # calculates critical mass from pebbles within the trap
+        M_cr_flux_1 = self._trap_lifetime * disc._M_flux[1] # calculates critical mass from pebble flux over trap lifetime
+
+        f0 = self._pla_eff * (M_cr_insitu_0 + M_cr_flux_0) * theta_St_max_0 * theta_St_min_0
+        f1 = self._pla_eff * (M_cr_insitu_1 + M_cr_flux_1) * theta_St_max_1 * theta_St_min_1
+
+        disc._M_cr.append(f0)
+        disc._M_cr.append(f1)
 
     def is_flux_critical(self, disc):
         """
@@ -701,21 +1278,87 @@ class PlanetesimalFormation(object):
             disc  : accretion disc model
 
         Returns:
-            Tuple[bool, float]: A tuple containing a boolean value indicating whether the flux is critical,
-            and the critical mass (M_cr) for planetesimal formation.
+            Tuple[bool]: A tuple containing a boolean value indicating whether the flux is critical
         """
-        M_cr = disc._M_planetesimal / (self._pla_eff * self._trap_lifetime)
-        is_critical = self._pla_eff * self._trap_lifetime * disc._M_peb > disc._M_planetesimal
+
+        is_critical = disc._M_cr > disc._M_planetesimal
         disc._is_critical = is_critical
-        disc._M_cr = M_cr
-        
+
         return is_critical
     
+    def integrate_ode(self, dt):
+        """Advance the planetesimal eccentricity and inclination state by dt using scipy.integrate.ode."""
+        n = len(self.disc.R)
+        filter = self.disc.Sigma_D[2] > 0
+
+        def f_integ(_, y):
+            e2 = np.maximum(y[:n], 0.0)
+            i2 = np.maximum(y[n:], 0.0)
+
+            e2_dot = np.where(filter, self.de2_dt(e2, i2), 0.0)
+            i2_dot = np.where(filter, self.di2_dt(e2, i2), 0.0)
+
+            return np.concatenate([e2_dot, i2_dot])
+
+        integ = ode(f_integ).set_integrator('vode', rtol = 1e-5, atol = 1e-5)
+        integ.set_initial_value(np.concatenate([self._e2, self._i2]), 0.0)
+        integ.integrate(dt)
+
+        e2 = np.maximum(integ.y[:n], 0.0)
+        i2 = np.maximum(integ.y[n:], 0.0)
+
+        self._e2 = np.where(filter, e2, (self._eta() / 2) ** 2)
+        self._i2 = np.where(filter, i2, (self._eta() / 4) ** 2)
+
+    def integrate_solve_ivp(self, dt):
+        """Advance the planetesimal eccentricity and inclination state by dt using scipy.integrate.solve_ivp."""
+        n = len(self.disc.R)
+        filter = self.disc.Sigma_D[2] > 0
+
+        def f_integ(_, y):
+            e2 = np.maximum(y[:n], 0.0)
+            i2 = np.maximum(y[n:], 0.0)
+
+            e2_dot = np.where(filter, self.de2_dt(e2, i2), 0.0)
+            i2_dot = np.where(filter, self.di2_dt(e2, i2), 0.0)
+
+            return np.concatenate([e2_dot, i2_dot])
+
+        y0 = np.concatenate([self._e2, self._i2])
+        sol = solve_ivp(f_integ, (0.0, dt), y0, method = 'LSODA', rtol = 1e-5, atol = 1e-5)
+
+        e2 = np.maximum(sol.y[:n, -1], 0.0)
+        i2 = np.maximum(sol.y[n:, -1], 0.0)
+
+        self._e2 = np.where(filter, e2, (self._eta() / 2) ** 2)
+        self._i2 = np.where(filter, i2, (self._eta() / 4) ** 2)
+
+    def integrate_euler(self, dt):
+        """Advance the planetesimal eccentricity and inclination state by dt using a forward Euler step."""
+        e2 = self.de2_dt(self._e2, self._i2) * dt + self._e2
+        i2 = self.di2_dt(self._e2, self._i2) * dt + self._i2
+
+        filter = self.disc.Sigma_D[2] > 0
+
+        self._e2 = np.where(filter, e2, (self._eta() / 2) ** 2)
+        self._i2 = np.where(filter, i2, (self._eta() / 4) ** 2)
+
     def update(self, dt, disc, drift):
         """Do the standard disc update, and update planetesimals"""
         v_drift = drift.radial_drift_velocity(disc)
-        self.compute_M_peb(v_drift, disc)
+        self.compute_M_flux(v_drift, disc)
+        self.compute_M_cr(disc)
         self.is_flux_critical(disc)
+
+        self.integrate_euler(dt)
+
+    @property
+    def e(self):
+        return np.sqrt(self._e2)
+
+    @property
+    def i(self):
+        return np.sqrt(self._i2)
 
     def ASCII_header(self):
         """Planetesimal formation header"""
@@ -737,13 +1380,14 @@ class PlanetesimalFormation(object):
             "pla_eff": "{}".format(self._pla_eff)
         }
         return self.__class__.__name__, head
-        
 
 ################################################################################
 # Radial drift
 ################################################################################
+
 class SingleFluidDrift(object):
-    """Radial Drift in the single fluid approximation with the short friction
+    """
+    Radial Drift in the single fluid approximation with the short friction
     time limit.
 
     This class computes the single-fluid update of the dust fraction,
@@ -765,6 +1409,7 @@ class SingleFluidDrift(object):
         settling  : Include settling in the velocity calculation, default=False
         van_leer  : Use 2nd-order Van-Leer reconstruction, default=False
     """
+
     def __init__(self, diffusion=None, settling=False, van_leer=False):
         self._diffuse = diffusion
         self._settling = settling
@@ -882,7 +1527,8 @@ class SingleFluidDrift(object):
         return deps
 
     def _compute_deltaV(self, disc, v_visc=None, average=True):
-        """Compute the total dust-to-gas velocity
+        """
+        Compute the total dust-to-gas velocity
 
         Args:
             disc (Disc): The disc object containing the necessary parameters.
@@ -971,8 +1617,7 @@ class SingleFluidDrift(object):
 
         return DeltaV
         
-    
-    def _compute_sink_term(self, disc, pla_eff, d, M_peb, M_cr):
+    def _compute_sink_term(self, disc, pla_eff, d, M_flux):
         """
         Compute the sink term for dust particles in the disc.
 
@@ -980,17 +1625,17 @@ class SingleFluidDrift(object):
             disc: The disc object containing relevant properties.
             pla_eff: The planetesimal efficiency.
             d: The distance between vortices.
-            M_peb: The pebble mass flux.
+            M_flux: The pebble mass flux.
         
         Returns:
             sink_term_0: The sink term for grains.
             sink_term_1: The sink term for pebbles.
         """
         Sigma = disc.Sigma
-        
-        # Sink term
-        sink_term_0 = (pla_eff / d) * M_peb[0] / (2 * np.pi * disc.R) * disc.is_critical[0]
-        sink_term_1 = (pla_eff / d) * M_peb[1] / (2 * np.pi * disc.R) * disc.is_critical[1]
+
+        # Sink term (R, d converted from AU to cm to match M_flux [g/s] and Sigma [g/cm^2])
+        sink_term_0 = (pla_eff / (d * AU)) * M_flux[0] / (2 * np.pi * disc.R * AU) * disc.is_critical[0]
+        sink_term_1 = (pla_eff / (d * AU)) * M_flux[1] / (2 * np.pi * disc.R * AU) * disc.is_critical[1]
 
         # Convert to dust fraction when returning
         tiny = np.finfo(Sigma.dtype).tiny
@@ -1027,7 +1672,12 @@ class SingleFluidDrift(object):
             # is modelled under Birnstiel et al. (2012).
             L0, L1 = 0, 0
             try:
-                L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_peb, disc.M_cr)
+                v_drift = self.radial_drift_velocity(disc, v_visc)
+                disc._planetesimal.compute_M_flux(v_drift, disc)
+                disc._planetesimal.compute_M_cr(disc)
+                disc._planetesimal.is_flux_critical(disc)
+
+                L0, L1 = self._compute_sink_term(disc, disc.pla_eff, disc.d, disc.M_flux)
                 
                 disc._eps[0] -= L0 * dt
                 disc._eps[1] -= L1 * dt
@@ -1035,7 +1685,7 @@ class SingleFluidDrift(object):
                 disc._eps[2] += L0 * dt
                 disc._eps[2] += L1 * dt
 
-                disc.grain_size[2] = np.where(disc.is_critical, 100 * 1e5, 0)[0]
+                disc.grain_size[2] = np.where(disc.is_critical, disc._R_planetesimal, 0)[0]
             except:
                 pass
 
@@ -1086,19 +1736,21 @@ class SingleFluidDrift(object):
             DeltaV: Radial drift velocity in AU per code time unit (1 code time = 2π years).
                 Shape: (2, Ncells-1) for [grains, pebbles] at cell edges.
                 To convert to physical units:
-                    - velocity [cm/s] = velocity_code * (AU / (2*np.pi*yr))
+                    - velocity [cm/s] = velocity_code * (AU * Omega0)
                     - velocity [AU/yr] = velocity_code / (2*np.pi)
             
             If ret_vphi is True, also returns:
                 DeltaVphi: Azimuthal velocity in AU per code time unit.
         """
+
         DeltaV = self._compute_deltaV(disc, v_visc)
         
         if ret_vphi:
             return DeltaV - self._epsDeltaV, self._DeltaVphi
         else:
             return DeltaV - self._epsDeltaV
-        
+
+
 
 if __name__ == "__main__":
     import matplotlib.pyplot as plt
@@ -1199,4 +1851,3 @@ if __name__ == "__main__":
     plt.ylabel('$\\Sigma_{\mathrm{D,G}}$')
     plt.ylim(ymin=1e-10)
     plt.show()
-    

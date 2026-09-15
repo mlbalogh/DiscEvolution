@@ -7,18 +7,22 @@ from scipy.integrate import ode
 from DiscEvolution.constants import *
 from DiscEvolution.disc_utils import make_ASCII_header
 from DiscEvolution.grid import reduce
+
 ################################################################################
 # Planet collections class
 ################################################################################
+
 class Planets(object):
-    """Data for growing planets.
+    """
+    Data for growing planets.
 
     Holds the location, core & envelope mass, and composition of growing
     planets.
 
     args:
-        Nchem : number of chemical species to track, default = None
+        Nchem    : number of chemical species to track, default = None
     """
+
     def __init__(self, Nchem=None):
         self.R  = np.array([], dtype='f4')
         self.M_core = np.array([], dtype='f4')
@@ -32,6 +36,7 @@ class Planets(object):
         if Nchem:
             self.X_core = np.array([[] for _ in range(Nchem)], dtype='f4')
             self.X_env  = np.array([[] for _ in range(Nchem)], dtype='f4')
+
         else:
             self.X_core = None
             self.X_env  = None
@@ -80,7 +85,7 @@ class Planets(object):
 
     def __getitem__(self, idx):
         """Get a sub-set of the planets"""
-        sub = Planets(self._Nchem)      
+        sub = Planets(self._Nchem)
 
         sub.R      = self.R[idx]
         sub.M_core = self.M_core[idx]
@@ -104,8 +109,10 @@ class Planets(object):
 ################################################################################
 # Accretion
 ################################################################################
+
 class GasAccretion(object):
-    """Gas giant accretion model of Bitsch et al (2015).
+    """
+    Gas giant accretion model of Bitsch et al (2015).
 
     Combines models from Piso & Youdin (2014) for accretion onto low mass
     envelopes and Machida et al (2010) for accretion onto massive envelopes.
@@ -119,10 +126,10 @@ class GasAccretion(object):
         Piso & Youdin parameters:
            f_py      : accretion rate fitting factor, default=0.2
            kappa_env : envelope opacity [cm^2/g], default=0.06
-           rho_core  : core density [g cm^-3], default=5.5
+           rho_core : core density [g cm^-3], default=5.5
     """
-    def __init__(self, disc, f_max=0.8,
-                 f_py=0.2, kappa_env=0.05, rho_core=5.5):
+
+    def __init__(self, disc, f_max=0.8, f_py=0.2, kappa_env=0.05, rho_core=5.5):
 
         # General properties
         self._fmax = f_max # depreciated with the addition of winds.  MLB - restored.
@@ -139,6 +146,7 @@ class GasAccretion(object):
                 "kappa_env" : "{} cm^2 g^-1".format(kappa_env),
                 "rho_core"  : "{} g cm^-1".format(rho_core),
                 }
+        
         self._head = (self.__class__.__name__, head)
 
     def ASCII_header(self):
@@ -154,7 +162,8 @@ class GasAccretion(object):
         self.update()
 
     def computeMdot(self, Rp, M_core, M_env):
-        """Compute gas accretion rate.
+        """
+        Compute gas accretion rate.
 
         args:
             Rp     : radius, AU
@@ -164,6 +173,7 @@ class GasAccretion(object):
         returns:
             Mdot : accretion rate in Mearth per Omega0**-1
         """
+
         # Cache data:
         Mp = M_core + M_env
 
@@ -208,7 +218,8 @@ class GasAccretion(object):
         return np.minimum(Mdot, Mdot_limit)
 
     def __call__(self, planets):
-        """Compute gas accretion onto planets
+        """
+        Compute gas accretion onto planets
 
         args:
              planets : planets object.
@@ -218,16 +229,17 @@ class GasAccretion(object):
         """
         return self.computeMdot(planets.R, planets.M_core, planets.M_env)
 
-
     def update(self):
         """Update internal quantities after the disc has evolved"""
         pass
     
 class PebbleAccretion(object):
-    """Pebble accretion model of Bitsch+ (2015) with Bondi regime added.
+    """
+    Pebble accretion model of Bitsch+ (2015) with Bondi regime added.
 
     See also, Lambrechts & Johansen (2012) for Bondi regime, Morbidelli+ (2015) for Hill regime.
     """
+
     def __init__(self, disc):
         self.set_disc(disc)
 
@@ -242,14 +254,15 @@ class PebbleAccretion(object):
     def set_disc(self, disc):
         self._disc = disc
         self.update()
-        
+
     def M_iso(self, R):
         """Pebble isolation mass."""
         h = self._disc.interp(R, self._disc.H) / R
         return 20. * (h/0.05)**3
 
     def M_transition(self, R, epsilon=None):
-        """Compute the transition mass between Bondi and Hill Regimes.
+        """
+        Compute the transition mass between Bondi and Hill Regimes.
 
         args:
             R : radius, AU
@@ -258,6 +271,7 @@ class PebbleAccretion(object):
         returns:
             M_t (ndarray): transition mass, Mearth
         """
+
         h = self._disc.interp(R, self._disc.H) / R
         
         if not epsilon is None:
@@ -283,6 +297,7 @@ class PebbleAccretion(object):
         returns:
             Mdot (ndarray): Mass accretion rate of pebbles in Hill regime for each planet.
         """
+
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -302,7 +317,7 @@ class PebbleAccretion(object):
         Mdot = 2*np.minimum(rH*rH, r_eff*r_eff) * star.Omega_k(Rp) * Sig_p
 
         # 3D correction for Hp >~ r_H:
-        # Replaces Sigma_p -> np.pi * rho_p * r_eff
+        # Replaces Sigma_p -> np.pi * rho_pltsml * r_eff
         Mdot *= np.minimum(1, r_eff *(np.pi/8)**0.5 / Hp)
 
         return Mdot
@@ -319,6 +334,7 @@ class PebbleAccretion(object):
         returns:
             Mdot (ndarray): Mass accretion rate of pebbles in Bondi regime for each planet.
         """
+
         # Cache local varibales
         disc = self._disc
         star = disc.star
@@ -346,13 +362,12 @@ class PebbleAccretion(object):
         # compute mass accretion rate based on 2D or 3D regime
         Mdot = np.where(Mp < M_3D_to_2D,
             np.pi * rho_peb * r_d**2 * delta_v,
-            2 * r_d * Sig_p * delta_v
-        )
+            2 * r_d * Sig_p * delta_v)
 
         return np.array(Mdot)
 
     def computeMdot(self, Rp, Mp):
-        '''
+        """
         Calculate the pebble accretion rate.
     
         args:
@@ -361,7 +376,8 @@ class PebbleAccretion(object):
 
         returns:
             Mdot (ndarray): Mass accretion rate of pebbles for each planet.
-        '''
+        """
+
         disc = self._disc
 
         # Interpolate disc properites to planet location
@@ -388,55 +404,195 @@ class PebbleAccretion(object):
         lgP = spline(np.log(self._disc.R), np.log(self._disc.P))
         self._dlgP = lgP.derivative(1)
 
+
+
 class PlanetesimalAccretion(object):
     """
-    Planetesimal accretion model based on Danti et al (2023).
+    Planetesimal accretion model.
 
     args:
         disc: disc object
-        oligarchic_model: model to use for oligarchic growth
-        runaway_model: model to use for runaway growth
-        gamma: turbulent stirring factor for planetesimal eccentricity
-        rho_p: internal density of planetesimals
+        Mdot_migrate: function to compute accretion rate during migration
+        Mdot_insitu: function to compute accretion rate in-situ
+        rho_core: core density [g cm^-3], default = 5.5
+        gamma: stirring parameter, default = None
     """
-    def __init__(self, disc, oligarchic_model = None, runaway_model = None, gamma=None, rho_p=2):
+
+    def __init__(self, disc, Mdot_migrate = True, Mdot_insitu = True, rho_core = 5.5, gamma = None):
+
         if gamma is None:
             self._stirring = np.sqrt(disc.alpha)*disc.h
         else:
             self._stirring = gamma*np.ones_like(disc.R)
-        self._rho_p = rho_p
 
         self.set_disc(disc)
+
+        self.rho_core = rho_core
+
         self.dRdt = None
-        self._olig_model = oligarchic_model
-        self._run_model = runaway_model
+        self._Mdot_migrate = Mdot_migrate
+        self._Mdot_insitu = Mdot_insitu
 
     def set_disc(self, disc):
         self._disc = disc
 
-    def _R_phys(self,Mp):
+    # Fortier et al 2013 accretion model
+    
+    def M_iso_pltsml(self, Rp):
         """
+        Compute the planetesimal isolation mass (Rafikov 2011).
+
+        Rp: Protoplanet location (in AU)
+
+        return: Planetesimal isolation mass (in Earth masses)
+        """
+
+        disc = self._disc
+
+        b_tilde = 10 # dimensionless spacing parameter
+        Mstar = disc.star.M * Msun
+        Sigma_D = disc.interp(Rp, disc.Sigma_D[2])
+
+        return (2 * np.pi * (Rp * AU) ** 2 * b_tilde * Sigma_D) ** (3/2) * (3 * Mstar) ** (-1/2) / Mearth
+    
+    def R_core(self, Mp):
+        """
+        Compute the physical radius of the protoplanet core assuming a constant density (same as planetesimal density).
+
+        Mp: Protoplanet mass (in Earth masses)
+
+        return: Protoplanet core physical radius (in AU)
+        """
+
+        rho_core = self.rho_core
+
+        return (3 * Mp * Mearth / (4 * np.pi * rho_core)) ** (1/3) / AU
+    
+    def _I_F(self, beta):
+        """
+        Computes the numerical elliptic integral approximation (Fortier et al 2012).
+
+        beta: Inclination to eccentricity ratio
+        
+        return: Integral approximation
+        """
+        return (1 + 0.95925 * beta + 0.77251 * beta ** 2) / (beta * (0.13142 + 0.12295 * beta))
+
+    def _I_G(self, beta):
+        """
+        Computes the numerical elliptic integral approximation (Fortier et al 2012).
+
+        beta: Inclination to eccentricity ratio
+        
+        return: Integral approximation
+        """
+        return (1 + 0.3996 * beta) / (beta * (0.0369 + 0.048333 * beta + 0.006874 * beta ** 2))
+    
+    def P_coll(self, e2, i2, Rp, Mp):
+        """
+        Compute the probability that the planetesimal is accreted by the embryo (Fortier et al 2012).
+        
+        e2: planetesimal eccentricity squared
+        i2: planetesimal inclination squared
+        Rp: Protoplanet location (in AU)
+        Mp: Protoplanet mass (in Earth masses)
+
+        return: Probability that the planetesimal is accerted by the embryo
+        """
+
+        disc = self._disc
+
+        Mstar = disc.star.M * Msun
+        rH = disc.star.r_Hill(Rp, Mp * Mearth / Msun) * AU
+        Rpltsml = disc.interp(Rp, disc.R_planetesimal) * AU
+        Rcore = self.R_capt(Rp, Mp) * AU
+
+        e_tilde = np.sqrt(e2) / (Mp * Mearth / (3 * Mstar)) ** (1/3)
+        i_tilde = np.sqrt(i2) / (Mp * Mearth / (3 * Mstar)) ** (1/3)
+        beta = i_tilde / e_tilde
+
+        P_low = 11.3 * ((Rcore + Rpltsml) / rH) ** (1/2)
+        P_med = ((Rcore + Rpltsml) ** 2 / (4 * np.pi * rH ** 2) * i_tilde) * (17.3 + 232 * rH / (Rcore + Rpltsml))
+        P_high = ((Rcore + Rpltsml) ** 2 / (2 * np.pi * rH ** 2)) * (self._I_F(beta) + 6 * rH * self._I_G(beta) / ((Rcore + Rpltsml) * e_tilde ** 2))
+
+        return np.min((P_med, (P_high ** (-2) + P_low ** (-2)) ** (-1/2)), axis = 0)
+    
+    def computeMdotFortier(self, Rp, Mp):
+        """
+        Compute the planetesimal accretion rate from Fortier et al (2013) in the absence of migration.
+
+        Rp: Protoplanet location (in AU)
+        Mp: Protoplanet mass (in Earth masses)
+
+        return: Planetesimal accretion rate (Earth masses/code time unit)
+        """
+
+        disc = self._disc
+
+        # Reduce scope of calculation to planets below the planetesimal isolation mass
+        Miso = self.M_iso_pltsml(Rp)
+        filter = Mp < Miso
+
+        Rp_grow = Rp[filter]
+        Mp_grow = Mp[filter]
+
+        e2 = disc.interp(Rp_grow, disc._planetesimal.e ** 2)
+        i2 = disc.interp(Rp_grow, disc._planetesimal.i ** 2)
+
+        Sigma_D = disc.interp(Rp_grow, disc.Sigma_D[2])
+        Omega_k = disc.star.Omega_k(Rp_grow) * Omega0
+        rH = disc.star.r_Hill(Rp_grow, Mp_grow * Mearth / Msun) * AU
+
+        Mdot = np.zeros_like(Rp)
+        Mdot[filter] = Sigma_D * Omega_k * rH ** 2 * self.P_coll(e2, i2, Rp_grow, Mp_grow) / Mearth / Omega0
+
+        return Mdot
+    
+    # Migration core accretion
+
+    def _R_phys(self, Mp):
+        """
+        Calculate the embryo radius.
+
         Mp: Planet mass (Earth masses)
         
-        return: R_planetesimal in AU"""
-        return (3/(4*np.pi*self._rho_p/Msun*AU**3)*Mp*Mearth/Msun)**(1/3)
+        return: R_core in AU
+        """
+
+        rho_core = self.rho_core
+
+        return (3/(4*np.pi*rho_core/Msun*AU**3)*Mp*Mearth/Msun)**(1/3)
 
     def relative_velocity(self, Rp = None):
-        """Calculate planetesimal velocity relative to the gas
+        """
+        Calculate planetesimal velocity relative to the gas.
         
-        Rp: Orbital radius at which to evaluate vrel"""
+        Rp: Orbital radius at which to evaluate vrel
+        
+        return: relative velocity
+        """
         
         disc = self._disc
         eta = - np.interp(Rp, reduce(disc.R), np.diff(disc.P) / disc.grid.dRc / reduce(disc.midplane_gas_density)) / disc.star.Omega_k(Rp)
         return np.sqrt((disc.star.v_k(Rp) * eta)**2 + np.interp(Rp,reduce(disc.R),disc.gas.viscous_velocity(disc))**2)
  
     def Reynolds(self, Rp, v = None):
-        """Calculate the Reynolds number."""
+        """
+        Calculate the Reynolds number.
+        
+        Rp: Protoplanet radius (in AU)
+        v: Relative velocity
+
+        return: Reynolds number
+        """
+
         disc = self._disc
+
         if v is None:
             v = self.relative_velocity(Rp) 
+        
         nu = (disc.visc_mol*Omega0*AU) / (disc.midplane_gas_density*AU**3)
-        Re = v * disc.interp(Rp,disc.R_planetesimal / nu)
+        Re = v * disc.interp(Rp, disc.R_planetesimal / nu)
         return Re
     
     def Mach(self,Rp,v = None):
@@ -448,8 +604,9 @@ class PlanetesimalAccretion(object):
 
         return: Mach number
         """
+
         if v is None:
-            v = self._self.relative_velocity(Rp) 
+            v = self.relative_velocity(Rp) 
     
         c_s = self._disc.cs
 
@@ -457,27 +614,21 @@ class PlanetesimalAccretion(object):
 
         return Ma
 
-    def drag_coeff(self,Rp = None):
+    def drag_coeff(self, Rp = None):
         """
         Calculate the drag coefficient given by Podolak et al. (1988).
-        Note these are the values of D in Podolak which are half the usual C_D.
         """
+
         vrel = self.relative_velocity(Rp)
         Ma = self.Mach(Rp,vrel)
         Re = self.Reynolds(Rp,vrel)
-        # for number in Re:
-        #     if number < 1: 
-        #         warnings.warn(f"Reynolds number of {number:.2f} found, setting to 1 to avoid division by zero.")
-        # Re = np.where(Re < 1, 1, Re)
-     
+        
+        Re = np.where(Re < 1, 1, Re)
+
         drag_coeff = np.zeros_like(Ma)
 
         # Calculate the drag coefficient for the different regimes
         # Apply conditions: Ma < 1 and Re < 10^3
-
-        condition = (Re < 1) # Assume Stokes regime
-        drag_coeff[condition] = 6 / Re[condition]
-
         condition = (Ma < 1) & (Re < 1e3) & (Re >= 1)
         drag_coeff[condition] = 6 / np.sqrt(Re[condition])
 
@@ -500,12 +651,14 @@ class PlanetesimalAccretion(object):
         return drag_coeff
 
     def R_p_out(self, Rp, Mp):
-        """Calculate the protoplanet's outer radius.
+        """
+        Calculate the protoplanet's outer radius.
         
         args:
             Rp: Protoplanet heliocentric radius (in AU)
             Mp: Protoplanet mass (in Earth masses)
         """
+
         disc = self._disc
         star = disc.star
 
@@ -517,20 +670,20 @@ class PlanetesimalAccretion(object):
     
     def R_captr_attached(self, Rp, Mp):
         """
-        Calculate the protoplanet capture radius 
-        according to Valletta & Helled (2021).
+        Calculate the protoplanet capture radius according to Valletta & Helled (2021).
         
         args:
             Rp: Protoplanet heliocentric radius (in AU)
             Mp: Protoplanet mass (in Earth masses)
         """
+
         disc    = self._disc
         star    = disc.star
 
         rH      = star.r_Hill(Rp, Mp*Mearth/Msun)
         D       = self.drag_coeff(Rp)
-        R_pla   = disc.R_planetesimal
-        rho_p   = self._rho_p
+        R_pla   = disc.interp(Rp, disc.R_planetesimal)
+        rho_pltsml   = disc.rho_pltsml
 
         # Convert Mp to solar masses for calculations
         Mp_solar_masses     = Mp * Mearth / Msun
@@ -539,16 +692,17 @@ class PlanetesimalAccretion(object):
         R0      = self.R_p_out(Rp, Mp)
 
         # Outer density and pressure of planet envelope (equation 4)
-        # Interpolate the disc properties and assume value 
-        #   to be outermomst envelope value
+        # Interpolate the disc properties and assume value to be outermomst envelope value
         P0      = disc.interp(Rp, disc.P)
         rho0    = disc.interp(Rp, disc.midplane_density)
 
-        # Calculate alpha parameter (equation 5) ## Different alpha than viscous
+        # Calculate alpha parameter (equation 5)
+        # Different alpha than viscous
         alpha   = Mp_solar_masses * rho0 / (P0 * R0)
         
-        # Calculate rho_star (equation 8) # NOT rho of central star
-        rho_star = 2 * R_pla * rho_p / (3 *  D * rH)
+        # Calculate rho_star (equation 8) 
+        # NOT rho of central star
+        rho_star = 2 * R_pla * rho_pltsml / (3 * D * rH)
 
         # Calculate capture radius (equation 7)
         R_capt  = R0 / (1 + (1/alpha) * np.log10(rho_star/rho0))
@@ -568,41 +722,32 @@ class PlanetesimalAccretion(object):
 
         return: Protoplanet capture radius in AU (depends only on M_Z/M_HHe ratio)
         """
+
         ratio = M_Z / np.maximum(M_HHe, 1e-300)
-        # Clamp ratio to [0, 1] for numerical stability
         ratio = np.clip(ratio, 0, 1.0)
 
-        # Polynomial coefficients for two different times
         coeffs_1e7 = np.array([12.80662188, -50.86303789, 382.66267044, -1388.57741163, 1902.60362959])
         coeffs_1e8 = np.array([9.15426162, -6.74548399, 9.40271959, 0, 0])
 
-        # Select or interpolate coefficients based on time
         if time <= 1e7:
             coeffs = coeffs_1e7
         elif time >= 1e8:
             coeffs = coeffs_1e8
         else:
-            # Log-linear interpolation between 1e7 and 1e8 years
             log_time = np.log10(time)
-            log_t1 = 7.0
-            log_t2 = 8.0
-            alpha = (log_time - log_t1) / (log_t2 - log_t1)
+            alpha = (log_time - 7.0) / (8.0 - 7.0)
             coeffs = (1 - alpha) * coeffs_1e7 + alpha * coeffs_1e8
 
-        # Evaluate polynomial sum from i=0 to 4
         R_capt = np.zeros_like(ratio, dtype=float)
         for i in np.arange(5):
             R_capt += coeffs[i] * ratio**i
 
-        # Convert from cm to AU
-        R_capt = R_capt * 1.0e9 / AU  # cm to AU
-
-        return R_capt
-
-    def R_capt(self, Rp, Mp, M_Z=None, M_HHe=None, time=1e7):
+        return R_capt * 1.0e9 / AU
+    
+    def R_capt(self, Rp, Mp, M_Z = None, M_HHe = None, time = 1e7):
         """
-        Calculate the protoplanet capture radius with phase switch.
-
+        Calculate the protoplanet capture radius.
+        
         Rp: Protoplanet radius (in AU)
         Mp: Protoplanet mass (in Earth masses)
         M_Z: Total heavy-element mass (optional, for phase switch)
@@ -611,6 +756,7 @@ class PlanetesimalAccretion(object):
 
         return: Protoplanet capture radius
         """
+
         R_attached = self.R_captr_attached(Rp, Mp)
 
         if M_Z is None or M_HHe is None:
@@ -624,11 +770,14 @@ class PlanetesimalAccretion(object):
         return R_captr
 
     def f_g(self, Rp):
-        """ Calculate the surface density scaling factor between our disc and the MMSN
+        """
+        Calculate the surface density scaling factor between our disc and the MMSN.
         
         Rp: Protoplanet location (in AU)
         
-        Return: Ratio of disc sigma to MMSN sigma"""
+        Return: Ratio of disc sigma to MMSN sigma
+        """
+
         mmn_ref = 2400 * (Rp)**(-1.5)
         
         # Calculate normalized gas surface density
@@ -646,6 +795,7 @@ class PlanetesimalAccretion(object):
         Returns:
         Planetesimal inclination (in radians)
         """
+
         disc = self._disc
 
         gamma = disc.interp(Rp,self._stirring) 
@@ -654,15 +804,15 @@ class PlanetesimalAccretion(object):
         # Original: 2.4e4 kg/m^2 * (r/AU)^-1
         fg = self.f_g(Rp)
         
-        R_pla = disc.R_planetesimal  # in AU
-        rho_p = self._rho_p
+        R_pla = disc.interp(Rp, disc.R_planetesimal)  # in AU
+        rho_pltsml = self._disc.rho_pltsml
 
         # Calculate edrag using equation 10
-        i0 = 0.23 * ((fg) * (gamma**2) * (R_pla*AU/1e5/1.0) * (rho_p/(3.0)))**(1/3) * (Rp/1.0)**(11/12)
+        i0 = 0.23 * ((fg) * (gamma**2) * (R_pla*AU/1e5/1.0) * (rho_pltsml/(3.0)))**(1/3) * (Rp/1.0)**(11/12)
     
         return i0
 
-    def computeAccEff(self, Rp, Mp, dRdt, M_Z=None, M_HHe=None, time=1e7):
+    def computeAccEff(self, Rp, Mp, dRdt, M_Z = None, M_HHe = None, time = 1e7):
         """
         Calculate the planetesimal accretion efficiency.
 
@@ -675,17 +825,18 @@ class PlanetesimalAccretion(object):
 
         return: Planetesimal accretion efficiency
         """
+
         disc = self._disc
         star = disc.star
-
+        
         rH   = star.r_Hill(Rp, Mp*Mearth/Msun)
         h_p = rH/Rp
         R_captr = self.R_capt(Rp, Mp, M_Z=M_Z, M_HHe=M_HHe, time=time)
         R_captr /= rH # capture used instead of physical
-
+        
         i0 = self.inclination(Rp) / h_p
 
-        T_k = (2*np.pi) / star.Omega_k(Rp) # Orbital period in 2pi*years
+        T_k = (2*np.pi) / star.Omega_k(Rp) # orbital period in 2pi*years
 
         alpha_pla = 2.5 * np.sqrt(R_captr / (1 + 0.37 * i0*i0 / R_captr))
         beta_pla = 0.79 * (1 + 10 * i0*i0)**(-0.17)
@@ -697,13 +848,13 @@ class PlanetesimalAccretion(object):
         # Calculate the accretion efficiency
         # Do not allow accretion efficiency to exceed 1.
         acc_eff = np.minimum(1., alpha_pla * b_p ** (beta_pla - 1))
-
+        
         return acc_eff, R_captr
 
-    def computeMdotMigration(self, Rp, Mp, dRdt, M_Z=None, M_HHe=None, time=1e7):
+    def computeMdotMigration(self, Rp, Mp, dRdt, M_Z = None, M_HHe = None, time = 1e7):
         """
         Compute the planetesimal accretion rate in the case of migration.
-
+        
         Rp: Protoplanet radius (in AU)
         Mp: Protoplanet mass (in Earth masses)
         M_Z: Total heavy-element mass (optional, for phase switch)
@@ -712,9 +863,10 @@ class PlanetesimalAccretion(object):
 
         return: Planetesimal accretion rate
         """
+
         disc = self._disc
         Sigma_pla = disc.interp(Rp, disc.Sigma_D[2])
-
+        
         acc_eff = self.computeAccEff(Rp, Mp, dRdt, M_Z=M_Z, M_HHe=M_HHe, time=time)
         R_captr = acc_eff[1]
         acc_eff_Rp = acc_eff[0]
@@ -723,6 +875,9 @@ class PlanetesimalAccretion(object):
         Mdot = 2 * np.pi * Rp * np.abs(dRdt) * Sigma_pla * acc_eff_Rp / Mearth * AU**2
         self.dRdt = dRdt
         return Mdot
+    
+    # Old core accretion model
+    # Untested and has been superseded by the Fortier et al (2013) model
 
     def eq_eccentricity_kokubo(self, Rp, Mp, b_tilde = 10):
         """
@@ -731,7 +886,6 @@ class PlanetesimalAccretion(object):
         args:
             Rp: Protoplanet location (in AU)
             Mp: Protoplanet mass (in Earth masses)
-            rho_p: planetesimal solid density, set to 2 from kokubo et al
             b: planetary separation, scaled by hill radius. default 10 from kokubo, could be set based on actual locations
 
         returns: 
@@ -741,11 +895,11 @@ class PlanetesimalAccretion(object):
         disc = self._disc
         D = self.drag_coeff(Rp)
         rho_g = disc.interp(Rp,disc.midplane_density)
-        rho_p = self._rho_p
-        m_planetesimal = 4/3*np.pi*(disc.R_planetesimal*AU)**3*rho_p
+        rho_pltsml = disc.rho_pltsml
+        m_planetesimal = 4/3*np.pi*(disc.interp(Rp, disc.R_planetesimal)*AU)**3*rho_pltsml
 
-        #calculate equilibirum eccentricity
-        e_eq_tilde = 5.6*(m_planetesimal/10**23*(rho_p/2)**2)**(1/15) * (b_tilde/10*D*rho_g/(2*10**-9)*Rp)**(-1/5)
+        # Calculate equilibirum eccentricity
+        e_eq_tilde = 5.6*(m_planetesimal/10**23*(rho_pltsml/2)**2)**(1/15) * (b_tilde/10*D*rho_g/(2*10**-9)*Rp)**(-1/5)
         return e_eq_tilde*(disc.star.r_Hill(Rp,Mp*Mearth/Msun)/Rp)
 
     def eq_eccentricity_ida2008(self, Rp, r_pltsml = None, eta_ice = 1, iceline = 4):
@@ -758,24 +912,26 @@ class PlanetesimalAccretion(object):
         eta_ice: factor for enhancement of solids past iceline in MMSN
         iceline: Ice line location (AU)
 
-        return: equilibrium eccentricity from turbulent excitation"""
+        return: equilibrium eccentricity from turbulent excitation
+        """
+
         disc = self._disc
-        if r_pltsml == None:
-            r_pltsml = disc.R_planetesimal
+        if r_pltsml is None:
+            r_pltsml = disc.interp(Rp, disc.R_planetesimal)
     
         eta_ice_arr = np.ones_like(Rp)
         eta_ice_arr[Rp < iceline] *= eta_ice
         Sigma_D_MMSN = 10*eta_ice_arr*Rp**(-3/2)
-        f_d = disc.interp(Rp,disc.Sigma_D.sum(0))/Sigma_D_MMSN #planetesimals included?
+        f_d = disc.interp(Rp,disc.Sigma_D.sum(0))/Sigma_D_MMSN # planetesimals included?
         f_g = self.f_g(Rp)
         gamma = disc.interp(Rp,self._stirring)
-        
-        rho_p = self._rho_p
+
+        rho_pltsml = disc.rho_pltsml
     
         # Calculate equilibirum eccentricities of turbulent stirring vs tidal damping, drag, and collisional damping
-        e_tidal = 24 * f_g**0.5 * gamma * ((r_pltsml*AU/1e5/10**3)**3*rho_p/3)**-0.5 * (Rp)**(3/4)
-        e_drag = 0.23 * f_g**(1/3) * gamma**(2/3) * (r_pltsml/(10**5/AU)*rho_p/3)**(1/3) * Rp**(11/12)
-        e_coll = 3.6 * f_g * (f_d * eta_ice_arr)**-0.5 * gamma * (r_pltsml/(10**5/AU))**0.5 * (rho_p/3)**(5/6) * Rp**(5/4)
+        e_tidal = 24 * f_g**0.5 * gamma * ((r_pltsml*AU/1e5/10**3)**3*rho_pltsml/3)**-0.5 * (Rp)**(3/4)
+        e_drag = 0.23 * f_g**(1/3) * gamma**(2/3) * (r_pltsml/(10**5/AU)*rho_pltsml/3)**(1/3) * Rp**(11/12)
+        e_coll = 3.6 * f_g * (f_d * eta_ice_arr)**-0.5 * gamma * (r_pltsml/(10**5/AU))**0.5 * (rho_pltsml/3)**(5/6) * Rp**(5/4)
        
         min = np.min((e_tidal,e_drag,e_coll),axis=0)
         return min
@@ -790,26 +946,30 @@ class PlanetesimalAccretion(object):
             Mp: Protoplanet mass (in Earth masses)
          
         return: 
-            array: equilibrium eccentricity from planetesimal-planetesimal or protoplanet-planetesimal interactions"""
+            array: equilibrium eccentricity from planetesimal-planetesimal or protoplanet-planetesimal interactions
+        """
 
         disc = self._disc
-        m_planetesimal = 4/3*np.pi*(disc.R_planetesimal*AU)**3*disc._rho_s
+        rho_pltsml = disc.rho_pltsml
+        m_planetesimal = 4/3*np.pi*(disc.interp(Rp, disc.R_planetesimal)*AU)**3*rho_pltsml
         
-        # eccentricity excited by planetesimal-planetesimal interaction
+        # Eccentricity excited by planetesimal-planetesimal interaction
         em_mm = 20*(m_planetesimal/1e23)**(-1/15)*(Rp)**(9/20)*(2*m_planetesimal/Msun/(3*disc.star.M))**(1/3)
         
-        # eccentricity excited by protoplanet-planetesimal interaction
-        em_Mm = 6*(m_planetesimal/1e23)**(1/18)*(Rp)**(7/24)*((Mp*Mearth/Msun+m_planetesimal/Msun)/3*disc.star.M)**(1/3)
+        # Eccentricity excited by protoplanet-planetesimal interaction
+        em_Mm = 6*(m_planetesimal/1e23)**(1/18)*(Rp)**(7/24)*((Mp*Mearth/Msun+m_planetesimal/Msun)/(3*disc.star.M))**(1/3)
         return np.max((em_Mm,em_mm),axis=0)
     
     def compute_v_ran(self, Rp, Mp):
         """
-        Calculate the relative velocity between the protoplanet and the planetesimals
+        Calculate the relative velocity between the protoplanet and the planetesimals.
         
         Rp: Protoplanet location (in AU)
         Mp: Protoplanet mass (in Earth masses)
 
-        return: Relative velocity"""
+        return: Relative velocity
+        """
+
         disc = self._disc
         r_H = disc.star.r_Hill(Rp,Mp*Mearth/Msun)
         eq_run = eq_oli = np.zeros_like(Rp)
@@ -836,11 +996,13 @@ class PlanetesimalAccretion(object):
 
     def planetesimal_iso_mass(self, Rp):
         """
-        Planetesimal isolation mass for model in which neither planetesimals nor protoplanets are migrating
+        Planetesimal isolation mass for model in which neither planetesimals nor protoplanets are migrating.
         
         Rp: Protoplanet location (AU)
 
-        return: Planetesimal isolation mass (Earth masses)"""
+        return: Planetesimal isolation mass (Earth masses)
+        """
+
         return 0.1*(self._disc.interp(Rp,self._disc.Sigma_D[2])/5)**1.5 * (Rp)**3 * (self._disc.star.M)**-0.5
 
     def computeMdotTwoPhase(self, Rp, Mp, dRdt=None):
@@ -852,6 +1014,7 @@ class PlanetesimalAccretion(object):
 
         return: Planetesimal accretion rate (Earth masses/code time unit)
         """
+
         disc = self._disc
 
         disc._v_drift = np.concatenate((disc.v_drift,[np.zeros_like(disc.v_drift[1])]))
@@ -876,32 +1039,9 @@ class PlanetesimalAccretion(object):
         
         return Mdot
 
-    def computeMdot(self, Rp, Mp, dRdt=None,M_Z=None, M_HHe=None, time=1e7):
-        """
-        Compute the planetesimal accretion rate in migrating and nonmigrating cases.
-        
-        Rp: Protoplanet radius (in AU)
-        Mp: Protoplanet mass (in Earth masses)
-        dRdt: Migration rate (AU/code time)
-
-        return: Planetesimal accretion rate (Earth masses/code time)
-        """
-        Mdot = 0
-        if dRdt is None:
-            dRdt = np.zeros_like(Rp)
-        # To avoid any ambiguity, only use Migration model
-        # if any(dRdt != 0):
-        #     Mdot = self.computeMdotMigration(Rp, Mp, dRdt)
-        # else:
-        #     Mdot = self.computeMdotTwoPhase(Rp, Mp)
-        Mdot = self.computeMdotMigration(Rp, Mp, dRdt, M_Z=M_Z, M_HHe=M_HHe, time=time)
-
-        return Mdot 
-    
     def update(self):
-        """Update internal quantities after the disc has evolved"""
+        """Update internal quantities after the disc has evolved."""
         pass
-
 
 ################################################################################
 # Migration
@@ -915,12 +1055,8 @@ def _GK(p):
 
     return np.where(p < 1, f1, f2)
 
-
 def _F(p):
     return 1 / (1 + (p/1.3)**2)
-
-
-
 
 # Linblad torque
 def _linblad(alpha, beta):
@@ -949,8 +1085,10 @@ def _G(p):
     return _GK(p/_g0)
 
 
+
 class TypeIMigration(object):
-    """Type 1 Migration model of planets by Paardekooper et al (2011).
+    """
+    Type 1 Migration model of planets by Paardekooper et al (2011).
 
     Only implemented for sofenting the default softening parameter b/h=0.4
 
@@ -964,6 +1102,7 @@ class TypeIMigration(object):
         disk wind alpha parameter has a similar affect on type 1 migration 
         as viscous alpha.
     """
+
     def __init__(self, disc, gamma=1.4):
         self._gamma = gamma
 
@@ -1026,7 +1165,7 @@ class TypeIMigration(object):
         h     = disc.interp(Rp, disc.H) / Rp
         Sigma = disc.interp(Rp, disc.Sigma)
         nu_SS = disc.interp(Rp, disc.nu)
-        nu    = disc.interp(Rp, disc.nu) 
+        nu    = disc.interp(Rp, disc.nu)
         Pr    = disc.interp(Rp, disc.Pr)
 
         Om_k = star.Omega_k(Rp)
@@ -1050,7 +1189,6 @@ class TypeIMigration(object):
         x = (1.1 / g_eff**0.25) * np.sqrt(q_h)
 
         pnu = 2*np.sqrt(k*x*x*x)/3
-        #pXi = 3*pnu*np.sqrt(Pr)/2
         pXi  = 2*np.sqrt(kXi * x*x*x) / 3
 
         Fnu, Gnu, Knu = _F(pnu), _G(pnu), _K(pnu)
@@ -1081,6 +1219,7 @@ class TypeIIMigration(object):
     Note, for disk winds, assumes disk wind alpha parameter has a 
     similar affect on type 1 migration as viscous alpha.
     """
+
     def __init__(self, disc):
         self._disc = disc
 
@@ -1122,7 +1261,8 @@ class TypeIIMigration(object):
 ################################################################################
     
 class PlanetMigration(object):
-    """Migration by Type I and Type II with a switch based on the Crida &
+    """
+    Migration by Type I and Type II with a switch based on the Crida &
     Morbidelli (2007) gap depth criterion.
 
     args:
@@ -1137,6 +1277,7 @@ class PlanetMigration(object):
         that the disk wind alpha affects planet migration similarly to 
         viscous alpha.
     """
+    
     def __init__(self, disc, gamma=1.4, winds=False):
         if not winds:
             # ViscousEvolution classes do not assign a psi value,
@@ -1163,7 +1304,6 @@ class PlanetMigration(object):
         self._typeII.set_disc(disc)
 
         self._disc = disc
-
 
     def migration_rate(self, Rp, Mp):
         """Compute migration rate according to Bitsch et. al (2015)"""
@@ -1203,46 +1343,46 @@ class PlanetMigration(object):
     
         
 class Bitsch2015Model(object):
-    """Pebble accretion + Gas accretion planet formation model based on
-    Bisch et al (2015).
+    """
+    Pebble accretion + Gas accretion planet formation model based on Bisch et al (2015).
 
-    The model is composed of the Hill branch pebble accretion along with
-    gas envelope accretion.
+    The model is composed of the Hill branch pebble accretion along with gas envelope accretion.
 
     args:
         disc     : accretion disc model
-        pb_gas_f : fraction of pebble accretion rate that arrives as gas,
-                   default=0.1
-        migrate  : Whether to include migration, default=True
+        pb_gas_f : fraction of pebble accretion rate that arrives as gas, default = 0.1
+        f_plt    : ratio between the embryo birth mass and the planetesimal birth mass, default = 400
+        migrate  : Whether to include migration, default = True
         pebble_acc : Whether to include pebble accretion, default = True
-        planetesimal_acc : Whether to include planetesimal accretion, 
-                   default=False
-        oligarchic_model: model to use for oligarchic growth
-        runaway_model: model to use for runaway growth
+        planetesimal_acc_migrate: function to compute accretion rate during migration, default = True
+        planetesimal_acc_insitu: function to compute accretion rate in-situ, default = True
         gas_acc: model for gas accretion
-        winds    : Whether the disk includes disk winds, default=False
-        **kwargs : arguments passed to GasAccretion object
+        winds    : Whether the disk includes disk winds, default = False
+        rho_core : core density [g cm^-3], default = 5.5
+        **kwargs : additional arguments passed to GasAccretion object
     """
-    def __init__(self, disc, pb_gas_f=0.1, migrate=True, pebble_acc = True, planetesimal_acc = False, oligarchic_model = None, runaway_model = None, gas_acc = True, winds=False, **kwargs):
+
+    def __init__(self, disc, pb_gas_f = 0.1, f_plt = 400, migrate = True, pebble_acc = True, planetesimal_acc_migrate = True, planetesimal_acc_insitu = True, gas_acc = True, winds = False, rho_core = 5.5, **kwargs):
 
         self._f_gas = pb_gas_f
+        self._f_plt = f_plt
         self._disc = disc
-        
+
         self._gas_acc = None
         if gas_acc:
-            self._gas_acc = GasAccretion(disc, **kwargs)
+            self._gas_acc = GasAccretion(disc, rho_core = rho_core, **kwargs)
 
         self._peb_acc = None
         if pebble_acc:
             self._peb_acc = PebbleAccretion(disc)
 
-        self._pl_acc = None
-        if disc._planetesimal and planetesimal_acc:
-            self._pl_acc = PlanetesimalAccretion(disc, oligarchic_model, runaway_model)
+        self._pla_acc = None
+        if planetesimal_acc_migrate or planetesimal_acc_insitu:
+            self._pla_acc = PlanetesimalAccretion(disc, Mdot_migrate = planetesimal_acc_migrate, Mdot_insitu = planetesimal_acc_insitu, rho_core = rho_core)
 
         self._migrate = None
         if migrate:
-            self._migrate = PlanetMigration(disc, winds=winds)
+            self._migrate = PlanetMigration(disc, winds = winds)
 
     def ASCII_header(self):
         """header"""
@@ -1276,9 +1416,9 @@ class Bitsch2015Model(object):
 
         if self._peb_acc:
             self._peb_acc.set_disc(disc)
-        
-        if self._pl_acc:
-            self._pl_acc.set_disc(disc)
+
+        if self._pla_acc:
+            self._pla_acc.set_disc(disc)
 
         if self._migrate:
             self._migrate.set_disc(disc)
@@ -1291,25 +1431,137 @@ class Bitsch2015Model(object):
             self._gas_acc.update()
         if self._peb_acc:
             self._peb_acc.update()
-        if self._pl_acc:
-            self._pl_acc.update()
+        if self._pla_acc:
+            self._pla_acc.update()
         if self._migrate:
             self._migrate.update()
+
+    def M_on_Lorek(self, Rp):
+        """
+        Compute the pebble accretion onset mass (Lorek et al 2022).
+
+        Rp: Protoplanet location (in AU)
+
+        return: Pebble accretion onset mass (in Earth masses)
+        """
+
+        disc = self._disc
+
+        Mstar = disc.star.M
+        Lstar = disc.star.L
+        v_frag = disc._uf_0 * (AU * Omega0)
+        alpha = disc.alpha
+        cs = disc.interp(Rp, disc.cs) * (AU * Omega0)
+        epsilon_g = 0.5
+        d2g = disc.interp(Rp, disc.integ_dust_frac)
+        Omega_k = disc.star.Omega_k(Rp) * Omega0
+        rho_g = disc.interp(Rp, disc.midplane_gas_density)
+        dP = disc.interp(Rp, disc.dP_dR)
+
+        eta = -1 * dP / (2 * Omega_k ** 2 * Rp * AU * rho_g)
+
+        # Fragmentation limited Stokes number
+        tau_s_frag = v_frag ** 2 / (2 * alpha * cs ** 2)
+
+        # Drift limited Stokes number
+        tau_s_drift = 3 * np.sqrt(np.pi) / 4 * epsilon_g * d2g / eta
+
+        tau_s = np.minimum(tau_s_frag, tau_s_drift)
+
+        return 4.871e-7 * (tau_s / 0.01) * Mstar ** (-17/7) * Lstar ** (6/7) * Rp ** (12/7)
+    
+    def M_tr_Lorek(self, Rp):
+        """
+        Compute the pebble accretion transition mass (Lorek et al 2022).
+
+        Rp: Protoplanet location (in AU)
+
+        return: Pebble accretion transition mass (in Earth masses)
+        """
+
+        disc = self._disc
+
+        Mstar = disc.star.M
+        Lstar = disc.star.L
+
+        return 1.125e-4 * Mstar ** (-17/7) * Lstar ** (6/7) * Rp ** (12/7)
+    
+    def M_iso_Lorek(self, Rp):
+        """
+        Compute the pebble isolation mass (Lorek et al 2022).
+
+        Rp: Protoplanet location (in AU)
+
+        return: Pebble isolation mass (in Earth masses)
+        """
+
+        disc = self._disc
+
+        h = disc.interp(Rp, disc.h)
+        alpha = disc.alpha
+        dlnP = Rp * AU / disc.interp(Rp, disc.P) * disc.interp(Rp, disc.dP_dR)
+
+        return 25 * (h / 0.05) ** 3 * (0.34 * (-3 / np.log10(alpha)) ** 4 + 0.66 ) * (1 - (dlnP + 2.5) / 6)
+    
+    def M_birth_embryo(self, Rp):
+        """
+        Computes the streaming instability birth mass of embryos in Earth masses (equation 14 from Liu et al 2020).
+
+        Rp: Protoplanet location (in AU)
+
+        return: Streaming instability birth mass (in Earth masses)
+        """
+
+        disc = self._disc
         
-    def insert_new_planet(self, t, R, planets):
-        """Set the initial mass of the planets
+        rho_g = disc.interp(Rp, disc.midplane_gas_density)
+        Omega_k = disc.star.Omega_k(Rp)
+        Z = disc.dust_frac_SI
+        Mstar = disc.star.M
+        h = disc.interp(Rp, disc.h)
+
+        gamma = 4 * np.pi * G * rho_g / (Omega_k ** 2) * (AU ** 3 / Msun) # self gravity term
+
+        M_birth_pltsml = 5e-6 * (Z / 0.02) ** 0.5 * (gamma * np.pi) ** 1.5 * (h / 0.05) ** 3 * (Mstar / 0.1)
+
+        return self._f_plt * M_birth_pltsml
+    
+    def insert_new_planet(self, t, R, M, planets):
+        """
+        Set the initial mass of the planets.
 
         args:
             t : current time
             R : AU, formation locations
+            M : initial mass of the planet
             planets : planets object to add planets to
         """
-        M0 = self._peb_acc.M_transition(R)
 
-        Mc, Me = M0 * (1-self._f_gas), M0*self._f_gas
+        self._use_SI = str(M).upper() == 'SI'
+        self._use_PA = str(M).upper() == 'PA'
+        self._use_TR = str(M).upper() == 'TR'
+
+        # Set initial core mass
+
+        if self._use_SI:
+            Mc = self.M_birth_embryo(R)
+
+        elif self._use_PA:
+            Mc = self.M_on_Lorek(R)
+
+        elif self._use_TR:
+            Mc = self.M_tr_Lorek(R)
+
+        else:
+            Mc = M
+
+        Me = 0.0
+
+        # Set initial chemistry
 
         if planets.chem:
-            Xs, Xg, _ = self._compute_chem(R) #### consider adding planetesimal chemistry to initial planets
+            Xs, Xg = self._compute_chem(R)
+
         else:
             Xs, Xg = None, None
             
@@ -1321,7 +1573,6 @@ class Bitsch2015Model(object):
         
         Xs = []
         Xg = []
-        Xs_pla = []
 
         eps_dust = np.maximum(disc.interp(R_p, disc.dust_frac[:2].sum(0)), 1e-300)
 
@@ -1330,52 +1581,134 @@ class Bitsch2015Model(object):
             Xs.append(disc.interp(R_p, Xs_i) / eps_dust)
             Xg.append(disc.interp(R_p, Xg_i))
 
-            if self._pl_acc:
-                Xs_pla.append(disc.interp(R_p, disc._planetesimal.ice_abund[spec]) / np.maximum(disc.interp(R_p, disc.dust_frac[2]), 1e-300))
-            else:
-                Xs_pla = np.zeros_like(Xs)
+        return np.array(Xs), np.array(Xg)
 
-        return np.array(Xs), np.array(Xg), np.array(Xs_pla)
+    def _compute_chem_planetesimal(self, R_p):
+        disc = self._disc
+        chem = disc.chem
+
+        Xs_pla = []
+
+        for spec in chem:
+            if self._pla_acc:
+                Xs_pla.append(disc.interp(R_p, disc._planetesimal.ice_abund[spec]) / np.maximum(disc.interp(R_p, disc.dust_frac[2]), 1e-300))
+
+            else:
+                Xs_pla = np.zeros_like(R_p)
+
+        return np.array(Xs_pla)
+
+    def _growth_rates(self, R_p, M_core, M_env, M_Z, M_HHe):
+        """
+        Compute every term of the planet growth/migration ODE at a given state, and the masks that decide which terms are actually active.
+
+        args:
+            R_p, M_core, M_env : planet state (AU, Mearth, Mearth)
+            M_Z, M_HHe         : heavy-element / H-He mass, for the planetesimal accretion phase switch
+
+        returns:
+            Rdot                        : migration rate [AU / code time]
+            Mdot_gas                    : gas envelope accretion rate
+            Mdot_pebble_core            : pebble accretion rate landing on the core
+            Mdot_pebble_env             : pebble accretion rate landing on the envelope
+            Mdot_planetesimal_insitu    : Fortier et al 2013 rate, active where it exceeds the migration rate
+            Mdot_planetesimal_migration : rate accreted while migrating, active where it exceeds the in-situ rate
+            f_pla                       : fraction of planetesimal accretion assigned to the envelope
+            Mcdot, Medot                : totals actually integrated into M_core, M_env
+        """
+
+        Rmin = self._disc.R[0]
+
+        # Migration
+        Rdot = np.zeros_like(R_p)
+
+        if self._migrate:
+            Rdot = self._migrate.migration_rate(R_p, M_core + M_env)
+
+        # Gas accretion
+        Mdot_gas = np.zeros_like(R_p)
+
+        if self._gas_acc:
+            Mdot_gas = self._gas_acc.computeMdot(R_p, M_core, M_env)
+
+        # Pebble accretion
+        f = self._f_gas # fraction of pebble accretion assigned to the envelope
+        Mdot_pebble_core = np.zeros_like(R_p)
+        Mdot_pebble_env  = np.zeros_like(R_p)
+
+        if self._peb_acc:
+            Mdot_pebble = self._peb_acc.computeMdot(R_p, M_core + M_env)
+            Mdot_pebble_core = Mdot_pebble * (1 - f)
+            Mdot_pebble_env  = Mdot_pebble * f
+
+        # Planetesimal accretion
+        Mdot_planetesimal_insitu    = np.zeros_like(R_p)
+        Mdot_planetesimal_migration = np.zeros_like(R_p)
+        f_pla = np.where(M_env >= 1.0, 1.0, 0.0) # fraction of planetesimal accretion assigned to the envelope
+        use_migration = np.zeros_like(R_p, dtype = bool)
+
+        if self._pla_acc:
+            Mdot_insitu = np.zeros_like(R_p)
+            if self._pla_acc._Mdot_insitu:
+                Mdot_insitu = self._pla_acc.computeMdotFortier(R_p, M_core + M_env)
+
+            Mdot_migration = np.zeros_like(R_p)
+            if self._pla_acc._Mdot_migrate:
+                Mdot_migration = self._pla_acc.computeMdotMigration(R_p, M_core + M_env, Rdot, M_Z = M_Z, M_HHe = M_HHe)
+
+            # Only use the planetesimal accretion channel that is larger for each planet
+            use_migration = Mdot_migration > Mdot_insitu
+
+            Mdot_planetesimal_insitu    = np.where(~use_migration, Mdot_insitu, 0.0)
+            Mdot_planetesimal_migration = np.where(use_migration, Mdot_migration, 0.0)
+
+        # Planets that have migrated to the disc's inner edge stop growing
+        accreted = R_p <= Rmin
+        Rdot                        = np.where(accreted, 0, Rdot)
+        Mdot_gas                    = np.where(accreted, 0, Mdot_gas)
+        Mdot_pebble_core            = np.where(accreted, 0, Mdot_pebble_core)
+        Mdot_pebble_env             = np.where(accreted, 0, Mdot_pebble_env)
+        Mdot_planetesimal_insitu    = np.where(accreted, 0, Mdot_planetesimal_insitu)
+        Mdot_planetesimal_migration = np.where(accreted, 0, Mdot_planetesimal_migration)
+
+        Mdot_planetesimal = Mdot_planetesimal_insitu + Mdot_planetesimal_migration
+
+        Mcdot = Mdot_pebble_core + Mdot_planetesimal * (1 - f_pla)
+        Medot = Mdot_gas + Mdot_pebble_env + Mdot_planetesimal * f_pla
+
+        return {
+            "Rdot": Rdot,
+            "Mdot_gas": Mdot_gas,
+            "Mdot_pebble_core": Mdot_pebble_core,
+            "Mdot_pebble_env": Mdot_pebble_env,
+            "Mdot_planetesimal_insitu": Mdot_planetesimal_insitu,
+            "Mdot_planetesimal_migration": Mdot_planetesimal_migration,
+            "f_pla": f_pla,
+            "Mcdot": Mcdot,
+            "Medot": Medot}
 
     def integrate(self, dt, planets):
-        """Update the planet masses and radii.
+        """
+        Update the planet masses and radii.
 
         args:
             dt      : Time to integrate for
             planets : Planets container
         """
-        if planets.N == 0: return
+
+        if planets.N == 0:
+            return
+
         self.update()
-        
-        chem = False
-        if planets.chem:
-            chem=True
 
-        f = self._f_gas
-        def dMdt(R_p, M_core, M_env):
-            Mdot_g = np.zeros_like(R_p)
-            if self._gas_acc:
-                Mdot_g = self._gas_acc.computeMdot(R_p, M_core, M_env)
-
-            Mdot_s = np.zeros_like(R_p)
-            if self._peb_acc:
-                Mdot_s = self._peb_acc.computeMdot(R_p, M_core + M_env)
-                #planets.Mdot += Mdot_s
-
-            return Mdot_s*(1-f), Mdot_g + Mdot_s*f
-
-        def dRdt(R_p, M_core, M_env):
-            if self._migrate:
-                return self._migrate.migration_rate(R_p, M_core + M_env)
-            else:
-                return np.zeros_like(R_p)
+        chem = planets.chem
 
         N = planets.N
-        Rmin = self._disc.R[0]
+
         def f_integ(_, y):
             R_p    = y[   :  N]
-            M_core = np.where(y[N  :2*N]<0, 0, y[N  :2*N])
-            M_env  = np.where(y[2*N:3*N]<0, 0, y[2*N:3*N]) # Avoid negative envelope masses
+            M_core = np.where(y[N  :2*N] < 0, 0, y[N  :2*N])
+            M_env  = np.where(y[2*N:3*N] < 0, 0, y[2*N:3*N]) # avoid negative envelope masses
 
             # Extract M_Z and M_HHe for phase switch
             if chem:
@@ -1384,73 +1717,70 @@ class Bitsch2015Model(object):
                 Chem_env = y[3*N + Nspec*N : 3*N + 2*Nspec*N].reshape(Nspec, N)
                 M_Z = Chem_core.sum(0) + Chem_env.sum(0)
                 M_HHe = M_core + M_env - M_Z
+
             else:
                 M_Z = M_core
                 M_HHe = M_env
 
-            Rdot = dRdt(R_p, M_core, M_env)
+            rates = self._growth_rates(R_p, M_core, M_env, M_Z, M_HHe)
 
-            Mcdot = np.zeros_like(Rdot)
-            Medot = np.zeros_like(Rdot)
-
-            Mcdot, Medot = dMdt(R_p, M_core, M_env)
-
-            # Compute the mass accretion rate due to planetesimal accretion
-            Mdot_pla = np.zeros_like(Mcdot)
-            if self._pl_acc:
-                Mdot_pla = self._pl_acc.computeMdot(R_p, M_core, Rdot, M_Z=M_Z, M_HHe=M_HHe)
-
-            # Compute planetesimal partitioning fraction based on envelope mass
-            # All planetesimals go to core if M_env < 1 M_earth, to envelope if M_env >= 1 M_earth
-            f_pla = np.where(M_env >= 1.0, 1.0, 0.0)
-
-            accreted = R_p <= Rmin
-            Rdot[accreted] = Mcdot[accreted] = Medot[accreted] = 0
-            
             dydt = np.empty_like(y)
-            dydt[:N]    = Rdot
-            dydt[N:2*N]  = Mcdot + Mdot_pla*(1-f_pla)
-            dydt[2*N:3*N] = Medot + Mdot_pla*f_pla
+            dydt[:N]      = rates["Rdot"]
+            dydt[N:2*N]   = rates["Mcdot"]
+            dydt[2*N:3*N] = rates["Medot"]
 
             if chem:
-                Xs, Xg, Xs_pla =  self._compute_chem(R_p)
-
-                Ms = Mcdot * f / (1-f)
-                Mg = np.maximum(Medot - Ms, 0)
+                Xs, Xg = self._compute_chem(R_p)
+                Xs_pla = self._compute_chem_planetesimal(R_p)
                 Nspec = Xs.shape[0]
 
-                dydt[ 3       *N:(3+  Nspec)*N] = (Mcdot*Xs + Mdot_pla*(1-f_pla)*Xs_pla).ravel()
-                dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (Ms*Xs + Mg*Xg + Mdot_pla*f_pla*Xs_pla).ravel()
-            
+                Mdot_planetesimal = rates["Mdot_planetesimal_insitu"] + rates["Mdot_planetesimal_migration"]
+                f_pla = rates["f_pla"]
+                Mg = np.maximum(rates["Mdot_gas"], 0)
+
+                dydt[ 3       *N:(3+  Nspec)*N] = (rates["Mdot_pebble_core"] * Xs + Mdot_planetesimal * (1 - f_pla) * Xs_pla).ravel()
+                dydt[(3+Nspec)*N:(3+2*Nspec)*N] = (rates["Mdot_pebble_env"] * Xs + Mg * Xg + Mdot_planetesimal * f_pla * Xs_pla).ravel()
+
             return dydt
-            
-        integ = ode(f_integ).set_integrator('dopri5', rtol=1e-5, atol=1e-5)
+
+        integ = ode(f_integ).set_integrator('dopri5', rtol = 1e-5, atol = 1e-5)
 
         if chem:
             Chem_core = (planets.M_core * planets.X_core).flat
             Chem_env  = (planets.M_env  * planets.X_env).flat
-            X0 = np.concatenate([planets.R, planets.M_core, planets.M_env,
-                                 Chem_core, Chem_env])
+            X0 = np.concatenate([planets.R, planets.M_core, planets.M_env, Chem_core, Chem_env])
+
         else:
             X0 = np.concatenate([planets.R, planets.M_core, planets.M_env])
+
         integ.set_initial_value(X0, 0)
+
         #print(f"Before integration: R: {planets.R}, M_core: {planets.M_core}, M_env: {planets.M_env}")  # Debugging print
         integ.integrate(dt)
         #print(f"After integration: R: {integ.y[:N]}, M_core: {integ.y[N:2*N]}, M_env: {integ.y[2*N:3*N]}")  # Debugging print
-        # Compute the fraction of the core / envelope that was accreted in
-        # solids
+
+        # Compute the fraction of the core / envelope that was accreted in solids
 
         planets.R = integ.y[:N]
         planets.M_core = integ.y[N:2*N]
         planets.M_env  = integ.y[2*N:3*N]
-        
+
         if chem:
             Ns = np.prod(planets.X_core.shape)
             Xc = integ.y[3*N   :3*N  +Ns].reshape(-1, N)
             Xe = integ.y[3*N+Ns:3*N+2*Ns].reshape(-1, N)
             planets.X_core = Xc / np.maximum(planets.M_core, 1e-300)
-            planets.X_env  = Xe / np.maximum(planets.M_env, 1e-300)           
-        
+            planets.X_env  = Xe / np.maximum(planets.M_env, 1e-300)
+
+            M_Z   = (planets.X_core * planets.M_core).sum(0) + (planets.X_env * planets.M_env).sum(0)
+            M_HHe = planets.M_core + planets.M_env - M_Z
+
+        else:
+            M_Z   = planets.M_core
+            M_HHe = planets.M_env
+
+        # Record the exact rates that produced this step, for diagnostics/output.
+        self.rates = self._growth_rates(planets.R, planets.M_core, planets.M_env, M_Z, M_HHe)
 
     def dump(self, filename, time, planets):
         """Write out the planet info"""
@@ -1506,7 +1836,6 @@ if __name__ == "__main__":
 
     star = SimpleStar()
     
-
     grid = Grid(0.01, 1000, 1000, spacing='log')
     eos = LocallyIsothermalEOS(star, cs0, q, alpha)
     eos.set_grid(grid)
@@ -1524,10 +1853,9 @@ if __name__ == "__main__":
         eos.update(0, Sigma)
     disc = FixedSizeDust(grid, star, eos, 1e-2, 1, Sigma)
     R = disc.R
-    
-    
-    #######
+
     # Test the migration rate calculation
+
     migI  = TypeIMigration(disc)
     migII = TypeIIMigration(disc)
 
@@ -1563,21 +1891,19 @@ if __name__ == "__main__":
         plt.loglog(Rp, -Rp/migII(planets)/t0, c=l.get_color(), ls=':')
     plt.xlabel('$R\,[AU]$')
     plt.ylabel('$t_\mathrm{mig}\,[yr]$')
-    #######
+
     # Test the growth models
-    
+
     # Set up some planet mass / envelope ratios
-    #M_p = planets.M
+    M_p = planets.M
     planets.M_core = np.minimum(20, 0.9*M_p)
     planets.M_env  = M_p - planets.M_core
 
-    
     #Sigma = 1700 * R**-1.5
     Rp = [0.5, 5., 50.]
     
     PebAcc = PebbleAccretion(disc)
     GasAcc = GasAccretion(disc)
-
 
     plt.figure()
     for Ri in Rp:
@@ -1590,6 +1916,7 @@ if __name__ == "__main__":
     plt.ylabel('$t_\mathrm{grow}\,[yr]$')
 
     # Growth tracks
+
     plt.figure()
 
     planet_model = Bitsch2015Model(disc, pb_gas_f=0.0)
@@ -1599,7 +1926,7 @@ if __name__ == "__main__":
 
     planets = Planets()
     for Ri in Rp:
-        planet_model.insert_new_planet(0, Ri, planets)
+        planet_model.insert_new_planet(0, Ri, M_p, planets)
 
     print(planets.R)
     print(planets.M_core)
@@ -1633,4 +1960,3 @@ if __name__ == "__main__":
     
     plt.xlabel('$t\,[yr]$')
     plt.show()
-

@@ -291,9 +291,14 @@ def build_planetesimals(disc, planetesimal_params):
         disc._planetesimal = PlanetesimalFormation(
             disc,
             d_planetesimal=planetesimal_params['diameter'],
+            rho_pltsml=planetesimal_params['rho_pltsml'],
             St_min=planetesimal_params['St_min'],
             St_max=planetesimal_params['St_max'],
             pla_eff=planetesimal_params['pla_eff'],
+            drag=planetesimal_params['drag'],
+            VS_embryo=planetesimal_params['VS_embryo'],
+            VS_pltsml=planetesimal_params['VS_pltsml'],
+            DF=planetesimal_params['DF'],
         )
 
 
@@ -324,8 +329,11 @@ def build_planets(disc, planet_params, chemistry_params, wind_params):
         migrate=planet_params["migrate"],
         pebble_acc=planet_params["pebble_accretion"],
         gas_acc=planet_params["gas_accretion"],
-        planetesimal_acc=planet_params["planetesimal_accretion"],
+        planetesimal_acc_migrate=planet_params["planetesimal_accretion_migrate"],
+        planetesimal_acc_insitu=planet_params["planetesimal_accretion_insitu"],
         winds=wind_params["on"],
+        rho_core=planet_params["rho_core"],   # optional; defaults to 5.5
+        f_plt=planet_params["f_plt"],   # optional; defaults to 400, unused unless you use "SI" masses
     )
     planet_model.set_disc(disc)
 
@@ -600,12 +608,12 @@ def run_model(config, cli_output_dir=None):
     chemistry, Natom, Nmol = build_chemistry(disc, chemistry_params, disc_params["d2g"],
                                               grid_params["nr"])
 
-    # ---- 6. planetesimals ----
-    build_planetesimals(disc, planetesimal_params)
-
-    # ---- 7. planets ----
+    # ---- 6. planets ----
     planets, planet_model = build_planets(disc, planet_params, chemistry_params, wind_params)
     nplanets = len(planet_params["Mp"])
+
+    # ---- 7. planetesimals ----
+    build_planetesimals(disc, planetesimal_params)
 
     # ---- 8. output file (path already computed in the skip-check above) ----
     h5f, groups = create_output_file(outfile, grid, config, Natom, Nmol, alpha_SS)

@@ -115,6 +115,11 @@ class AccretionDisc(object):
         return self.midplane_gas_density * self.cs**2
 
     @property
+    def dP_dR(self):
+        """Compute the radial pressure gradient"""
+        return np.gradient(self.P, self.R * AU)
+
+    @property
     def midplane_gas_density(self):
         return self.Sigma_G / (np.sqrt(2*np.pi) * self.H * AU)
 
